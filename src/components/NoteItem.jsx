@@ -16,7 +16,7 @@ const NoteItem = ({ note, onDelete, onEdit }) => {
         </button>
         <button
           onClick={() => onDelete(note.id)}
-          className="px-4 py-1 rounded-full text-sm font-semibold bg-red-600 text-white"
+          className="px-4 py-1 rounded-full text-sm font-semibold bg-red-600 text-black"
         >
           Hapus
         </button>
