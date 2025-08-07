@@ -1,7 +1,7 @@
 import { useState } from "react";
 import TabelForm from "../components/TabelForm";
 import TabelFilter from "../components/TabelFilter";
-import TabelList from "../components/TableList";
+import TabelList from "../components/TabelList";
 
 export default function Tabels() {
     const [items, setItems] = useState([]);
@@ -9,11 +9,23 @@ export default function Tabels() {
     const [filterField, setFilterField] = useState('nama');
     const [sortBy, setSortBy] = useState('id');
     const [sortOrder, setSortOrder] = useState('asc');
+    const [editingItem, setEditingItem] = useState(null); // ✅
 
     const addItem = (newItem) => {
         const newId = items.length > 0 ? Math.max(...items.map(i => i.id)) + 1 : 1;
         setItems([{...newItem, id: newId }, ...items]);
-        };
+    };
+
+    const updateItem = (updatedItem) => {
+        setItems(items.map(item => item.id === updatedItem.id ? updatedItem : item));
+        setEditingItem(null);
+    };
+
+    const deleteItem = (id) => {
+        if (confirm("Yakin ingin menghapus item ini?")) {
+            setItems(items.filter(item => item.id !== id));
+        }
+    };
 
     const handleSort = (key) => {
         if (key === sortBy) {
@@ -25,8 +37,9 @@ export default function Tabels() {
     };
 
     const filteredItems = items.filter((item) => {
-        const value = item[filterField]?.toString().toLowercase();
-        return value?.includes(filter.toLocaleLowerCase());
+        const value = item[filterField];
+        if (!value) return false;
+        return value.toString().toLowerCase().includes(filter.toLowerCase());
     });
 
     const sortedItems = [...filteredItems].sort((a, b) => {
@@ -36,15 +49,19 @@ export default function Tabels() {
             return sortOrder === 'asc' ? aValue - bValue : bValue - aValue;
         } else {
             return sortOrder === 'asc'
-            ?aValue.localeCompare(bValue)
-            :bValue.localeCompare(aValue);
+                ? aValue.localeCompare(bValue)
+                : bValue.localeCompare(aValue);
         }
-    })
+    });
 
     return (
         <div className="max-w-5xl mx-auto p-4">
             <h1 className="text-2xl font-bold mb-4">Data Barang</h1>
-            <TabelForm onAdd={addItem} />
+            <TabelForm 
+                onAdd={addItem} 
+                onUpdate={updateItem} 
+                editingItem={editingItem} 
+            />
             <TabelFilter 
                 filter={filter}
                 onFilterChange={setFilter}
@@ -52,11 +69,13 @@ export default function Tabels() {
                 onFieldChange={setFilterField}
             />
             <TabelList
-            items={sortedItems}
-            onSort={handleSort}
-            sortBy={sortBy}
-            sortOrder={sortOrder}
+                items={sortedItems}
+                onSort={handleSort}
+                sortBy={sortBy}
+                sortOrder={sortOrder}
+                onEdit={setEditingItem}
+                onDelete={deleteItem}
             />
         </div>
     );
-}; 
+}

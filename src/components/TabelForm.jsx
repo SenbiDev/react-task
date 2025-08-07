@@ -1,22 +1,44 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-export default function TabelForm({ onAdd }) {
+export default function TabelForm({ onAdd, onUpdate, editingItem }) {
     const [nama, setNama] = useState('');
     const [kategori, setKategori] = useState('');
-    const [harga, setharga] = useState('');
+    const [harga, setHarga] = useState('');
     const [tanggal, setTanggal] = useState('');
+    const [error, setError] = useState(false);
+
+    useEffect(() => {
+        if (editingItem) {
+            setNama(editingItem.nama);
+            setKategori(editingItem.kategori);
+            setHarga(editingItem.harga);
+            setTanggal(editingItem.tanggal);
+        } else {
+            setNama('');
+            setKategori('');
+            setHarga('');
+            setTanggal('');
+        }
+    }, [editingItem]);
 
     const handleSubmit = (e) => {
         e.preventDefault();
         if (!nama || !kategori || !harga || !tanggal) {
-            alert('Semua kolom wajib diisi');
+            setError(true);
             return;
         }
 
-        onAdd({nama, kategori, harga:parseFloat(harga), tanggal});
+        const newItem = { nama, kategori, harga: parseFloat(harga), tanggal };
+
+        if (editingItem) {
+            onUpdate({ ...newItem, id: editingItem.id });
+        } else {
+            onAdd(newItem);
+        }
+
         setNama('');
         setKategori('');
-        setharga('');
+        setHarga('');
         setTanggal('');
         setError(false);
     };
@@ -41,7 +63,7 @@ export default function TabelForm({ onAdd }) {
                 <input
                     type="number"
                     value={harga}
-                    onChange={(e) => setharga(e.target.value)}
+                    onChange={(e) => setHarga(e.target.value)}
                     placeholder="Harga"
                     className={`border p-2 rounded ${error && !harga ? 'border-red-500' : 'border-gray-300'}`}
                 />
@@ -49,15 +71,14 @@ export default function TabelForm({ onAdd }) {
                     type="date"
                     value={tanggal}
                     onChange={(e) => setTanggal(e.target.value)}
-                    placeholder="Tanggal"
                     className={`border p-2 rounded ${error && !tanggal ? 'border-red-500' : 'border-gray-300'}`}
                 />
             </div>
             <button
                 type="submit"
-                className="mt-4 !bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"    
+                className="mt-4 !bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
             >
-                Simpan
+                {editingItem ? "Perbarui" : "Simpan"}
             </button>
         </form>
     );
