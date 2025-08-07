@@ -10,13 +10,13 @@ const NoteItem = ({ note, onDelete, onEdit }) => {
       <div className="flex justify-end mt-4 gap-2">
         <button
           onClick={() => onEdit(note)}
-          className="px-4 py-1 rounded-full text-sm font-semibold bg-yellow-500 text-black"
+          className="px-4 py-1 rounded-full text-sm font-semibold !bg-yellow-500 text-black"
         >
           Edit
         </button>
         <button
           onClick={() => onDelete(note.id)}
-          className="px-4 py-1 rounded-full text-sm font-semibold bg-red-600 text-black"
+          className="px-4 py-1 rounded-full text-sm font-semibold !bg-red-600 text-black"
         >
           Hapus
         </button>

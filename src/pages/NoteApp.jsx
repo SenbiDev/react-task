@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import Navbar from './Navbar';
-import NoteForm from './NoteForm';
-import NoteList from './NoteList';
-import Footer from './Footer';
+import Navbar from '../components/Navbar';
+import NoteForm from '../components/NoteForm';
+import NoteList from '../components/NoteList';
+import Footer from '../components/Footer';
 
 const NoteApp = () => {
   const [notes, setNotes] = useState([]);
@@ -29,7 +29,6 @@ const NoteApp = () => {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Navbar />
       <main className="flex-grow container mx-auto p-6">
         <NoteForm
           addNote={addNote}

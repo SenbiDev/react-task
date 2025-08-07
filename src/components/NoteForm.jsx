@@ -46,7 +46,7 @@ const NoteForm = ({ addNote, editNote, updateNote }) => {
       ></textarea>
       <button
         type="submit"
-        className="bg-[#5A38EE] hover:bg-[#472cd0] px-6 py-2 rounded-full font-bold"
+        className="!bg-[#5A38EE] hover:bg-[#472cd0] px-6 py-2 rounded-full font-bold"
       >
         {editNote ? 'Update' : 'Tambah'}
       </button>
