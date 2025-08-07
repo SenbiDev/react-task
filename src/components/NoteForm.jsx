@@ -57,7 +57,7 @@ export default function NoteForm({ onSave, note }) {
       </div>
       <button
         type="submit"
-        className="bg-blue-600 text-black px-4 py-1 rounded hover:bg-blue-700 transition"
+        className="!bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700 transition"
       >
         {note && note.id ? 'Simpan' : 'Tambah Catatan'}
       </button>

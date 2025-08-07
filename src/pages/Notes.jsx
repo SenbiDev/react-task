@@ -41,7 +41,7 @@ export default function Notes() {
         note={editingNote}
       />
       <div className="mt-4 space-y-4">
-        {notes.length === 0 && <p className="text-gray-600">Belum ada catatan.</p>}
+        {notes.length === 0 && <p className="text-white">Belum ada catatan.</p>}
         {notes.map((note) => (
           <NoteItem
             key={note.id}
