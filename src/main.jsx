@@ -4,6 +4,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import App from './App'
 import Home from './pages/Home'
 import About from './pages/About'
+import NoteTableApp from './pages/NoteTableApp'
 import './index.css'
 
 const router = createBrowserRouter([
@@ -18,6 +19,10 @@ const router = createBrowserRouter([
       {
         path: "about",
         element: <About />
+      },
+      {
+        path: "table",
+        element: <NoteTableApp />
       }
     ]
   }
