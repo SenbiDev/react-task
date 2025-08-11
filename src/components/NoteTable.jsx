@@ -3,7 +3,7 @@ import React from 'react';
 const NoteTable = ({ notes, onDelete, onEdit }) => {
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-left text-black">
+      <table className="w-full text-left !text-white">
         <thead>
           <tr className="bg-[#333]">
             <th className="p-3">ID</th>
@@ -16,7 +16,7 @@ const NoteTable = ({ notes, onDelete, onEdit }) => {
         </thead>
         <tbody>
           {notes.map((note) => (
-            <tr key={note.id} className="border-b border-[#444]">
+            <tr key={note.id} className="border-b border-[#444] !text-white">
               <td className="p-3">{note.id}</td>
               <td className="p-3">{note.nama}</td>
               <td className="p-3">{note.category}</td>

@@ -14,6 +14,9 @@ const TableFilter = ({ setFilterKeyword, setSortBy }) => {
         className="p-3 rounded bg-[#2A2A2A] text-white w-full md:w-1/2"
       >
         <option value="">Urutkan...</option>
+        <option value="">ID</option>
+        <option value="date">Kategori</option>
+        <option value="date">Nama</option>
         <option value="price">Harga</option>
         <option value="date">Tanggal</option>
       </select>
