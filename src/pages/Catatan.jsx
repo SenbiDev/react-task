@@ -1,47 +1,61 @@
 import { useState } from "react";
-import Header from "../components/Header";
-import Navigation from "../components/Navigation";
 import Home from "../components/Home";
-import Hapus from "../components/Hapus";
+import BuatCatatan from "../components/BuatCatatan";
 
-const Catatan = () => {
-    const [notes, setNotes] = useState([]);
-
-    const[showconfirm, setShowConfirm] = useState(false);
-    const[toDelete, setToDelete] = useState(null);
-
-    const requestDelete = (id) => {
-        setToDelete(id);
-        setShowConfirm(true);
-    };
-
-    const confirmDelete = () => {
-        setNotes((prev) => prev.filter((n) => n.id !== toDelete));
-        setToDelete(null);
-        setShowConfirm(false);
-    };
+export default function Catatan() {
+    const [notes, setNotes]=useState([]);
+    const [editid, setEditid]=useState(null);
+    const [title, setTitle]=useState("")
+    const [content, setContent]=useState("")
     
-    return(
-        <div className="bg-gray-100 min-h-screen">
-            <Header/>
-            <Navigation/>
-            <main className="p-6 grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-                {notes.map((note) => (
-                    <Home
-                    key={note.id}
-                    tittle={note.tittle}
-                    content={note.content}
-                    onDelete={() => requestDelete.note.id}
-                    />
-                ))}
-            </main>
-            <Hapus
-                showconfirm={showconfirm}
-                onCancel={() => setShowConfirm(false)}
-                onConfirm={confirmDelete}
-            />
-        </div>
-    );
-};
+    const addNote = (noteData) => {
+        if (editid) {
+            setNotes(notes.map((note) =>
+                note.id === edit ? { ...noteData} : note
+        ));
+        setEditid(null);
+        } else {
+            setNotes ([...notes, { id : Date.now(), judul : noteData.title}]);
+        }
+        // ([...notes, { id : Date.now(), {title : nilai, content : nilai} }])
+    };
 
-export default Catatan;
+    const deleteNote = (id) => {
+        if(window.confirm("Yakin ingin mengahapus catatan ini?")) {
+            setNotes(notes.filter((note) => note.id !== id));
+        }
+    };
+
+    const editNote = (note) => {
+        setEditid(note.id);
+    }
+
+    const handleEdit = (note) => {
+        setTitle(note.title);
+        setContent(note.content);
+        setEditid(note.id);
+    };
+
+  return (
+    <div className="min-h-screen bg-gray-700 p-6">
+      <h1 className="text-2xl font-bold mb-4">Catatan</h1>
+
+      <BuatCatatan addNote={addNote} handleEdit={handleEdit} deleteNote={deleteNote} editNote={editNote}/>
+
+      {notes.length > 0 ? (
+        <ul className="space-y-2">
+          {notes.map((note, index) => (
+            <Home
+              key={index}
+              note={note}
+              onEdit={handleEdit}
+              onDelete={deleteNote}
+            />
+          ))}
+        </ul>
+      ) : (
+        <p className="text-gray-500">Belum ada catatan.</p>
+      )}
+    </div>
+  );
+}
