@@ -8,7 +8,6 @@ const TableFilter = ({ setFilterField, setFilterValue, setSortBy }) => {
         className="p-3 rounded bg-[#2A2A2A] text-white w-full md:w-1/4"
       >
         <option value="">Pilih Kolom Filter</option>
-        <option value="id">ID</option>
         <option value="nama">Nama</option>
         <option value="category">Kategori</option>
         <option value="price">Harga</option>
