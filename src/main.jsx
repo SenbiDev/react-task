@@ -6,8 +6,6 @@ import Home from './pages/Home'
 import About from './pages/About'
 import './index.css'
 import Catatan from './pages/Catatan';
-import CreateCatatan from './pages/CreateCatatan';
-import UpdateCatatan from './pages/UpdateCatatan';
 
 const router = createBrowserRouter([
   {
@@ -25,14 +23,6 @@ const router = createBrowserRouter([
       {
         path: "catatan",
         element: <Catatan />
-      },
-      {
-        path: "createcatatan",
-        element: <CreateCatatan />
-      },
-      {
-        path: "updatecatatan",
-        element: <UpdateCatatan />
       },
     ]
   }

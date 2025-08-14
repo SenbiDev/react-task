@@ -1,7 +1,8 @@
 export default function Home({ note, onEdit, onDelete }) {
   return (
     <li className="flex justify-between items-center bg-white p-3 rounded shadow">
-      <span className="text-black font-bold">{note.judul}</span>
+      <h2 className="text-black font-bold">{note.title}</h2>
+      <p className="text-black font-semibold">{note.content}</p>
       <div className="space-x-2">
         <button
           onClick={() => onEdit(note)}

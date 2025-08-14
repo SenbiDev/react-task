@@ -4,19 +4,22 @@ import BuatCatatan from "../components/BuatCatatan";
 
 export default function Catatan() {
     const [notes, setNotes]=useState([]);
-    const [editid, setEditid]=useState(null);
-    const [title, setTitle]=useState("")
-    const [content, setContent]=useState("")
+    const [editNote, setEditNote]=useState(null);
     
     const addNote = (noteData) => {
-        if (editid) {
-            setNotes(notes.map((note) =>
-                note.id === edit ? { ...noteData} : note
-        ));
-        setEditid(null);
+        if (editNote) {
+            setNotes(
+                notes.map((note) =>
+                note.id === editNote.id ? { ...note, ...noteData} : note
+            )
+        );
+        setEditNote(null);
         } else {
-            setNotes ([...notes, { id : Date.now(), judul : noteData.title}]);
+            setNotes ([
+                ...notes,{ id : Date.now(), title : noteData.title, content : noteData.content },
+            ]);
         }
+        setEditNote(null);
         // ([...notes, { id : Date.now(), {title : nilai, content : nilai} }])
     };
 
@@ -26,21 +29,22 @@ export default function Catatan() {
         }
     };
 
-    const editNote = (note) => {
-        setEditid(note.id);
+    const handleEdit = (note) => {
+        setEditNote(note);
     }
 
-    const handleEdit = (note) => {
-        setTitle(note.title);
-        setContent(note.content);
-        setEditid(note.id);
+    const updateNote = (updateData) => {
+        setNotes(notes.map(note =>
+            note.id === updateData.id ? updateData : note
+        ));
+        setEditNote(null);
     };
 
   return (
     <div className="min-h-screen bg-gray-700 p-6">
       <h1 className="text-2xl font-bold mb-4">Catatan</h1>
 
-      <BuatCatatan addNote={addNote} handleEdit={handleEdit} deleteNote={deleteNote} editNote={editNote}/>
+      <BuatCatatan addNote={addNote} deleteNote={deleteNote} editNote={editNote} updateNote={updateNote}/>
 
       {notes.length > 0 ? (
         <ul className="space-y-2">
@@ -50,6 +54,8 @@ export default function Catatan() {
               note={note}
               onEdit={handleEdit}
               onDelete={deleteNote}
+              updateData={updateNote}
+            
             />
           ))}
         </ul>
