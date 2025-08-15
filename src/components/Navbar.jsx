@@ -10,6 +10,9 @@ export default function Navbar() {
         <Link to="/about" className="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium">
           About
         </Link>
+        <Link to="/data" className="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium">
+          Data
+        </Link>
       </div>
     </nav>
   );
