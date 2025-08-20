@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { postItems, getAllItems, puttItems, deleteItems } from "./../../src/api/index"
+import { postItems, getAllItems, putItems, deleteItems } from "./../../src/api/index"
 
 export default function Items() {
     const [items, setItems] = useState([]);
@@ -10,7 +10,7 @@ export default function Items() {
 
     useEffect(() => {
         async function fetchData() {
-            const data = await getAllItems();
+            let data = await getAllItems();
             setItems(data);
         }
         fetchData();
@@ -19,13 +19,13 @@ export default function Items() {
     async function handleSubmit(e) {
         e.preventDefault();
         if (editid) {
-            const updated = await puttItems(editid, {name, description, price});
+            let updated = await putItems(editid, {name, description, price});   // <- disini
             if (updated) {
                 setItems(items.map(item => (item.id === editid ? updated : item)));
                 setEditId(null);
             }
         } else {
-            const newItem = await postItems({ name, description, price });
+            let newItem = await postItems({ name, description, price });
             if (newItem) {
                 setItems([newItem, ...items]);
             }
@@ -36,7 +36,7 @@ export default function Items() {
     }
 
     async function handleDelete(id) {
-        const success = await deleteItems(id);
+        let success = await deleteItems(id);
         if (success) {
             setItems(items.filter(item => item.id !== id));
         }
@@ -50,38 +50,83 @@ export default function Items() {
     }
 
     return (
-        <div className="p-4 max-w-xl mx-auto">
-            <h1>Daftar Items</h1>
-            <form onSubmit={handleSubmit}>
-                <input
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Nama"
-                    required
-                />
-                <input
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    placeholder="Deskripsi"
-                    required
-                />
-                <input
-                    type="number"
-                    value={price}
-                    onChange={(e) => setPrice(e.target.value)}
-                    placeholder="Harga"
-                    required
-                />
-                <button type="submit">{editid ? "Update" : "Tambah"}</button>
-                {editid && <button onClick={() => setEditId(null)}>Batal</button>}
+        <div className="p-6 max-w-2xl mx-auto">
+            <h1 className="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100">
+                Daftar Items
+            </h1>
+            <form
+                onSubmit={handleSubmit}
+                className="mb-6 bg-white dark:bg-gray-800 p-4 rounded-xl shadow"
+            >
+                <div className="grid grid-cols-1 gap-3">
+                    <input
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        placeholder="Nama"
+                        required
+                        className="px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
+                    />
+                    <input
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        placeholder="Deskripsi"
+                        required
+                        className="px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
+                    />
+                    <input
+                        type="number"
+                        value={price}
+                        onChange={(e) => setPrice(e.target.value)}
+                        placeholder="Harga"
+                        required
+                        className="px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
+                    />
+                </div>
+                <div className="flex gap-2 mt-4">
+                    <button
+                        type="submit"
+                        className="px-4 py-2 rounded-lg !bg-blue-600 text-white hover:bg-blue-700 transition"
+                    >
+                        {editid ? "Update" : "Tambah"}
+                    </button>
+                    {editid && (
+                        <button
+                            type="button"
+                            onClick={() => setEditId(null)}
+                            className="px-4 py-2 rounded-lg !bg-gray-400 text-white hover:bg-gray-500 transition"
+                        >
+                            Batal
+                        </button>
+                    )}
+                </div>
             </form>
-
-            <ul>
+            <ul className="space-y-3">
                 {items.map((item) => (
-                    <li key={item.id}>
-                        <b>{item.name}</b> - {item.description} (Rp. {item.price}){""}
-                        <button onClick={() => handleEdit(item)}>Edit</button>
-                        <button onClick={() => handleDelete(item.id)}>Hapus</button>
+                    <li
+                        key={item.id}
+                        className="flex justify-between items-center bg-white dark:bg-gray-800 p-3 rounded-lg shadow"
+                    >
+                        <div>
+                            <b className="text-gray-900 dark:text-gray-100">{item.name}</b>{" "}
+                            - <span className="text-gray-700 dark:text-gray-300">{item.description}</span>{" "}
+                            <span className="text-sm text-gray-500 dark:text-gray-400">
+                                (Rp. {item.price})
+                            </span>
+                        </div>
+                        <div className="flex gap-2">
+                            <button
+                                onClick={() => handleEdit(item)}
+                                className="px-3 py-1 rounded bg-yellow-500 text-white hover:bg-yellow-600 transition"
+                            >
+                                Edit
+                            </button>
+                            <button
+                                onClick={() => handleDelete(item.id)}
+                                className="px-3 py-1 rounded bg-red-600 text-white hover:bg-red-700 transition"
+                            >
+                                Hapus
+                            </button>
+                        </div>
                     </li>
                 ))}
             </ul>

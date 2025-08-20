@@ -8,20 +8,20 @@ async function postItems(newItem) {
     });
 
     if (response.ok) {
-            let items = await response.json();
-            console.log(`Data items ditambahkan. (status: ${response.status} )`);
-            return items;
-        } else {
-            console.log("HTTP-Error: " + response.status)
-            return null;
-        }
+        let items = await response.json();
+        console.log(`Data items ditambahkan. (status: ${response.status} )`);
+        return items;
+    } else {
+        console.log("HTTP-Error: " + response.status);
+        return null;
+    }
 }
 
 async function getAllItems() {
     let url = 'http://127.0.0.1:8000/api/items/';
-    let response = await fetch(url)
+    let response = await fetch(url);
     if (response.ok) {
-        let data = await response.json()
+        let data = await response.json();
         let items = Array.isArray(data) ? data : [data];
         console.log(JSON.stringify(data, null, 2));
         return items;
@@ -31,7 +31,7 @@ async function getAllItems() {
     }
 }
 
-async function puttItems(id, updatedItem) {
+async function putItems(id, updatedItem) {   
     let response = await fetch(`http://127.0.0.1:8000/api/items/${id}/`, {
         method: 'PUT',
         headers: {
@@ -45,8 +45,8 @@ async function puttItems(id, updatedItem) {
         console.log(`Update sukses. (status: ${response.status} )`);
         return items;
     } else {
-        console.log("HTTP-Error: " + response.status)
-        return [];
+        console.log("HTTP-Error: " + response.status);
+        return null;   
     }
 }
 
@@ -59,7 +59,7 @@ async function deleteItems(id) {
         console.log(`Data dihapus. (status: ${response.status} )`);
         return true;
     } else {
-        console.log("HTTP-Error, status: " + response.status)
+        console.log("HTTP-Error, status: " + response.status);
         return false;
     }
 }
@@ -67,6 +67,6 @@ async function deleteItems(id) {
 export {
     postItems,
     getAllItems,
-    puttItems,
+    putItems,    
     deleteItems
 }
