@@ -8,9 +8,11 @@ async function postItems(newItem) {
     });
 
     if (response.ok) {
-        let items = await response.json();
-        console.log(`Data items ditambahkan. (status: ${response.status} )`);
-        return items;
+        let raw = await response.json();
+        console.log("RAW CREATE:", raw);
+        return raw.data ? raw.data : raw;
+        // console.log(`Data items ditambahkan. (status: ${response.status} )`);
+        // return items;
     } else {
         console.log("HTTP-Error: " + response.status);
         return null;
@@ -21,9 +23,29 @@ async function getAllItems() {
     let url = 'http://127.0.0.1:8000/api/items/';
     let response = await fetch(url);
     if (response.ok) {
-        let data = await response.json();
-        let items = Array.isArray(data) ? data : [data];
-        console.log(JSON.stringify(data, null, 2));
+        let raw = await response.json();
+        console.log("RawApi:", raw)
+        let items = [];
+        
+        if (raw.data && Array.isArray(raw.data)) {
+            items = raw.data;
+        }
+        else if (Array.isArray(raw)) {
+            items = raw;
+        }
+        else {
+            items = [raw];
+        }
+
+        console.log("ITEM FIXED:", items);
+        // let items = Array.isArray(data) ? data : [data];
+        // items = items.map(d => ({
+        //     id: d.id,
+        //     name: d.name || d.nama,
+        //     description: d.description || d.deskripsi,
+        //     price: d.price || d.harga
+        // }));
+        // console.log(JSON.stringify(data, null, 2));
         return items;
     } else {
         console.log("HTTP-Error: " + response.status);
@@ -41,9 +63,11 @@ async function putItems(id, updatedItem) {
     });
 
     if (response.ok) {
-        let items = await response.json();
-        console.log(`Update sukses. (status: ${response.status} )`);
-        return items;
+        let raw = await response.json();
+        console.log("RAW UPDATE:", raw)
+        let item = raw.data ? raw.data : raw;
+        // console.log(`Update sukses. (status: ${response.status} )`);
+        return item;
     } else {
         console.log("HTTP-Error: " + response.status);
         return null;   

@@ -11,6 +11,7 @@ export default function Items() {
     useEffect(() => {
         async function fetchData() {
             let data = await getAllItems();
+            console.log("DATA DARI API: ", data)
             setItems(data);
         }
         fetchData();
@@ -19,11 +20,11 @@ export default function Items() {
     async function handleSubmit(e) {
         e.preventDefault();
         if (editid) {
-            let updated = await putItems(editid, {name, description, price});   // <- disini
+            let updated = await putItems(editid, {name, description, price});   
             if (updated) {
                 setItems(items.map(item => (item.id === editid ? updated : item)));
-                setEditId(null);
             }
+            setEditId(null);
         } else {
             let newItem = await postItems({ name, description, price });
             if (newItem) {
@@ -101,34 +102,43 @@ export default function Items() {
                 </div>
             </form>
             <ul className="space-y-3">
-                {items.map((item) => (
-                    <li
-                        key={item.id}
-                        className="flex justify-between items-center bg-white dark:bg-gray-800 p-3 rounded-lg shadow"
-                    >
-                        <div>
-                            <b className="text-gray-900 dark:text-gray-100">{item.name}</b>{" "}
-                            - <span className="text-gray-700 dark:text-gray-300">{item.description}</span>{" "}
-                            <span className="text-sm text-gray-500 dark:text-gray-400">
-                                (Rp. {item.price})
-                            </span>
-                        </div>
-                        <div className="flex gap-2">
-                            <button
-                                onClick={() => handleEdit(item)}
-                                className="px-3 py-1 rounded bg-yellow-500 text-white hover:bg-yellow-600 transition"
-                            >
-                                Edit
-                            </button>
-                            <button
-                                onClick={() => handleDelete(item.id)}
-                                className="px-3 py-1 rounded bg-red-600 text-white hover:bg-red-700 transition"
-                            >
-                                Hapus
-                            </button>
-                        </div>
-                    </li>
-                ))}
+                {items.length === 0 ? (
+                    <li className="text-gray-500 dark:text-gray-400">Tidak ada data.</li>
+                ) : (
+                    items
+                    .slice()
+                    .sort((a, b) => a.id - b.id)
+                    .map((item, index) => (
+                        <li
+                            key={item.id ? `item-${item.id}`:`index-${index}`}
+                            className="flex justify-between items-center bg-white dark:bg-gray-800 p-3 rounded-lg shadow"
+                        >
+                            <div>
+                                <span className="font-bold text-gray-500 dark:text-gray-400 mr-2">
+                                    {index + 1}.</span>
+                                <b className="text-gray-900 dark:text-gray-100">{item.name}</b>{" "}
+                                - <span className="text-gray-700 dark:text-gray-300">{item.description}</span>{" "}
+                                <span className="text-sm text-gray-500 dark:text-gray-400">
+                                    (Rp. {item.price})
+                                </span>
+                            </div>
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={() => handleEdit(item)}
+                                    className="px-3 py-1 rounded bg-yellow-500 text-white hover:bg-yellow-600 transition"
+                                >
+                                    Edit
+                                </button>
+                                <button
+                                    onClick={() => handleDelete(item.id)}
+                                    className="px-3 py-1 rounded bg-red-600 text-white hover:bg-red-700 transition"
+                                >
+                                    Hapus
+                                </button>
+                            </div>
+                        </li>
+                    ))
+                )}
             </ul>
         </div>
     );
