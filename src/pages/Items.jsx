@@ -2,78 +2,85 @@ import React, { useEffect, useState } from "react"
 import { getAllItems, postItems, puttItems, deleteItems } from "../api" 
 
 export default function Items() {
-    const [items, setitems] = useEffect([]);
-    const [form, setFrom] = useState({ id: null, nama: "", description: "", price: ""});
+    const [items, setItems] = useState([]);
+    const [form, setForm] = useState({ id: null, name: "", description: "", price: ""});
+    const [editItem, setEditItem] = useState(null);
     
     useEffect(() => {
-        loadItems();
+    loadItems();
     }, []);
-    
+
     async function loadItems() {
-        const data = await getAllItems();
-        setitems(data);
+    const data = await getAllItems();
+    setItems(data);
     }
 
-    async function handlesumbit(e) {
+    async function handleSumbit(e) {
         e.preventDefault();
-        if (!form.name || !form.description || !form.price ) {
-            const update = await postItems(form, items);
-        } else {
-            await postItems(form);
+        if (form.id === null) {
+            const newItem = await postItems(form);
+            console.log("hasil POST", newItem);
+         
+            setForm({ id: null, name: "", description: "", price: ""});
+            loadItems();
         }
-        setFrom({ id: null, name: "", description: "", price: ""});
-        loadItems(); 
-    }
-
+    };
+    
     async function handleEdit(e) {
         e.preventDefault();
-        const updated = await puttItems(editItmes.id, form, items);
-        setitems(updated);
-        setEditItem(null);
-        setFrom({ name: "", description: "", price: "" });
+        if (!form.id) {
+            console.log("gagal edit");
+            return;
+        } else {
+            const updatedItem = await puttItems(form.id, form);
+            console.log("edit berhasil", updatedItem);
+            setForm({ id: null, name: "", description: "", price: ""});
+            loadItems();
+        }
     }
+    
 
     async function handleDelete(id) {
-        const updated = await deleteItems(id, items);
-        setitems(updated);
+        await deleteItems(id);
+        loadItems(); 
     }
-
+    
     return (
-        <div className="=p-6">
-            <h1 className="text-xl font-bold mb-4>">Items</h1>
+        <div className="p-6">
+            <h1 className="text-xl font-bold mb-4">Items</h1>
 
-            <form onSubmit={editItmes? handleEdit : handlesumbit} className="space-y-3 mb-6">
+            <form onSubmit={editItem? handleEdit : handleSumbit} className="space-y-3 mb-6">
 
             <input 
                 className="border p-2 w-full"
                 type="text"
-                placeholder="Nama"
+                placeholder="Name"
                 value={form.name}
-                onChange={(e) => setFrom({...form, name:e.target.value})}
+                onChange={(e) => setForm({...form, name:e.target.value})}
             />
             <input
                 className="border p-2 w-full"
                 type="text"
                 placeholder="Deskripsi"
                 value={form.description}
-                onChange={(e) => setFrom({...form, description:e.target.value})}
+                onChange={(e) => setForm({...form, description:e.target.value})}
             />
             <input
                 className="border p-2 w-full"
                 type="text"
                 placeholder="Price"
                 value={form.price}
-                onChange={(e) => setFrom({...form, price:e.target.value})}
+                onChange={(e) => setForm({...form, price:e.target.value})}
             />
 
             <button type="sumbit" className="bg-black text-white px-4 py-2 rounded">
-                {editItmes ? "Update" : "Tambah"}
+                {editItem ? "Update" : "Tambah"}
             </button>
             </form>
 
             <table className="w-full border">
                 <thead>
-                    <tr className="bg-gray-200">
+                    <tr className="bg-black">
                         <th className="border px-3 py-1">ID</th>
                         <th className="border px-3 py-1">Nama</th>
                         <th className="border px-3 py-1">Deskripsi</th>
@@ -88,24 +95,24 @@ export default function Items() {
                             <td className="border px-3 py-1">{item.name}</td>
                             <td className="border px-3 py-1">{item.description}</td>
                             <td className="border px-3 py-1">{item.price}</td>
-                            <td className="border px-3 py-1 space-x-2"></td>
+                            <td className="border px-3 py-1 space-x-2">
+
+                                <button className="bg-black text-white px-2 py-1 rounded"
+                                    onClick={() => {
+                                        setEditItem(item);
+                                            setForm({
+                                                name:item.name,
+                                                description:item.description,
+                                                price:item.price
+                                            });
+                                        }}
+                                >Edit</button>
 
                             <button className="bg-black text-white px-2 py-1 rounded"
-                                onClick={() => {
-                                    setEditItem(item);
-                                        setFrom({
-                                            name:item.name,
-                                            description:item.description,
-                                            price:item.price
-                                        })
-                                    }}
-                            >Edit</button>
-
-                           <button className="bg-black text-white px-2 py-1 rounded"
-                                onClick={() => handleDelete(item.id)}>Hapus    
-                            </button>  
-
-                            <td colSpan={5} className="p-4 text-white text-center">Tidak Ada Data</td>       
+                                    onClick={() => handleDelete(item.id)}
+                                    >Hapus    
+                                </button>
+                            </td>         
                         </tr>
                     ))}
                 </tbody>

@@ -1,15 +1,15 @@
-async function postItems(item) {
+async function postItems(data) {
     let response = await fetch('http://127.0.0.1:8000/api/items/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json;charset=utf-8'
         },
-        body: JSON.stringify(item)
+        body: JSON.stringify(data)
     });
 
     if (response.ok) {
         let item = await response.json();
-        console.log("POST ITEM", item);
+        console.log("POST Data", item);
         return item.data ? item.data : item;
     } else {
         console.log("HTTP-Error: " + response.status);
@@ -24,14 +24,22 @@ async function getAllItems() {
 
     if (response.ok) {
         let item = await response.json();
-        console.log("", item)
-        let items = [];
+        console.log("Data API", item)
+        let data = [];
 
         if (item.data && Array.isArray(item.data)) {
-            items = item.data;
+            data = item.data;
+        } else if (Array.isArray(item)) {
+            data = item;
+        } else {
+            data = [item];
         }
+
+        console.log("GET Data", data);
+        return data; 
     } else {
-        console.log("HTTP-Error: " + response.status) 
+        console.log("HTTP-Error: " + response.status);
+        return [];
     }
 };
 
@@ -46,10 +54,12 @@ async function puttItems(id) {
     });
     if (response.ok) {
         let item = await response.json();
-        console.log("UPDATE ITEM:", item)
-
+        console.log("UPDATE Data:", item);
+        let update = item.data ? item.data : item;
+        return update;
     } else {
-        console.log("HTTP-Error: " + response.status);
+        console.log("HTTP-Error: " + response.status)
+        return null;
     }
 };
 
@@ -60,7 +70,7 @@ async function deleteItems(id) {
     });
         
     if (response.ok) {
-        console.log(`DELETE DATA. (status: ${response.status})`);
+        console.log(`DELETE Data. (status: ${response.status})`);
     } else {
         console.log("HTTP-Error: " + response.status) 
     }
