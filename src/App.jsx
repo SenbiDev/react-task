@@ -1,5 +1,8 @@
 import { Outlet } from 'react-router-dom';
 import Navbar from './components/Navbar';
+import LoginPage from './pages/Login';
+import RegisterPage from './pages/Register';
+import ArtikelPage from './pages/ArtikelPage';
 
 export default function App() {
   return (
@@ -7,6 +10,11 @@ export default function App() {
       <Navbar />
       <main className="flex-grow">
         <Outlet />
+      </main>
+      <main className="flex-grow">
+        <LoginPage/>
+        <RegisterPage/>
+        <ArtikelPage/>
       </main>
     </div>
   );

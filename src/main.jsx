@@ -5,6 +5,9 @@ import App from './App'
 import Home from './pages/Home'
 import About from './pages/About'
 import './index.css'
+import LoginPage from './pages/Login';
+import RegisterPage from './pages/Register';
+import ArtikelPage from './pages/ArtikelPage';
 
 const router = createBrowserRouter([
   {
@@ -18,6 +21,22 @@ const router = createBrowserRouter([
       {
         path: "about",
         element: <About />
+      },
+      {
+        path: "login",
+        element: <LoginPage />
+      },
+      {
+        path: "register",
+        element: <RegisterPage />
+      },
+      {
+        path: "artikel",
+        element: <ArtikelPage />
+      },
+      {
+        path: "*",
+        element: <div>404 Not Found</div>
       }
     ]
   }
@@ -26,5 +45,6 @@ const router = createBrowserRouter([
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <RouterProvider router={router} />
+
   </React.StrictMode>
 )
