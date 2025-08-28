@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react"
-import { getAllItems, postItems, putItems, deleteItems } from "../api" 
+import { getAllItems, postItems, puttItems, deleteItems } from "../api" 
 
 export default function Items() {
     const [items, setItems] = useState([]);
@@ -26,12 +26,12 @@ export default function Items() {
         }
     };
     
-    async function handleEdit(item) {
+    async function handleEdit() {
         if (!form.id) {
             console.log("gagal edit");
             return;
         } else {
-            const updatedItem = await putItems(item);
+            const updatedItem = await puttItems(form.id, form);
             console.log("edit berhasil", updatedItem);
             setForm({ id: null, name: "", description: "", price: ""});
             loadItems();
