@@ -5,17 +5,19 @@ export default function LoginPage({ onLogin, switchPage }) {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
 
-    const handleSubmit = (e) => {
+    async function handleSubmit(e) {
         e.preventDefault();
-        login(username, password)
-        .then(data => {
+        try {
+            const data = await login(username, password);
             localStorage.setItem("access", data.access);
             localStorage.setItem("refresh", data.refresh);
-            onLogin(data.user);
-        })
-        .catch(() =>
-            alert("Login gagal")
-        );
+            
+            console.log("Login berhasil");
+            window.location.href="/artikel"
+        }catch(err){
+            console.error("Login Error", err);
+            alert("Login gagal");
+        }
     };
     return (
         <div className="flex justify-center items-center min-h-screen bg-gray-900 font-sans">

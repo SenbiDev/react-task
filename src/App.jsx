@@ -11,11 +11,6 @@ export default function App() {
       <main className="flex-grow">
         <Outlet />
       </main>
-      <main className="flex-grow">
-        <LoginPage/>
-        <RegisterPage/>
-        <ArtikelPage/>
-      </main>
     </div>
   );
 }
