@@ -1,111 +1,231 @@
-import React, { useEffect, useState } from "react";
-import { getArticles, createArticle, updateArticle, deleteArticle } from "../api/artikelApi";
+// src/pages/ArtikelPage.jsx
+import { useState, useEffect } from "react";
+import { fetchWithAuth, createArtikel, updateArtikel, deleteArtikel } from "../api/artikel";
+import { logout } from "../api/auth";
 
-const ArtikelPage = () => {
-  const [articles, setArticles] = useState([]);
-  const [formData, setFormData] = useState({ judul: "", konten: "", draft: false });
-  const [editId, setEditId] = useState(null);
+export default function ArtikelPage({ onLogout }) {
+  const [artikels, setArtikels] = useState([]);
+  const [kategoriList, setKategoriList] = useState([]);
+  const [tagList, setTagList] = useState([]);
+  const [selected, setSelected] = useState(null);
+  const [form, setForm] = useState({ judul: "", konten: "", kategori: "", tags: [], status: "draft" });
 
-  const fetchData = async () => {
+  const [loading, setLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState("");
+
+  // Ambil semua data awal
+  const loadData = async () => {
     try {
-      const data = await getArticles();
-      setArticles(data);
+      setLoading(true);
+      const artikelData = await fetchWithAuth("http://127.0.0.1:8000/api/artikel/");
+      const kategoriData = await fetchWithAuth("http://127.0.0.1:8000/api/kategori/");
+      const tagData = await fetchWithAuth("http://127.0.0.1:8000/api/tag/");
+
+      setArtikels(Array.isArray(artikelData) ? artikelData : artikelData?.result || []);
+      setKategoriList(kategoriData);
+      setTagList(tagData);
     } catch (err) {
-      console.error(err);
+      console.error("Error load data:", err);
+      setErrorMsg("Gagal mengambil data, silakan login ulang.");
+      logout();
+      onLogout();
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchData();
+    loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const resetForm = () =>
+    setForm({ judul: "", konten: "", kategori: "", tags: [], status: "draft" });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.judul || !formData.konten) {
-      alert("Judul dan konten wajib diisi");
-      return;
-    }
-
     try {
-      if (editId) {
-        await updateArticle(editId, formData); // PUT
-        setEditId(null);
+      if (selected) {
+        await updateArtikel(selected.id, form);
       } else {
-        await createArticle(formData); // POST
+        await createArtikel(form);
       }
-      setFormData({ judul: "", konten: "", draft: false });
-      fetchData();
+      resetForm();
+      setSelected(null);
+      loadData();
     } catch (err) {
-      console.error(err);
+      console.error("Error submit:", err);
     }
+  };
+
+  const handleEdit = (artikel) => {
+    setSelected(artikel);
+    setForm({
+      judul: artikel.judul,
+      konten: artikel.konten,
+      kategori: artikel.kategori?.id || "",
+      tags: artikel.tags?.map((t) => t.id) || [],
+      status: artikel.status,
+    });
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm("Yakin mau hapus artikel ini?")) {
-      try {
-        await deleteArticle(id);
-        fetchData();
-      } catch (err) {
-        console.error(err);
-      }
-    }
-  };
-
-  const handleEdit = (article) => {
-    setFormData({
-      judul: article.judul,
-      konten: article.konten,
-      draft: article.draft,
-    });
-    setEditId(article.id);
+    if (!window.confirm("Yakin ingin menghapus artikel ini?")) return;
+    await deleteArtikel(id);
+    loadData();
   };
 
   return (
-    <div className="container">
-      <h1>Manajemen Artikel</h1>
+    <div className="min-h-screen bg-gray-50 p-8 font-sans">
+      <div className="max-w-5xl mx-auto space-y-8">
+        {/* Header */}
+        <div className="flex justify-between items-center">
+          <h1 className="text-2xl font-bold text-gray-800">Dashboard Artikel</h1>
+          <button
+            onClick={() => { logout(); onLogout(); }}
+            className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition"
+          >
+            Logout
+          </button>
+        </div>
 
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="Judul"
-          value={formData.judul}
-          onChange={(e) => setFormData({ ...formData, judul: e.target.value })}
-        />
-        <br />
-        <textarea
-          placeholder="Konten"
-          value={formData.konten}
-          onChange={(e) => setFormData({ ...formData, konten: e.target.value })}
-        />
-        <br />
-        <label>
-          <input
-            type="checkbox"
-            checked={formData.draft}
-            onChange={(e) => setFormData({ ...formData, draft: e.target.checked })}
-          />
-          Draft
-        </label>
-        <br />
-        <button type="submit">{editId ? "Update" : "Simpan"}</button>
-      </form>
+        {errorMsg && <p className="text-red-600">{errorMsg}</p>}
 
-      <h2>Daftar Artikel</h2>
-      {articles.length === 0 ? (
-        <p>Belum ada artikel.</p>
-      ) : (
-        <ul>
-          {articles.map((a) => (
-            <li key={a.id}>
-              <strong>{a.judul}</strong> {a.draft && "(Draft)"}
-              <button onClick={() => handleEdit(a)}>Edit</button>
-              <button onClick={() => handleDelete(a.id)}>Hapus</button>
-            </li>
-          ))}
-        </ul>
-      )}
+        {/* Form Artikel */}
+        <div className="bg-white p-6 rounded-xl shadow border">
+          <h2 className="text-lg font-semibold mb-4">{selected ? "Edit Artikel" : "Tambah Artikel"}</h2>
+          <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="col-span-2">
+              <label className="block mb-1 font-medium">Judul</label>
+              <input
+                type="text"
+                value={form.judul}
+                onChange={(e) => setForm({ ...form, judul: e.target.value })}
+                className="w-full border px-3 py-2 rounded"
+                required
+              />
+            </div>
+
+            <div className="col-span-2">
+              <label className="block mb-1 font-medium">Konten</label>
+              <textarea
+                value={form.konten}
+                onChange={(e) => setForm({ ...form, konten: e.target.value })}
+                className="w-full border px-3 py-2 rounded"
+                rows="4"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block mb-1 font-medium">Kategori</label>
+              <select
+                value={form.kategori}
+                onChange={(e) => setForm({ ...form, kategori: e.target.value })}
+                className="w-full border px-3 py-2 rounded"
+              >
+                <option value="">-- Pilih kategori --</option>
+                {kategoriList.map((kat) => (
+                  <option key={kat.id} value={kat.id}>{kat.nama}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block mb-1 font-medium">Tag</label>
+              <select
+                multiple
+                value={form.tags}
+                onChange={(e) =>
+                  setForm({ ...form, tags: Array.from(e.target.selectedOptions, (opt) => opt.value) })
+                }
+                className="w-full border px-3 py-2 rounded"
+              >
+                {tagList.map((tag) => (
+                  <option key={tag.id} value={tag.id}>{tag.nama}</option>
+                ))}
+              </select>
+              <small className="text-gray-500">Gunakan Ctrl/Cmd + klik untuk pilih lebih dari satu</small>
+            </div>
+
+            <div>
+              <label className="block mb-1 font-medium">Status</label>
+              <select
+                value={form.status}
+                onChange={(e) => setForm({ ...form, status: e.target.value })}
+                className="w-full border px-3 py-2 rounded"
+              >
+                <option value="draft">Draft</option>
+                <option value="published">Published</option>
+              </select>
+            </div>
+
+            <div className="col-span-2">
+              <button
+                type="submit"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition"
+              >
+                {selected ? "Update Artikel" : "Simpan Artikel"}
+              </button>
+              {selected && (
+                <button
+                  type="button"
+                  onClick={() => { setSelected(null); resetForm(); }}
+                  className="ml-3 bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded-lg"
+                >
+                  Batal
+                </button>
+              )}
+            </div>
+          </form>
+        </div>
+
+        {/* Tabel Artikel */}
+        <div className="bg-white p-6 rounded-xl shadow border">
+          <h2 className="text-lg font-semibold mb-4">Daftar Artikel</h2>
+          {loading ? (
+            <p>Loading...</p>
+          ) : artikels.length === 0 ? (
+            <p className="text-gray-500">Belum ada artikel</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full border text-sm">
+                <thead className="bg-gray-100">
+                  <tr>
+                    <th className="p-2 border">Judul</th>
+                    <th className="p-2 border">Status</th>
+                    <th className="p-2 border">Kategori</th>
+                    <th className="p-2 border">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {artikels.map((a) => (
+                    <tr key={a.id} className="hover:bg-gray-50">
+                      <td className="p-2 border">{a.judul}</td>
+                      <td className="p-2 border">{a.status}</td>
+                      <td className="p-2 border">{a.kategori?.nama || "-"}</td>
+                      <td className="p-2 border space-x-2">
+                        <button
+                          onClick={() => handleEdit(a)}
+                          className="px-2 py-1 text-sm bg-yellow-500 text-white rounded"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDelete(a.id)}
+                          className="px-2 py-1 text-sm bg-red-600 text-white rounded"
+                        >
+                          Hapus
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
-};
-
-export default ArtikelPage;
+}

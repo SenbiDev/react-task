@@ -10,13 +10,13 @@ export default function Navbar() {
         <Link to="/about" className="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium">
           About
         </Link>
-        <Link to="/artikelpage" className="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium">
+        <Link to="/artikel" className="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium">
           Artikel
         </Link>
-        <Link to="/login" className="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium">
+        <Link to="/signin" className="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium">
           Login
         </Link>
-        <Link to="/register" className="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium">
+        <Link to="/signup" className="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium">
           Register
         </Link>
       </div>
