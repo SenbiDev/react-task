@@ -1,9 +1,42 @@
 const BASE_URL = "http://127.0.0.1:8000/api/";
 
+let isRefreshing = false;
+
+function forceLogout() {
+  localStorage.clear();
+  window.location.reload();
+}
+
+async function refreshToken() {
+  if (isRefreshing) return;
+  isRefreshing = true;
+
+  const refresh = localStorage.getItem("refresh");
+  if (!refresh) {
+    forceLogout();
+    throw new Error("Refresh token tidak ditemukan.");
+  }
+
+  const res = await fetch(BASE_URL + "token/refresh/", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ refresh }),
+  });
+
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok || !data.access) {
+    forceLogout();
+    throw new Error("Refresh token gagal, silakan login ulang.");
+  }
+
+  localStorage.setItem("access", data.access);
+  isRefreshing = false;
+}
+
 // Auth
 export async function login(username, password) {
   try {
-    const res = await fetch(BASE_URL + "token/", {
+    const res = await fetch(BASE_URL + "login/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, password }),
@@ -16,10 +49,8 @@ export async function login(username, password) {
     localStorage.setItem("access", data.access);
     localStorage.setItem("refresh", data.refresh);
 
-    // simpan user info (kalau backend balikin data user di response)
-    if (data.user) {
-      localStorage.setItem("user", JSON.stringify(data.user));
-    }
+    // simpan user info (backend selalu balikin data.user)
+    localStorage.setItem("user", JSON.stringify(data.user));
 
     return data;
   } catch (error) {
@@ -57,10 +88,53 @@ export async function getKategori() {
   return data;
 }
 
+export async function createKategori(nama) {
+  const token = localStorage.getItem("access");
+  const res = await fetch(BASE_URL + "kategori/", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`
+    },
+    body: JSON.stringify({ nama })
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.detail || "Gagal membuat kategori");
+  return data;
+}
+
+export async function updateKategori(id, nama) {
+  const token = localStorage.getItem("access");
+  const res = await fetch(BASE_URL + `kategori/${id}/`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`
+    },
+    body: JSON.stringify({ nama })
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.detail || "Gagal update kategori");
+  return data;
+}
+
+export async function deleteKategori(id) {
+  const token = localStorage.getItem("access");
+  const res = await fetch(BASE_URL + `kategori/${id}/`, {
+    method: "DELETE",
+    headers: { "Authorization": `Bearer ${token}` }
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.detail || "Gagal hapus kategori");
+  }
+  return true;
+}
+
 // Tags
 export async function getTags() {
   const token = localStorage.getItem("access");
-  const res = await fetch(BASE_URL + "tag/", {
+  const res = await fetch(BASE_URL + "tags/", {
     headers: { "Authorization": `Bearer ${token}` },
   });
   const data = await res.json().catch(() => ([]));
@@ -68,15 +142,66 @@ export async function getTags() {
   return data;
 }
 
+export async function createTag(nama) {
+  const token = localStorage.getItem("access");
+  const res = await fetch(BASE_URL + "tags/", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`
+    },
+    body: JSON.stringify({ nama })
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.detail || "Gagal membuat tag");
+  return data;
+}
+
+export async function updateTag(id, nama) {
+  const token = localStorage.getItem("access");
+  const res = await fetch(BASE_URL + `tags/${id}/`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`
+    },
+    body: JSON.stringify({ nama })
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.detail || "Gagal update tag");
+  return data;
+}
+
+export async function deleteTag(id) {
+  const token = localStorage.getItem("access");
+  const res = await fetch(BASE_URL + `tags/${id}/`, {
+    method: "DELETE",
+    headers: { "Authorization": `Bearer ${token}` }
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.detail || "Gagal hapus tag");
+  }
+  return true;
+}
+
 // Artikel
 export async function getArtikelList() {
   const token = localStorage.getItem("access");
-  const res = await fetch(BASE_URL + "artikel/", {
+  let res = await fetch(BASE_URL + "artikel/", {
     headers: { "Authorization": `Bearer ${token}` },
   });
+  if (res.status === 401) {
+    await refreshToken();
+    const newToken = localStorage.getItem("access");
+
+    res = await fetch(BASE_URL + "artikel/", {
+      headers: { "Authorization": `Bearer ${newToken}` },
+    });
+  }
   const data = await res.json().catch(() => ([]));
   if (!res.ok) throw new Error(data.detail || "Gagal fetch artikel");
-  return data;
+  return data.results || [];
 }
 
 export async function getArtikelById(id) {
@@ -140,18 +265,26 @@ export async function getPublicArticles() {
   const res = await fetch(BASE_URL + "public/artikel/");
   const data = await res.json().catch(() => ([]));
   if (!res.ok) throw new Error(data.detail || "Gagal fetch artikel publik");
-  return data;
+  return data.results || [];
 }
 
 export async function getMyArticles() {
   const token = localStorage.getItem("access");
-  const res = await fetch(BASE_URL + "artikel/me/", {
+  const user = JSON.parse(localStorage.getItem("user"));
+  const res = await fetch(BASE_URL + "artikel/", {
     headers: { Authorization: `Bearer ${token}` },
   });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.detail || "Gagal fetch artikel saya");
+
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.detail || "Gagal fetch artikel saya");
+
+  const articles = data.results || [];
+
+  // Jika admin, tampilkan semua artikel
+  if (user?.role === "admin") {
+    return articles;
   }
 
-  return await res.json();
+  // Jika user biasa, filter miliknya saja
+  return articles.filter((a) => a.penulis?.id === user?.id);
 }
