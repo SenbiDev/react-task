@@ -14,8 +14,8 @@ export default function ArtikelPage ({ onLogout }) {
     const [form, setForm] = useState({
         judul: "",
         konten: "",
-        kategori: "",
-        tags: [],
+        kategori_id: "",
+        tag_ids: [],
         status: "draft"
     });
 
@@ -26,96 +26,100 @@ export default function ArtikelPage ({ onLogout }) {
         return await fetchWithAuth("http://127.0.0.1:8000/api/kategori/");
     };
     const fecthTag = async () => {
-        return await fetchWithAuth("http://127.0.0.1:8000/api/tag/");
+        return await fetchWithAuth("http://127.0.0.1:8000/api/tags/");
     };
+
+    // const loadArtikels = async () => {
+    //     const res = await fetchArtikel();
+    //     const data = await res.json();
+    //     setArtikels(data);
+    // };
+    // const loadKategori = async () => {
+    //     const res = await fecthKategori();
+    //     const data = await res.json();
+    //     setKategoriList(data);
+    // };
+    // const loadTag = async () => {
+    //     const res = await fecthTag();
+    //     const data = await res.json();
+    //     setTagList(data);
+    // };
     
 
     useEffect(() => {
-        const loadArtikels = () => {
+        const loadArtikels = async () => {
             try{
                 setLoad(true);
-                fetchWithAuth("http://127.0.0.1:8000/api/artikel/")
-                .then((data) => {
-                    if(Array.isArray(data)){
-                        setArtikels(data);
-                    }else if (data.result && Array.isArray(data.result)){
-                        setArtikels(data.result);
-                    }else{
-                        setArtikels([]);
-                    }
-                    return fecthKategori();
-                })
-                .then((kategoriData) => {
-                    setKategoriList(kategoriData);
-                    return fecthTag();
-                })
-                .then((tagData) => {
-                    setTagList(tagData);
-                })
-            }catch(err){
-                console.error("Gagal fetch artikel", err);
-                setError("Gagal memmuat artikel");
-                alert("Gagal load data, silahkan login kembali");
+
+                const data = await fetchWithAuth("http://127.0.0.1:8000/api/artikel/");
+                setArtikels(
+                    Array.isArray(data)
+                    ? data 
+                    : Array.isArray(data.results)
+                    ? data.results
+                    : []
+                )
+
+                const kategoriData = await fetchWithAuth("http://127.0.0.1:8000/api/kategori/");
+                setKategoriList(kategoriData);
+
+                const tagData = await fetchWithAuth("http://127.0.0.1:8000/api/tags/");
+                setTagList(tagData);
+
+            } catch (err) {
+                console.error("Gagal fetch Artikel", err);
+                setError("Gagal memuat artikel");
+                alert("Gagal load data, seilahkan login kembali");
                 logout();
                 onLogout();
-            }finally{
+            } finally {
                 setLoad(false);
             }
         };
+
         loadArtikels();
     }, []);
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         const payload = {
             judul: form.judul,
             konten: form.konten,
-            kategori: parseInt(form.kategori),
-            tags: form.tags.map(id => parseInt(id)),
+            kategori_id: form.kategori_id,
+            tag_ids: form.tag_ids.map((t) => Number(t)),
             status: form.status
         };
 
-        if (selectedArtikel) {
-            updateArtikel(selectedArtikel, form)
-            .then(() => {
-                setSelectedArtikel(null);
-                setForm({
-                    judul: "",
-                    konten: "",
-                    kategori: "",
-                    tags: [],
-                    status: "draft"
-                });
-                loadArtikels();
-            });
-        } else {
-            createArtikel(form).then(() => {
-                setForm({
-                    judul: "",
-                    konten: "",
-                    kategori: "",
-                    tags: [],
-                    status: "draft"
-                });
-                loadArtikels();
-            });
+        if(form.id) {
+            await updateArtikel(form.id, payload);
+        }else{
+            await createArtikel(payload);
         }
+        setForm({
+            judul: "",
+            konten: "",
+            kategori_id: "",
+            tag_ids: [],
+            status: "draft"
+        });
     };
 
     const handleEdit = (artikel) => {
         setSelectedArtikel(artikel);
         setForm({
+            id: artikel.id,
             judul: artikel.judul,
             konten: artikel.konten,
-            kategori: artikel.kategori?.id||"",
-            tags: artikel.tags?artikel.tags.map(t => t.id) : [],
+            kategori_id: artikel.kategori_id?.id||"",
+            tag_ids: artikel.tag_ids?artikel.tag_ids.map(t => t.id) : [],
             status: artikel.status
         });
     };
 
-    const handleDelete = (id) => {
-        deleteArtikel(id).then(() => loadArtikels());
+    const handleDelete = async (id) => {
+        await deleteArtikel(id);
+        await loadArtikels();
     };
 
     return (
@@ -156,8 +160,8 @@ export default function ArtikelPage ({ onLogout }) {
                         <div className="mb-4">
                             <label className="block mb-1 font-medium text-gray-700">Kategori</label>
                             <select
-                                value={form.kategori}
-                                onChange={e => setForm({ ...form, kategori: e.target.value })}
+                                value={form.kategori_id}
+                                onChange={e => setForm({ ...form, kategori_id: e.target.value? Number(e.target.value): null })}
                                 required
                                 className="text-black w-full px-3 py-2 border border-gray-400 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
                             >
@@ -169,21 +173,35 @@ export default function ArtikelPage ({ onLogout }) {
                                 ))}
                             </select>
                         </div>
-                        <div className="mb-4">
-                            <label className="block mb-1 font-medium text-gray-700">Tag</label>
-                            <select
-                                value={form.tags}
-                                onChange={e => setForm({ ...form, tags: e.target.value})}
-                                required
-                                className="text-black w-full px-3 py-2 border border-gray-400 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
-                            >
-                                <option value="draft" className="text-black">Tag</option>
-                                {tagList.map((tag) => (
-                                    <option key={tag.id} value={tag.id} className="text-black">
-                                        {tag.nama}
-                                    </option>
+                        <div className="space-y-2">
+                            <p className="block mb-1 font-medium text-gray-700">Tag</p>
+                            <div className="grid grid-cols-2 gap-2">
+                                {tagList.map((t) => (
+                                <label key={t.id} className="flex justify-center space-x-2">  
+                                    <input
+                                        type="checkbox"
+                                        checked={form.tag_ids.includes(String(t.id))}
+                                        onChange={(e) => {
+                                            if (e.target.checked){
+                                                setForm({ ...form, tag_ids: [ ...form.tag_ids, String(t.id)] });
+                                            } else {
+                                                setForm({
+                                                    ...form,
+                                                    tag_ids: form.tag_ids.filter((id) => id !== String(id)),
+                                                });
+                                            }
+                                        }}
+                                        // className="text-black w-full px-3 py-2 border border-gray-400 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                    />
+                                        <span className="text-black">{t.nama}</span>
+                                        {/* {tagList.map((t) => (
+                                            <option key={t.id} value={t.id} className="text-black">
+                                                {t.nama}
+                                            </option>
+                                        ))} */}
+                                </label>
                                 ))}
-                            </select>
+                            </div>
                         </div>
                         <div className="mb-4">
                             <label className="block mb-1 font-medium text-gray-700">Status</label>
@@ -214,7 +232,7 @@ export default function ArtikelPage ({ onLogout }) {
                             {artikels.map((artikel) => (
                                 <li key={artikel.id} className="flex justify-between items-center p-3 border border-gray-200 rounded">
                                     <div>
-                                        <p className="font-medium">{artikel.judul}</p>
+                                        <p className="font-medium text-black">{artikel.judul}</p>
                                         <p className="text-sm text-gray-600">{artikel.status}</p>
                                     </div>
                                     <div className="space-x-2">

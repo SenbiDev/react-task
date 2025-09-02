@@ -1,5 +1,6 @@
 import { use, useState } from "react";
 import { login } from "../api/auth";
+import { Link } from "react-router-dom";
 
 export default function LoginPage({ onLogin, switchPage }) {
     const [username, setUsername] = useState("");
@@ -46,10 +47,16 @@ export default function LoginPage({ onLogin, switchPage }) {
                     </div>
                     <button
                         type="submit"
-                        className="w-full py-2 bg-blue-600 text-gray-200 rounded hover:bg-blue-700 transition-colors"
+                        className="w-full py-2 bg-blue-600 text-gray-200 rounded hover:bg-blue-700 transition-colors mb-2"
                     >
                         Login
                     </button>
+                    <Link
+                        to="/register"
+                        className="flex justify-center w-full py-2 text-black rounded hover:blue-400 transition-colors"
+                    >
+                        Registrasi
+                    </Link>
                 </form>
             </div>
         </div>

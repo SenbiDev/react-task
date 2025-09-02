@@ -7,13 +7,29 @@ export default function RegisterPage({ switchPage }) {
     const handleSubmit = (e) => {
         e.preventDefault();
         register(form)
-        .then(() => {
+        .then((data) => {
+            console.log("Resgistrasi respone", data)
             alert("Registrasi berhasil")
             switchPage("login");
         })
-        .catch(() =>
-            alert("Registrasi gagal"))
-    };
+        .catch((err) => {
+            console.error("Gagal", err)
+
+            let message = "registrasi gagal";
+
+            if(err && typeof err === "object"){
+                message = Object.entries(err)
+                    .map(([field, msgs]) => {
+                        if (Array.isArray(msgs)) {
+                        return `${field}: ${msgs.join(",")}`;
+                    }
+                    return `${field}: ${msgs.join}`;
+            })
+             .join("\n");
+        }
+        alert(message);
+    });
+    }
 
     return (
         <div className="flex justify-center items-center min-h-screen bg-gray-100">
@@ -32,7 +48,7 @@ export default function RegisterPage({ switchPage }) {
                                 value={form[field]}
                                 onChange={e => setForm({ ...form, [field]: e.target.value})}
                                 required
-                                className="w-full px-2 py-1 border border-gray-400 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                className="text-black w-full px-2 py-1 border border-gray-400 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                             />
                         </div>
                     ))}

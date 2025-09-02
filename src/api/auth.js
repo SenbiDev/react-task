@@ -85,8 +85,14 @@ export async function register(data) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
     });
-    if (!res.ok) throw new Error("Registrasi gagal");
-    return res.json();
+
+    const body = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+        throw body;
+    }
+
+    return body;
 }
 
 export async function refreshToken() {

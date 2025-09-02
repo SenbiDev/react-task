@@ -9,8 +9,7 @@ function getAuthHeader() {
 }
 
 export async function fetchWithAuth(url, options = {}) {
-    try{
-        let res = await fetch(url, {
+        const res = await fetch(url, {
             ...options,
             headers:{
                 "Content-Type": "application/json",
@@ -19,31 +18,40 @@ export async function fetchWithAuth(url, options = {}) {
             },
         });
         
-        if (res.status === 401){
-            try{
-                const newToken = await refreshToken();
-                res = await fetch (url, {
-                    ...options,
-                    headers:{
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${newToken}`,
-                        ...options.headers,
-                    },
-                });
-            } catch (err) {
-                logout();
-                throw new Error("Sesi habis")
-            }
+        if (!res.ok) {
+            let errorMessage;
+        try{
+            errorMessage = await res.json();
+        }catch{
+            errorMessage = await res.text();
         }
-
-        if (!res.ok) throw new Error("Request gagal");
-        if (res.status === 204) return {};
-        return await res.json();
-    } catch (err) {
-        console.error("Fetch error", err);
-        throw err;
+        console.error("API Error Detail", errorMessage);
+        throw new Error(`HTTP${res.status}`)
     }
+    
+    return res.json(); 
+    
 }
+//     throw new Error("Request gagal");
+// if (res.status === 204) return {};
+// return await res.json();
+// } catch (err) {
+    // if (res.status === 401){
+            //     try{
+        //         const newToken = await refreshToken();
+        //         res = await fetch (url, {
+        //             ...options,
+        //             headers:{
+        //                 "Content-Type": "application/json",
+        //                 Authorization: `Bearer ${newToken}`,
+        //                 ...options.headers,
+        //             },
+        //         });
+        //     } catch (err) {
+        //         logout();
+        //         throw new Error("Sesi habis")
+        //     }
+        // }
 
 export function fetchArtikel({status, kategori, tag, penulis, page} = {}) {
     let query = [];
@@ -56,36 +64,29 @@ export function fetchArtikel({status, kategori, tag, penulis, page} = {}) {
     return fetchWithAuth(url);
 }
 
-export function createArtikel(data) {
-    return fetchWithAuth(`${API_URL}api/artikel/`,{
+export function createArtikel(payload) {
+    return fetchWithAuth(`${API_URL}/artikel/`,{
         method: "POST",
         headers:{
                 "Content-Type": "application/json",
-                ...getAuthHeader(),
+
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify(payload),
     });
 }
 
-export function updateArtikel(id, data) {
-    return fetchWithAuth(`${API_URL}api/artikel/${id}/`, {
+export function updateArtikel(id, payload) {
+    return fetchWithAuth(`${API_URL}/artikel/${id}/`, {
         method: "PUT",
         headers:{
                 "Content-Type": "application/json",
-                ...getAuthHeader(),
         },
-        body: JSON.stringify({
-            judul: data.judul,
-            konten: data.konten,
-            kategori: data.kategori,
-            tag: data.tag,
-            status: data.status,
-        })
+        body: JSON.stringify(payload)
     });
 }
 
 export function deleteArtikel(id) {
-    return fetchWithAuth(`${API_URL}api/artikel/${id}/`, {
+    return fetchWithAuth(`${API_URL}/artikel/${id}/`, {
         method: "DELETE",
     });
 }
@@ -100,12 +101,12 @@ export function fetchPublicArtikel({ kategori, tag, page }) {
 }
 
 export function fetchPublicArtikelDetail(id) {
-    return fetchWithAuth(`${API_URL}api/artikel/${id}/`);
+    return fetchWithAuth(`${API_URL}/artikel/${id}/`);
 }
 
 export function fecthKategori() {
-    return fetchWithAuth(`${API_URL}kategori/`);
+    return fetchWithAuth(`${API_URL}/kategori/`);
 }
 export function fecthTag() {
-    return fetchWithAuth(`${API_URL}tag/`);
+    return fetchWithAuth(`${API_URL}/tags/`);
 }
