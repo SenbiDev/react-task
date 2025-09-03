@@ -1,44 +1,51 @@
-import { getToken } from "./auntApi";
+const API_BASE = "http://localhost:8000/api"; // alamat backend Django 
 
-const API_URL = "http://127.0.0.1:8000/api";
-
-export async function getArticles() {
-  const token = localStorage.getItem("access");
-  const res = await fetch( `${API_URL}/artikel/`, {
-    method: "GET",
-    headers: {
-       "Content-Type": "application/json" ,
-       "Authorization": `Bearer ${token}`,
-    },
-  });
-  if (!res.ok) throw new Error("Gagal mengambil artikel");
-  return res.json();
-}
+export const getArticles = async () => {
+  const response = await fetch(`${API_BASE}/artikel/`);
+  if (!response.ok) {
+    throw new Error("Gagal mengambil artikel");
+  }
+  return await response.json();
+};
 
 export async function createArticle(data) {
-  const res = await fetch(`${API_URL}/artikel/`, {
+  const token = localStorage.getItem("access"); // simpan waktu login
+  const res = await fetch(`${API_BASE}/artikel/`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`, // ⬅️ penting
+    },
     body: JSON.stringify(data),
   });
   if (!res.ok) throw new Error("Gagal membuat artikel");
   return res.json();
 }
 
+// UPDATE artikel
 export async function updateArticle(id, data) {
-  const res = await fetch(`${API_URL}/${id}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
+  const token = localStorage.getItem("access");
+  const res = await fetch(`${API_BASE}/artikel/${id}/`, {
+    method: "PUT", // bisa PATCH kalau mau sebagian field saja
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`,
+    },
     body: JSON.stringify(data),
   });
   if (!res.ok) throw new Error("Gagal update artikel");
   return res.json();
 }
 
+// DELETE artikel
 export async function deleteArticle(id) {
-  const res = await fetch(`${API_URL}/${id}`, {
+  const token = localStorage.getItem("access");
+  const res = await fetch(`${API_BASE}/artikel/${id}/`, {
     method: "DELETE",
+    headers: {
+      "Authorization": `Bearer ${token}`,
+    },
   });
   if (!res.ok) throw new Error("Gagal hapus artikel");
-  return res.json();
+  return true; // sukses hapus
 }

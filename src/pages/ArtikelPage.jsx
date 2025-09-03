@@ -8,7 +8,13 @@ export default function ArtikelPage({ onLogout }) {
   const [kategoriList, setKategoriList] = useState([]);
   const [tagList, setTagList] = useState([]);
   const [selected, setSelected] = useState(null);
-  const [form, setForm] = useState({ judul: "", konten: "", kategori: "", tags: [], status: "draft" });
+  const [form, setForm] = useState({
+    judul: "",
+    konten: "",
+    kategori: "",
+    tags: [],
+    status: "draft",
+  });
 
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
@@ -21,7 +27,6 @@ export default function ArtikelPage({ onLogout }) {
       const kategoriData = await getArticles("http://127.0.0.1:8000/api/kategori/");
       const tagData = await getArticles("http://127.0.0.1:8000/api/tag/");
 
-
       setArtikels(Array.isArray(artikelData) ? artikelData : artikelData?.result || []);
       setKategoriList(Array.isArray(kategoriData) ? kategoriData : kategoriData?.result || []);
       setTagList(Array.isArray(tagData) ? tagData : tagData?.result || []);
@@ -29,7 +34,9 @@ export default function ArtikelPage({ onLogout }) {
       console.error("Error load data:", err);
       setErrorMsg("Gagal mengambil data, silakan login ulang.");
       logout();
-      onLogout();
+      if (typeof onLogout === "function") {
+        onLogout();
+      }
     } finally {
       setLoading(false);
     }
@@ -64,7 +71,7 @@ export default function ArtikelPage({ onLogout }) {
     setForm({
       judul: artikel.judul,
       konten: artikel.konten,
-      kategori: artikel.kategori?.id || "",
+      kategori: artikel.kategori?.id?.toString() || "",
       tags: artikel.tags?.map((t) => t.id) || [],
       status: artikel.status,
     });
@@ -83,7 +90,12 @@ export default function ArtikelPage({ onLogout }) {
         <div className="flex justify-between items-center">
           <h1 className="text-2xl font-bold text-white">Dashboard Artikel</h1>
           <button
-            onClick={() => { logout(); onLogout(); }}
+            onClick={() => {
+              logout();
+              if (typeof onLogout === "function") {
+                onLogout();
+              }
+            }}
             className="bg-black hover:bg-red-600 text-white px-4 py-2 rounded-lg transition"
           >
             Logout
@@ -94,8 +106,13 @@ export default function ArtikelPage({ onLogout }) {
 
         {/* Form Artikel */}
         <div className="bg-black p-6 rounded-xl shadow border">
-          <h2 className="text-lg font-semibold mb-4">{selected ? "Edit Artikel" : "Tambah Artikel"}</h2>
-          <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <h2 className="text-lg font-semibold mb-4">
+            {selected ? "Edit Artikel" : "Tambah Artikel"}
+          </h2>
+          <form
+            onSubmit={handleSubmit}
+            className="grid grid-cols-1 md:grid-cols-2 gap-4"
+          >
             <div className="col-span-2">
               <label className="block mb-1 font-medium">Judul</label>
               <input
@@ -122,35 +139,54 @@ export default function ArtikelPage({ onLogout }) {
               <label className="block mb-1 font-medium">Kategori</label>
               <select
                 value={form.kategori}
-                onChange={(e) => {
-                  setForm({ ... form, kategori: e.target.value })
-                }}
+                onChange={(e) => setForm({ ...form, kategori: e.target.value })}
                 className="w-full border px-3 py-2 rounded"
               >
-                <option className = "text-black" value="">Pilih kategori</option>
-                <option className = "text-black" value="json">JSON</option>
-                <option className = "text-black" value="html">HTML</option>
+                <option className="text-black" value="">
+                  Pilih kategori
+                </option>
+                <option className="text-black" value="json">
+                  JSON
+                </option>
+                <option className="text-black" value="html">
+                  HTML
+                </option>
 
-                {Array.isArray(kategoriList) && kategoriList.map((kat) => (
-                  <option key = {kat.id} value={kat.id}>{kat.nama}
-                  </option>
-                ))}
+                {Array.isArray(kategoriList) &&
+                  kategoriList.map((kat) => (
+                    <option key={kat.id} value={kat.id}>
+                      {kat.nama}
+                    </option>
+                  ))}
               </select>
             </div>
 
             <div>
               <label className="block mb-1 font-medium">Tag</label>
-              <select
-                value={form.tags}
-                onChange={(e) =>
-                  setForm({ ...form, tags: Array.from(e.target.selectedOptions, (opt) => opt.value) })
-                }
-                className="w-full border px-3 py-2 rounded"
-              >
+              <div className="space-y-2">
                 {tagList.map((tag) => (
-                  <option key={tag.id} value={tag.id}>{tag.nama}</option>
+                  <label key={tag.id} className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      value={tag.id}
+                      checked={form.tags.includes(tag.id)}
+                      onChange={(e) => {
+                        const tagId = parseInt(e.target.value);
+                        if (e.target.checked) {
+                          setForm({ ...form, tags: [...form.tags, tagId] });
+                        } else {
+                          setForm({
+                            ...form,
+                            tags: form.tags.filter((t) => t !== tagId),
+                          });
+                        }
+                      }}
+                      className="w-4 h-4"
+                    />
+                    <span>{tag.nama}</span>
+                  </label>
                 ))}
-              </select>
+              </div>
             </div>
 
             <div>
@@ -160,8 +196,12 @@ export default function ArtikelPage({ onLogout }) {
                 onChange={(e) => setForm({ ...form, status: e.target.value })}
                 className="w-full border px-3 py-2 rounded"
               >
-                <option className = "text-black" value="draft">Draft</option>
-                <option className = "text-black" value="published">Published</option>
+                <option className="text-black" value="draft">
+                  Draft
+                </option>
+                <option className="text-black" value="published">
+                  Published
+                </option>
               </select>
             </div>
 
@@ -175,7 +215,10 @@ export default function ArtikelPage({ onLogout }) {
               {selected && (
                 <button
                   type="button"
-                  onClick={() => { setSelected(null); resetForm(); }}
+                  onClick={() => {
+                    setSelected(null);
+                    resetForm();
+                  }}
                   className="ml-3 bg-black text-white px-4 py-2 rounded-lg"
                 >
                   Batal
