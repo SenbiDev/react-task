@@ -281,9 +281,9 @@ export async function getMyArticles() {
   const articles = data.results || [];
 
   // Jika admin, tampilkan semua artikel
-  if (user?.role === "admin") {
-    return articles;
-  }
+  // if (user?.role === "admin") {
+  //   return articles;
+  // }
 
   // Jika user biasa, filter miliknya saja
   return articles.filter((a) => a.penulis?.id === user?.id);
