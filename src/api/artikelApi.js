@@ -1,13 +1,22 @@
-const API_URL = "http://127.0.0.1:8000/";
+import { getToken } from "./auntApi";
+
+const API_URL = "http://127.0.0.1:8000/api";
 
 export async function getArticles() {
-  const res = await fetch(API_URL);
+  const token = localStorage.getItem("access");
+  const res = await fetch( `${API_URL}/artikel/`, {
+    method: "GET",
+    headers: {
+       "Content-Type": "application/json" ,
+       "Authorization": `Bearer ${token}`,
+    },
+  });
   if (!res.ok) throw new Error("Gagal mengambil artikel");
   return res.json();
 }
 
 export async function createArticle(data) {
-  const res = await fetch(API_URL, {
+  const res = await fetch(`${API_URL}/artikel/`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),

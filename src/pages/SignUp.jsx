@@ -1,11 +1,12 @@
 import React, { useState } from "react";
-import { registerUser } from "../api/authApi";
+import { registerUser } from "../api/auntApi";
 
 export default function SignUp() {
   const [values, setValues] = useState({
     username: "",
     email: "",
-    password: ""
+    password: "",
+    password2: "",
   });
 
   const handleChange = (e) => {
@@ -28,7 +29,7 @@ export default function SignUp() {
   return (
     <div className="flex items-center justify-center min-h-screen bg-purple-50">
       <div className="w-full max-w-md bg-white shadow-md rounded-xl p-6">
-        <h2 className="text-2xl font-bold text-center text-purple-600 mb-6">
+        <h2 className="text-2xl font-bold text-center text-black mb-6">
           Sign Up
         </h2>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -38,7 +39,7 @@ export default function SignUp() {
             placeholder="Username"
             value={values.username}
             onChange={handleChange}
-            className="w-full border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-purple-400"
+            className="w-full border rounded-lg p-2 focus:outline-none focus:ring-2 bg-black text-white"
             required
           />
           <input
@@ -47,21 +48,30 @@ export default function SignUp() {
             placeholder="Alamat Email"
             value={values.email}
             onChange={handleChange}
-            className="w-full border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-purple-400"
+            className="w-full border rounded-lg p-2 focus:outline-none focus:ring-2 bg-black text-white"
             required
           />
           <input
             type="password"
             name="password"
-            placeholder="Kata Sandi"
+            placeholder="password"
             value={values.password}
             onChange={handleChange}
-            className="w-full border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-purple-400"
+            className="w-full border rounded-lg p-2 focus:outline-none focus:ring-2 bg-black text-white"
+            required
+          />
+          <input
+            type="password2"
+            name="password2"
+            placeholder="konfirmasi password"
+            value={values.password2}
+            onChange={handleChange}
+            className="w-full border rounded-lg p-2 focus:outline-none focus:ring-2 bg-black text-white"
             required
           />
           <button
             type="submit"
-            className="w-full bg-purple-600 hover:bg-purple-700 text-white rounded-lg py-2"
+            className="w-full bg-black text-white rounded-lg py-2"
           >
             Daftar
           </button>
