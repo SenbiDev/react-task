@@ -7,7 +7,8 @@ import About from './pages/About'
 import './index.css'
 import LoginPage from './pages/Login';
 import RegisterPage from './pages/Register';
-import ArtikelPage from './pages/ArtikelPage';
+import ArtikelPage from './pages/Artikel';
+import AdminPage from './pages/AdminPage';
 
 const router = createBrowserRouter([
   {
@@ -33,6 +34,10 @@ const router = createBrowserRouter([
       {
         path: "artikel",
         element: <ArtikelPage />
+      },
+      {
+        path: "admin",
+        element: <AdminPage />
       },
       {
         path: "*",

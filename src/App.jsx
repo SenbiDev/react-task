@@ -2,7 +2,8 @@ import { Outlet } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import LoginPage from './pages/Login';
 import RegisterPage from './pages/Register';
-import ArtikelPage from './pages/ArtikelPage';
+import ArtikelPage from './pages/Artikel';
+import AdminPage from './pages/AdminPage';
 
 export default function App() {
   return (

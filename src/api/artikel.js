@@ -1,112 +1,87 @@
-import App from "../App";
-import { refreshToken, logout } from "./auth";
+import { API_URL, getAuthHeader, refreshToken } from "./config";
 
-const API_URL = "http://127.0.0.1:8000/api";
-
-function getAuthHeader() {
-    const token = localStorage.getItem("access");
-    return token ? { Authorization: `Bearer ${token}` } : {};
-}
-
-export async function fetchWithAuth(url, options = {}) {
-        const res = await fetch(url, {
-            ...options,
-            headers:{
-                "Content-Type": "application/json",
-                ...getAuthHeader(),
-                ...options.headers,
-            },
-        });
-        
-        if (!res.ok) {
-            let errorMessage;
-        try{
-            errorMessage = await res.json();
-        }catch{
-            errorMessage = await res.text();
-        }
-        console.error("API Error Detail", errorMessage);
-        throw new Error(`HTTP${res.status}`)
-    }
-    
-    return res.json(); 
-    
-}
-//     throw new Error("Request gagal");
-// if (res.status === 204) return {};
-// return await res.json();
-// } catch (err) {
-    // if (res.status === 401){
-            //     try{
-        //         const newToken = await refreshToken();
-        //         res = await fetch (url, {
-        //             ...options,
-        //             headers:{
-        //                 "Content-Type": "application/json",
-        //                 Authorization: `Bearer ${newToken}`,
-        //                 ...options.headers,
-        //             },
-        //         });
-        //     } catch (err) {
-        //         logout();
-        //         throw new Error("Sesi habis")
-        //     }
-        // }
-
-export function fetchArtikel({status, kategori, tag, penulis, page} = {}) {
-    let query = [];
-    if (status) query.push(`status=${status}`);
-    if (kategori) query.push(`kategori=${kategori}`);
-    if (tag) query.push(`tag=${tag}`);
-    if (penulis) query.push(`penulis=${penulis}`);
-    if (page) query.push(`page=${page}`);
-    const url = `${API_URL}/artikel/${query.length ? "?" + query.join("&") : ""}`;
-    return fetchWithAuth(url);
-}
-
-export function createArtikel(payload) {
-    return fetchWithAuth(`${API_URL}/artikel/`,{
-        method: "POST",
-        headers:{
-                "Content-Type": "application/json",
-
-        },
-        body: JSON.stringify(payload),
+export async function getArtikelList() {
+  let res = await fetch(`${API_URL}artikel/`,{
+    headers: getAuthHeader()
+  });
+  if (res.status === 401) {
+    await refreshToken();
+    res = await fetch(`${API_URL}artikel/`,{
+      headers: getAuthHeader()
     });
+  }
+  const data = await res.json()
+  .catch(() => ([]));
+  if (!res.ok)
+  throw new Error(data.detail || "Gagal fetch artikel");
+  return data.results || [];
 }
 
-export function updateArtikel(id, payload) {
-    return fetchWithAuth(`${API_URL}/artikel/${id}/`, {
-        method: "PUT",
-        headers:{
-                "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload)
-    });
+export async function createArtikel(payload) {
+  const res = await fetch(`${API_URL}artikel/`,{
+    method: "POST",
+    headers: {
+      ...getAuthHeader(),
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload),
+  });
+  const data = await res.json()
+  .catch(() => ({}));
+  if (!res.ok)
+  throw new Error(data.detail || "Gagal membuat artikel");
+  return data;
 }
 
-export function deleteArtikel(id) {
-    return fetchWithAuth(`${API_URL}/artikel/${id}/`, {
-        method: "DELETE",
-    });
+export async function updateArtikel(id, payload) {
+  const res = await fetch(`${API_URL}artikel/${id}/`,{
+    method: "PUT",
+    headers: {
+      ...getAuthHeader(),
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload),
+  });
+  const data = await res.json()
+  .catch(() => ({}));
+  if (!res.ok)
+  throw new Error(data.detail || "Gagal update artikel");
+  return data;
 }
 
-export function fetchPublicArtikel({ kategori, tag, page }) {
-    let query = [];
-    if (kategori) query.push(`kategori=${kategori}`);
-    if (tag) query.push(`tag=${tag}`);
-    if (page) query.push(`page=${page}`);
-    const url = `${API_URL}api/public/artikel/${query.length ? "?" + query.join("&") : ""}`;
-    return fetchWithAuth(url);
+export async function deleteArtikel(id) {
+  const res = await fetch(`${API_URL}artikel/${id}/`, {
+    method: "DELETE",
+    headers: getAuthHeader(),
+  });
+  if (!res.ok) {
+    const data = await res.json()
+    .catch(() => ({}));
+    throw new Error(data.detail || "Gagal hapus artikel");
+  }
+  return true;
 }
 
-export function fetchPublicArtikelDetail(id) {
-    return fetchWithAuth(`${API_URL}/artikel/${id}/`);
+export async function getPublikArtikels() {
+  const res = await fetch(`${API_URL}public/artikel/`);
+  const data = await res.json()
+  .catch(() => ([]));
+  if (!res.ok)
+  throw new Error(data.detail || "Gagal fetch artikel publik");
+  return data.results || [];
 }
 
-export function fecthKategori() {
-    return fetchWithAuth(`${API_URL}/kategori/`);
-}
-export function fecthTag() {
-    return fetchWithAuth(`${API_URL}/tags/`);
+export async function getMyArtikels() {
+  const user = JSON.parse(localStorage.getItem("user"));
+  const res = await fetch(`${API_URL}artikel/`,{
+    headers: getAuthHeader()
+  });
+  const data = await res.json()
+  .catch(() => ({}));
+  if (!res.ok)
+  throw new Error(data.detail || "Gagal fetch artikel saya");
+
+  const artikels = data.results || [];
+  if (user?.role === "admin") return artikels;
+  return artikels.filter((a) => a.penulis?.id === user?.id);
 }
