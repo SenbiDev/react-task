@@ -1,7 +1,15 @@
-const API_BASE = "http://localhost:8000/api"; // alamat backend Django 
+const API_BASE = "http://localhost:8000/api";
 
 export const getArticles = async () => {
-  const response = await fetch(`${API_BASE}/artikel/`);
+  const token = localStorage.getItem("access");
+  const response = await fetch(`${API_BASE}/artikel/`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`,
+    },
+    body: JSON.stringify(),
+  });
   if (!response.ok) {
     throw new Error("Gagal mengambil artikel");
   }
@@ -9,12 +17,12 @@ export const getArticles = async () => {
 };
 
 export async function createArticle(data) {
-  const token = localStorage.getItem("access"); // simpan waktu login
+  const token = localStorage.getItem("access");
   const res = await fetch(`${API_BASE}/artikel/`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": `Bearer ${token}`, // ⬅️ penting
+      "Authorization": `Bearer ${token}`, 
     },
     body: JSON.stringify(data),
   });
@@ -26,7 +34,7 @@ export async function createArticle(data) {
 export async function updateArticle(id, data) {
   const token = localStorage.getItem("access");
   const res = await fetch(`${API_BASE}/artikel/${id}/`, {
-    method: "PUT", // bisa PATCH kalau mau sebagian field saja
+    method: "PUT", 
     headers: {
       "Content-Type": "application/json",
       "Authorization": `Bearer ${token}`,
@@ -47,5 +55,5 @@ export async function deleteArticle(id) {
     },
   });
   if (!res.ok) throw new Error("Gagal hapus artikel");
-  return true; // sukses hapus
+  return true; 
 }

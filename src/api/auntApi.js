@@ -22,20 +22,9 @@ export async function loginUser(data) {
   if (!res.ok) throw new Error(result.detail || "Login gagal");
 
   return result ;
-  
-  // if (request.access) {
-  //   localStorage.setItem("token", XPathResult.access);
-  //   return result;
-  // }
-  // return res.json();
 }
 
 export async function logout() {
   localStorage.removeItem("token");
   return true;
-}
-
-export function getToken() {
-  return
-  localStorage.getItem("token");
 }

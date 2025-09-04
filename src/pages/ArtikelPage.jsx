@@ -1,6 +1,8 @@
-// src/pages/ArtikelPage.jsx
 import { useState, useEffect } from "react";
 import { getArticles, createArticle, updateArticle, deleteArticle } from "../api/artikelApi";
+import { logout } from "../api/auntApi";
+import { getTags,  } from "../api/tags";
+import { getKategori } from "../api/kategori";
 import { logout } from "../api/auntApi";
 
 export default function ArtikelPage({ onLogout }) {
@@ -16,16 +18,15 @@ export default function ArtikelPage({ onLogout }) {
     status: "draft",
   });
 
-  const [loading, setLoading] = useState(true);
-  const [errorMsg, setErrorMsg] = useState("");
+  const [loading, setLoading] = useState(false);
 
   // Ambil semua data awal
   const loadData = async () => {
     try {
       setLoading(true);
       const artikelData = await getArticles("http://127.0.0.1:8000/api/artikel/");
-      const kategoriData = await getArticles("http://127.0.0.1:8000/api/kategori/");
-      const tagData = await getArticles("http://127.0.0.1:8000/api/tag/");
+      const kategoriData = await getKategori();
+      const tagData = await getTags();
 
       setArtikels(Array.isArray(artikelData) ? artikelData : artikelData?.result || []);
       setKategoriList(Array.isArray(kategoriData) ? kategoriData : kategoriData?.result || []);
