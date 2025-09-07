@@ -1,60 +1,73 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { loginUser } from "../api/auntApi";
 
-export default function SignIn() {
-  const [values, setValues] = useState({ username: "", password: "" });
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setValues((prev) => ({ ...prev, [name]: value }));
-  };
+export default function SignIn({ onLogin }) {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await loginUser(values);
-      console.log("Login sukses:", res);
-      alert("Berhasil masuk!");
-      localStorage.setItem("access",res.access);
-      localStorage.setItem("refresh",res.access);
+      const res = await loginUser(username, password);
+
+      // simpan token
+      localStorage.setItem("access", res.access);
+      localStorage.setItem("refresh", res.refresh);
+
+      // simpan data user & role
+      if (res.user) {
+        localStorage.setItem("user", JSON.stringify(res.user));
+        localStorage.setItem("role", res.user.role);
+      }
+
+      setError("");
+      if (typeof onLogin === "function") onLogin();
     } catch (err) {
-      console.error("login error:",err.message);
-      alert(err.message);
+      console.error("Login gagal:", err);
+      setError("Username atau password salah");
     }
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-white">
-      <div className="w-full max-w-md bg-black shadow-lg rounded-xl p-6">
-        <h2 className="text-2xl font-bold text-center text-white mb-6">
-          Sign In
-        </h2>
+    <div className="min-h-screen flex items-center justify-center bg-black">
+      <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-sm">
+        <h2 className="text-2xl font-bold mb-4 text-center">Login</h2>
+        {error && <p className="text-red-600 mb-3">{error}</p>}
         <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="text"
-            name="username"
-            placeholder="Username"
-            value={values.username}
-            onChange={handleChange}
-            className="w-full border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-white"
-            required
-          />
-          <input
-            type="password"
-            name="password"
-            placeholder="Kata Sandi"
-            value={values.password}
-            onChange={handleChange}
-            className="w-full border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-white"
-            required
-          />
+          <div>
+            <label className="block mb-1 font-medium">Username</label>
+            <input
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="w-full border px-3 py-2 rounded text-black"
+              required
+            />
+          </div>
+          <div>
+            <label className="block mb-1 font-medium">Password</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full border px-3 py-2 rounded text-black"
+              required
+            />
+          </div>
           <button
             type="submit"
-            className="w-full bg-black hover:bg-white text-white rounded-lg py-2"
+            className="w-full bg-black text-white py-2 rounded-lg hover:bg-gray-800 transition"
           >
-            Masuk
+            Login
           </button>
         </form>
+        <p className="mt-4 text-sm text-center">
+          Belum punya akun?{" "}
+          <a href="/signup" className="text-blue-600 hover:underline">
+            Register di sini
+          </a>
+        </p>
       </div>
     </div>
   );

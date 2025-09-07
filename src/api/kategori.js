@@ -1,10 +1,10 @@
-import { API_URL } from "./config";
+import { API_BASE } from "./config";
 
 export async function getKategori() {
     const token = localStorage.getItem("access");
     const res = await fetch(`${API_BASE}kategori/`, {
         headers: {
-        "Authorization": `Bearer ${localStorage.getItem("token")}`
+        "Authorization": `Bearer ${token}`,
         }
     });
     const data = await res.json().catch(() => ([]));

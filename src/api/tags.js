@@ -1,10 +1,10 @@
-import { API_URL } from "./config";
+import { API_BASE } from "./config";
 
 export async function getTags() {
     const token = localStorage.getItem("access"); 
     const res = await fetch(`${API_BASE}/tag/`, {
         headers: {
-        "Authorization": `Bearer ${localStorage.getItem("token")}`
+        "Authorization": `Bearer ${token}`,
         }
     });
     const data = await res.json().catch(() => ([]));

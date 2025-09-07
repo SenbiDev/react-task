@@ -1,4 +1,4 @@
-export const API_URL = "http://127.0.0.1:8000/api";
+export const API_BASE = "http://127.0.0.1:8000/api";
 
 export function getAuthHeader() {
     const token = localStorage.getItem("access");
@@ -10,7 +10,7 @@ export async function refreshToken() {
     if (!refresh) return null;
 
     try {
-        const res = await fetch(`${API_URL}token/refresh/`, {
+        const res = await fetch(`${API_BASE}token/refresh/`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json" 

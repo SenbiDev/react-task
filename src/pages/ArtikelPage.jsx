@@ -1,9 +1,13 @@
 import { useState, useEffect } from "react";
-import { getArticles, createArticle, updateArticle, deleteArticle } from "../api/artikelApi";
+import {
+  getArticles,
+  createArticle,
+  updateArticle,
+  deleteArticle,
+} from "../api/artikelApi";
 import { logout } from "../api/auntApi";
-import { getTags,  } from "../api/tags";
+import { getTags } from "../api/tags";
 import { getKategori } from "../api/kategori";
-import { logout } from "../api/auntApi";
 
 export default function ArtikelPage({ onLogout }) {
   const [artikels, setArtikels] = useState([]);
@@ -19,8 +23,13 @@ export default function ArtikelPage({ onLogout }) {
   });
 
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
 
-  // Ambil semua data awal
+  // user & role dari localStorage
+  const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
+  const role = localStorage.getItem("role") || "user";
+
+  // ambil data awal
   const loadData = async () => {
     try {
       setLoading(true);
@@ -35,9 +44,7 @@ export default function ArtikelPage({ onLogout }) {
       console.error("Error load data:", err);
       setErrorMsg("Gagal mengambil data, silakan login ulang.");
       logout();
-      if (typeof onLogout === "function") {
-        onLogout();
-      }
+      if (typeof onLogout === "function") onLogout();
     } finally {
       setLoading(false);
     }
@@ -84,6 +91,15 @@ export default function ArtikelPage({ onLogout }) {
     loadData();
   };
 
+  // filter artikel
+  const myArtikel = artikels.filter((a) => a.author?.id === currentUser?.id);
+  const publicArtikel = artikels.filter((a) => a.status === "published");
+
+  // cek izin edit/hapus
+  const canManage = (artikel) => {
+    return role === "admin" || artikel.author?.id === currentUser?.id;
+  };
+
   return (
     <div className="min-h-screen bg-black p-8 font-sans">
       <div className="max-w-5xl mx-auto space-y-8">
@@ -93,9 +109,7 @@ export default function ArtikelPage({ onLogout }) {
           <button
             onClick={() => {
               logout();
-              if (typeof onLogout === "function") {
-                onLogout();
-              }
+              if (typeof onLogout === "function") onLogout();
             }}
             className="bg-black hover:bg-red-600 text-white px-4 py-2 rounded-lg transition"
           >
@@ -106,7 +120,7 @@ export default function ArtikelPage({ onLogout }) {
         {errorMsg && <p className="text-red-600">{errorMsg}</p>}
 
         {/* Form Artikel */}
-        <div className="bg-black p-6 rounded-xl shadow border">
+        <div className="bg-black p-6 rounded-xl shadow border text-white">
           <h2 className="text-lg font-semibold mb-4">
             {selected ? "Edit Artikel" : "Tambah Artikel"}
           </h2>
@@ -120,7 +134,7 @@ export default function ArtikelPage({ onLogout }) {
                 type="text"
                 value={form.judul}
                 onChange={(e) => setForm({ ...form, judul: e.target.value })}
-                className="w-full border px-3 py-2 rounded"
+                className="w-full border px-3 py-2 rounded text-black"
                 required
               />
             </div>
@@ -130,7 +144,7 @@ export default function ArtikelPage({ onLogout }) {
               <textarea
                 value={form.konten}
                 onChange={(e) => setForm({ ...form, konten: e.target.value })}
-                className="w-full border px-3 py-2 rounded"
+                className="w-full border px-3 py-2 rounded text-black"
                 rows="4"
                 required
               />
@@ -141,18 +155,9 @@ export default function ArtikelPage({ onLogout }) {
               <select
                 value={form.kategori}
                 onChange={(e) => setForm({ ...form, kategori: e.target.value })}
-                className="w-full border px-3 py-2 rounded"
+                className="w-full border px-3 py-2 rounded text-black"
               >
-                <option className="text-black" value="">
-                  Pilih kategori
-                </option>
-                <option className="text-black" value="json">
-                  JSON
-                </option>
-                <option className="text-black" value="html">
-                  HTML
-                </option>
-
+                <option value="">Pilih kategori</option>
                 {Array.isArray(kategoriList) &&
                   kategoriList.map((kat) => (
                     <option key={kat.id} value={kat.id}>
@@ -164,7 +169,7 @@ export default function ArtikelPage({ onLogout }) {
 
             <div>
               <label className="block mb-1 font-medium">Tag</label>
-              <div className="space-y-2">
+              <div className="space-y-2 text-white">
                 {tagList.map((tag) => (
                   <label key={tag.id} className="flex items-center space-x-2">
                     <input
@@ -195,14 +200,10 @@ export default function ArtikelPage({ onLogout }) {
               <select
                 value={form.status}
                 onChange={(e) => setForm({ ...form, status: e.target.value })}
-                className="w-full border px-3 py-2 rounded"
+                className="w-full border px-3 py-2 rounded text-black"
               >
-                <option className="text-black" value="draft">
-                  Draft
-                </option>
-                <option className="text-black" value="published">
-                  Published
-                </option>
+                <option value="draft">Draft</option>
+                <option value="published">Published</option>
               </select>
             </div>
 
@@ -229,13 +230,13 @@ export default function ArtikelPage({ onLogout }) {
           </form>
         </div>
 
-        {/* Tabel Artikel */}
+        {/* My Artikel */}
         <div className="bg-white p-6 rounded-xl shadow border">
-          <h2 className="text-lg font-semibold mb-4">Daftar Artikel</h2>
+          <h2 className="text-lg font-semibold mb-4">My Artikel</h2>
           {loading ? (
             <p>Loading...</p>
-          ) : artikels.length === 0 ? (
-            <p className="text-gray-500">Belum ada artikel</p>
+          ) : myArtikel.length === 0 ? (
+            <p className="text-gray-500">Belum ada artikel buatanmu</p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full border text-sm">
@@ -248,24 +249,78 @@ export default function ArtikelPage({ onLogout }) {
                   </tr>
                 </thead>
                 <tbody>
-                  {artikels.map((a) => (
+                  {myArtikel.map((a) => (
                     <tr key={a.id} className="hover:bg-gray-50">
                       <td className="p-2 border">{a.judul}</td>
                       <td className="p-2 border">{a.status}</td>
                       <td className="p-2 border">{a.kategori?.nama || "-"}</td>
                       <td className="p-2 border space-x-2">
-                        <button
-                          onClick={() => handleEdit(a)}
-                          className="px-2 py-1 text-sm bg-black text-white rounded"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDelete(a.id)}
-                          className="px-2 py-1 text-sm bg-black text-white rounded"
-                        >
-                          Hapus
-                        </button>
+                        {canManage(a) && (
+                          <>
+                            <button
+                              onClick={() => handleEdit(a)}
+                              className="px-2 py-1 text-sm bg-black text-white rounded"
+                            >
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => handleDelete(a.id)}
+                              className="px-2 py-1 text-sm bg-black text-white rounded"
+                            >
+                              Hapus
+                            </button>
+                          </>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
+        {/* Public Artikel */}
+        <div className="bg-white p-6 rounded-xl shadow border">
+          <h2 className="text-lg font-semibold mb-4">Public Artikel</h2>
+          {loading ? (
+            <p>Loading...</p>
+          ) : publicArtikel.length === 0 ? (
+            <p className="text-gray-500">Belum ada artikel publish</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full border text-sm">
+                <thead className="bg-gray-100">
+                  <tr>
+                    <th className="p-2 border">Judul</th>
+                    <th className="p-2 border">Author</th>
+                    <th className="p-2 border">Kategori</th>
+                    <th className="p-2 border">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {publicArtikel.map((a) => (
+                    <tr key={a.id} className="hover:bg-gray-50">
+                      <td className="p-2 border">{a.judul}</td>
+                      <td className="p-2 border">{a.author?.username || "-"}</td>
+                      <td className="p-2 border">{a.kategori?.nama || "-"}</td>
+                      <td className="p-2 border space-x-2">
+                        {canManage(a) && (
+                          <>
+                            <button
+                              onClick={() => handleEdit(a)}
+                              className="px-2 py-1 text-sm bg-black text-white rounded"
+                            >
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => handleDelete(a.id)}
+                              className="px-2 py-1 text-sm bg-black text-white rounded"
+                            >
+                              Hapus
+                            </button>
+                          </>
+                        )}
                       </td>
                     </tr>
                   ))}
