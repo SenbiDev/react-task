@@ -31,12 +31,10 @@ export default function ArtikelPage({ onLogout }) {
   const loadData = async () => {
     try {
       setLoading(true);
-      // gArticles tidak butuh argumenet
       const artikelData = await getArticles();
       const kategoriData = await getKategori();
       const tagData = await getTags();
 
-      //  handle response dengan .results (pagination dari DRF)
       setArtikels(
         Array.isArray(artikelData?.results)
           ? artikelData.results
@@ -122,7 +120,6 @@ export default function ArtikelPage({ onLogout }) {
     return role === "admin" || artikel.penulis?.id === currentUser?.id;
   };
 
-
   return (
     <div className="min-h-screen bg-black p-8 font-sans">
       <div className="max-w-5xl mx-auto space-y-8">
@@ -141,13 +138,11 @@ export default function ArtikelPage({ onLogout }) {
 
         {errorMsg && <p className="text-red-600">{errorMsg}</p>}
 
-        {/* Form Tambah / Edit Artikel */}
         <div className="bg-white p-6 rounded-xl shadow border text-black">
           <h2 className="text-lg font-semibold mb-4">
             {selected ? "Edit Artikel" : "Tambah Artikel"}
           </h2>
           <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* input judul */}
             <div className="col-span-2">
               <label className="block mb-1 font-medium">Judul</label>
               <input
@@ -159,7 +154,6 @@ export default function ArtikelPage({ onLogout }) {
               />
             </div>
 
-            {/* input konten */}
             <div className="col-span-2">
               <label className="block mb-1 font-medium">Konten</label>
               <textarea
@@ -171,7 +165,6 @@ export default function ArtikelPage({ onLogout }) {
               />
             </div>
 
-            {/* select kategori */}
             <div>
               <label className="block mb-1 font-medium">Kategori</label>
               <select
@@ -188,12 +181,11 @@ export default function ArtikelPage({ onLogout }) {
               </select>
             </div>
 
-            {/* checkbox tag */}
             <div>
               <label className="block mb-1 font-medium">Tag</label>
-              <div className="space-y-2 text-black flex flex-wrap">
+              <div className="flex flex-wrap gap-4 text-black">
                 {tagList.map((tag) => (
-                  <label key={tag.id} className="flex items-center gap-3 px-3 p-0 rounded-lg">
+                  <label key={tag.id} className="flex items-center gap-2">
                     <input
                       type="checkbox"
                       value={tag.id}
@@ -217,7 +209,6 @@ export default function ArtikelPage({ onLogout }) {
               </div>
             </div>
 
-            {/* select status */}
             <div>
               <label className="block mb-1 font-medium">Status</label>
               <select
@@ -230,7 +221,6 @@ export default function ArtikelPage({ onLogout }) {
               </select>
             </div>
 
-            {/* tombol simpan / update */}
             <div className="col-span-2">
               <button
                 type="submit"
@@ -254,7 +244,6 @@ export default function ArtikelPage({ onLogout }) {
           </form>
         </div>
 
-        {/* Tabel My Artikel */}
         <div className="bg-white p-6 rounded-xl shadow border">
           <h2 className="text-lg font-semibold mb-4 text-black">My Artikel</h2>
           {loading ? (
@@ -280,9 +269,11 @@ export default function ArtikelPage({ onLogout }) {
                     <tr key={a.id} className="hover:bg-gray-50">
                       <td className="p-2 border">{a.judul}</td>
                       <td className="p-2 border">{a.konten}</td>
-                      <td className="p-2 border">{a.penulis?.penulis_id || "-"}</td>
+                      <td className="p-2 border">{a.penulis?.username || "-"}</td>
                       <td className="p-2 border">{a.kategori?.nama || "-"}</td>
-                      <td className="p-2 border">{a.tag?.id || "-"}</td>
+                      <td className="p-2 border">
+                        {a.tags?.length > 0 ? a.tags.map((t) => t.nama).join(", ") : "-"}
+                      </td>
                       <td className="p-2 border">{a.status}</td>
                       <td className="p-2 border space-x-2">
                         {canManage(a) && (
@@ -310,7 +301,6 @@ export default function ArtikelPage({ onLogout }) {
           )}
         </div>
 
-        {/* Tabel Public Artikel */}
         <div className="bg-white p-6 rounded-xl shadow border">
           <h2 className="text-lg font-semibold mb-4 text-black">Public Artikel</h2>
           {loading ? (
@@ -323,7 +313,7 @@ export default function ArtikelPage({ onLogout }) {
                 <thead className="bg-gray-100">
                   <tr>
                     <th className="p-2 border">Judul</th>
-                    <th className="p-2 border">konten</th>
+                    <th className="p-2 border">Konten</th>
                     <th className="p-2 border">Penulis</th>
                     <th className="p-2 border">Kategori</th>
                     <th className="p-2 border">Tag</th>
@@ -336,9 +326,11 @@ export default function ArtikelPage({ onLogout }) {
                     <tr key={a.id} className="hover:bg-gray-50">
                       <td className="p-2 border">{a.judul}</td>
                       <td className="p-2 border">{a.konten}</td>
-                      <td className="p-2 border">{a.penulis?.penulis_id || "-"}</td>
+                      <td className="p-2 border">{a.penulis?.username || "-"}</td>
                       <td className="p-2 border">{a.kategori?.nama || "-"}</td>
-                      <td className="p-2 border">{a.tags?.id || "-"}</td>
+                      <td className="p-2 border">
+                        {a.tags?.length > 0 ? a.tags.map((t) => t.nama).join(", ") : "-"}
+                      </td>
                       <td className="p-2 border">{a.status}</td>
                       <td className="p-2 border space-x-2">
                         {canManage(a) && (
