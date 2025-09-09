@@ -8,7 +8,6 @@ export const getArticles = async () => {
       "Content-Type": "application/json",
       "Authorization": `Bearer ${token}`,
     },
-    body: JSON.stringify(),
   });
   if (!response.ok) {
     throw new Error("Gagal mengambil artikel");
@@ -30,11 +29,10 @@ export async function createArticle(data) {
   return res.json();
 }
 
-// UPDATE artikel
 export async function updateArticle(id, data) {
   const token = localStorage.getItem("access");
   const res = await fetch(`${API_BASE}/artikel/${id}/`, {
-    method: "PUT", 
+    method: "PUT",
     headers: {
       "Content-Type": "application/json",
       "Authorization": `Bearer ${token}`,
@@ -45,7 +43,6 @@ export async function updateArticle(id, data) {
   return res.json();
 }
 
-// DELETE artikel
 export async function deleteArticle(id) {
   const token = localStorage.getItem("access");
   const res = await fetch(`${API_BASE}/artikel/${id}/`, {
@@ -55,5 +52,5 @@ export async function deleteArticle(id) {
     },
   });
   if (!res.ok) throw new Error("Gagal hapus artikel");
-  return true; 
+  return true;
 }

@@ -2,7 +2,7 @@ import { API_BASE } from "./config";
 
 export async function getKategori() {
     const token = localStorage.getItem("access");
-    const res = await fetch(`${API_BASE}kategori/`, {
+    const res = await fetch(`${API_BASE}/kategori/`, {
         headers: {
         "Authorization": `Bearer ${token}`,
         }
@@ -14,7 +14,7 @@ export async function getKategori() {
 
 export async function createKategori(nama) {
     const token = localStorage.getItem("access");
-    const res = await fetch(`${API_BASE}kategori/`, {
+    const res = await fetch(`${API_BASE}/kategori/`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -42,7 +42,7 @@ export async function updateKategori(id, nama) {
 
 export async function deleteKategori(id) {
     const token = localStorage.getItem("access");
-    const res = await fetch(`${API_BASE}kategori/${id}`, {
+    const res = await fetch(`${API_BASE}/kategori/${id}`, {
         method: "DELETE",
         headers: {
             "Content-Type": "application/json",

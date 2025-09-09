@@ -9,7 +9,8 @@ export default function SignIn({ onLogin }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await loginUser(username, password);
+      const res = await loginUser({username, password});
+      console.log("login berhasil");
 
       // simpan token
       localStorage.setItem("access", res.access);
@@ -31,7 +32,7 @@ export default function SignIn({ onLogin }) {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-black">
-      <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-sm">
+      <div className="bg-white text-black p-6 rounded-lg shadow-lg w-full max-w-sm">
         <h2 className="text-2xl font-bold mb-4 text-center">Login</h2>
         {error && <p className="text-red-600 mb-3">{error}</p>}
         <form onSubmit={handleSubmit} className="space-y-4">

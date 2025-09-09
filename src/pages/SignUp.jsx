@@ -16,7 +16,7 @@ export default function SignUp() {
       return;
     }
     try {
-      await registerUser(username, email, password, password2);
+      await registerUser({username, email, password, password2});
       setSuccess("Registrasi berhasil! Silakan login.");
       setError("");
       setUsername("");
@@ -31,7 +31,7 @@ export default function SignUp() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-black">
-      <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-sm">
+      <div className="bg-white text-black p-6 rounded-lg shadow-lg w-full max-w-sm">
         <h2 className="text-2xl font-bold mb-4 text-center">Register</h2>
         {error && <p className="text-red-600 mb-3">{error}</p>}
         {success && <p className="text-green-600 mb-3">{success}</p>}
