@@ -27,7 +27,7 @@ export default function SignIn({ onLogin }) {
 
       setError("");
       if (res.user.role === "admin") {
-        // navigate("/admin/");
+        navigate("/artikel/");
       } else {
         navigate("/artikel/");
       }
@@ -72,7 +72,7 @@ export default function SignIn({ onLogin }) {
         </form>
         <p className="mt-4 text-sm text-center">
           Belum punya akun?{" "}
-          <a href="/signup" className="text-blue-600 hover:underline">
+          <a href="/signup/" className="text-blue-600 hover:underline">
             Register di sini
           </a>
         </p>
