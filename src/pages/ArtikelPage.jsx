@@ -8,6 +8,7 @@ import {
 import { logout } from "../api/auntApi";
 import { getTags } from "../api/tags";
 import { getKategori } from "../api/kategori";
+import { useNavigate } from "react-router-dom";
 
 export default function ArtikelPage({ onLogout }) {
   const [artikels, setArtikels] = useState([]);
@@ -27,6 +28,7 @@ export default function ArtikelPage({ onLogout }) {
 
   const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
   const role = currentUser?.role || "user";
+  const navigate = useNavigate();
 
   const loadData = async () => {
     try {
@@ -113,6 +115,12 @@ export default function ArtikelPage({ onLogout }) {
     loadData();
   };
 
+  const handleLogout = () => {
+    logout();
+    navigate("/signin/");
+  }
+
+
   const myArtikel = artikels.filter((a) => a.penulis?.id === currentUser?.id);
   const publicArtikel = artikels.filter((a) => a.status === "published");
 
@@ -125,11 +133,15 @@ export default function ArtikelPage({ onLogout }) {
       <div className="max-w-5xl mx-auto space-y-8">
         <div className="flex justify-between items-center">
           <h1 className="text-2xl font-bold text-white">Dashboard Artikel</h1>
+          <div className="space-x-2">
+            {role === "admin" && (
+              <button 
+              onClick={() => navigate("/admin/")}
+              className="!bg-white text-black px-4 py-2 rounded-lg">Kelola kategori dan Tag</button>
+            )}
+          </div>
           <button
-            onClick={() => {
-              logout();
-              if (typeof onLogout === "function") onLogout();
-            }}
+            onClick={ handleLogout }
             className="!bg-white hover:bg-red-600 text-black px-4 py-2 rounded-lg transition"
           >
             Logout
@@ -299,8 +311,7 @@ export default function ArtikelPage({ onLogout }) {
               </table>
             </div>
           )}
-        </div>
-
+        </div> 
         <div className="bg-white p-6 rounded-xl shadow border">
           <h2 className="text-lg font-semibold mb-4 text-black">Public Artikel</h2>
           {loading ? (
@@ -358,6 +369,6 @@ export default function ArtikelPage({ onLogout }) {
           )}
         </div>
       </div>
-    </div>
+    </div>    
   );
 }

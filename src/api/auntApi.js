@@ -33,7 +33,10 @@ export const registerUser = async (newUser) => {
 };
 
 export async function logout() {
-  localStorage.removeItem("token");
+  localStorage.removeItem("access");
+  localStorage.removeItem("refrsh");
+  localStorage.removeItem("user");
+  localStorage.removeItem("role");
   return true;
 }
 

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { getKategori, createKategori, updateKategori, deleteKategori } from "../api/kategori";
 import { getTags, createTag, updateTag, deleteTag } from "../api/tags";
 import { logout } from "../api/auntApi";
+import { useNavigate } from "react-router-dom";
 
 export default function AdminPage({ onLogout }) {
   const [kategoriList, setKategoriList] = useState([]);
@@ -12,6 +13,8 @@ export default function AdminPage({ onLogout }) {
   const [tagForm, setTagForm] = useState({ nama: "" });
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
+
+  const navigate = useNavigate();
 
   const loadData = async () => {
     try {
@@ -110,11 +113,16 @@ export default function AdminPage({ onLogout }) {
   };
 
   return (
-    <div className="min-h-screen bg-black p-8 font-sans text-white">
+    <div className="min-h-screen bg-white p-8 font-sans text-black">
       <div className="max-w-5xl mx-auto space-y-8">
         {/* Header */}
         <div className="flex justify-between items-center">
           <h1 className="text-2xl font-bold">Dashboard Admin</h1>
+          <button
+          onClick={() => navigate("/artikel/")} 
+          className="bg-black text-white px-4 py-2 rounded-lg border">
+            Kembali
+          </button>
           <button
             onClick={() => {
               logout();
@@ -129,7 +137,7 @@ export default function AdminPage({ onLogout }) {
       </div>
 
       {/* Form Kategori */}
-      <div className="bg-black p-6 rounded-xl shadow border mt-6">
+      <div className="bg-white p-6 rounded-xl shadow border mt-6">
         <h2 className="text-lg font-semibold mb-4">
           {selectedKategori ? "Edit Kategori" : "Tambah Kategori"}
         </h2>
@@ -146,7 +154,7 @@ export default function AdminPage({ onLogout }) {
           />
           <button
             type="submit"
-            className="bg-black text-white px-4 py-2 rounded-lg border"
+            className="bg-black !text-white px-4 py-2 rounded-lg border"
           >
             {selectedKategori ? "Update" : "Simpan"}
           </button>
@@ -157,7 +165,7 @@ export default function AdminPage({ onLogout }) {
                 setSelectedKategori(null);
                 resetFormKategori();
               }}
-              className="bg-black text-white px-4 py-2 rounded-lg border"
+              className=" text-white px-4 py-2 rounded-lg border"
             >
               Batal
             </button>
@@ -203,7 +211,7 @@ export default function AdminPage({ onLogout }) {
       </div>
 
       {/* Form Tag */}
-      <div className="bg-black p-6 rounded-xl shadow border mt-6">
+      <div className="bg-white p-6 rounded-xl shadow border mt-6">
         <h2 className="text-lg font-semibold mb-4">
           {selectedTag ? "Edit Tag" : "Tambah Tag"}
         </h2>

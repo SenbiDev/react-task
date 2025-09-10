@@ -7,6 +7,7 @@ import About from './pages/About'
 import ArtikelPage from './pages/ArtikelPage'
 import SignIn from './pages/SignIn'
 import SignUp from './pages/SignUp'
+import AdminPage from './pages/AdminPage';
 import './index.css'
 
 const router = createBrowserRouter([
@@ -33,6 +34,10 @@ const router = createBrowserRouter([
       {
         path: "signup",
         element: <SignUp />
+      },
+      {
+        path: "admin",
+        element: <AdminPage />
       }
     ]
   }

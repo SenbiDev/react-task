@@ -28,7 +28,7 @@ export async function createKategori(nama) {
 
 export async function updateKategori(id, nama) {
     const token = localStorage.getItem("access");
-    const res = await fetch(`${API_BASE}kategori/${id}`, {
+    const res = await fetch(`${API_BASE}/kategori/${id}/`, {
         method: "PUT",
         headers: {
             "Content-Type": "application/json",
@@ -42,7 +42,7 @@ export async function updateKategori(id, nama) {
 
 export async function deleteKategori(id) {
     const token = localStorage.getItem("access");
-    const res = await fetch(`${API_BASE}/kategori/${id}`, {
+    const res = await fetch(`${API_BASE}/kategori/${id}/`, {
         method: "DELETE",
         headers: {
             "Content-Type": "application/json",

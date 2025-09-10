@@ -26,7 +26,7 @@ export async function createTag(nama) {
     if (!res.ok) throw new Error(data.detail || "gagal membuat tag");
 }
 
-export async function upadateTag(id, nama) {
+export async function updateTag(id, nama) {
     const token = localStorage.getItem("access");
     const res = await fetch(`${API_BASE}/tags/${id}/`, {
         method: "PUT",

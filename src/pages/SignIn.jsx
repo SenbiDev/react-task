@@ -1,16 +1,19 @@
 import { useState } from "react";
 import { loginUser } from "../api/auntApi";
+import { useNavigate } from "react-router-dom";
 
 export default function SignIn({ onLogin }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
+  const navigate = useNavigate();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const res = await loginUser({username, password});
-      console.log("login berhasil");
+      alert("login berhasil");
 
       // simpan token
       localStorage.setItem("access", res.access);
@@ -23,12 +26,16 @@ export default function SignIn({ onLogin }) {
       }
 
       setError("");
-      if (typeof onLogin === "function") onLogin();
-    } catch (err) {
+      if (res.user.role === "admin") {
+        // navigate("/admin/");
+      } else {
+        navigate("/artikel/");
+      }
+      } catch (err) {
       console.error("Login gagal:", err);
       setError("Username atau password salah");
-    }
-  };
+      }
+    };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-black">
