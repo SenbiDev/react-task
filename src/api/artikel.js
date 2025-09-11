@@ -85,3 +85,18 @@ export async function getMyArtikels() {
   // if (user?.role === "admin") return artikels;
   return artikels.filter((a) => a.penulis?.id === user?.id);
 }
+
+export async function getArtikelById(id) {
+  let res = await fetch(`${API_URL}artikel/${id}/`,{
+    headers: getAuthHeader()
+  });
+  if (res.statusm === 401){
+    await refreshToken();
+    res = await fetch(`${API_URL}artikel/${id}/`,{
+    headers: getAuthHeader()
+  });
+  }
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.detail||"Gagal fetch artikel");
+  return data;
+}

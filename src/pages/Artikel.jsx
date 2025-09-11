@@ -242,13 +242,20 @@ export default function ArtikelPage() {
                             <li key={a.id} className="flex justify-between items-center p-3 border border-gray-200 rounded">
                           <div>
                             <p className="font-medium text-black">{a.judul}</p>
-                            <p className="text-sm text-black">{a.konten}</p>
+                            {/* <p className="text-sm text-black">{a.konten}</p> */}
                             <p className="text-sm text-black mt-1">
                               Penulis: {a.penulis?.username || "-"} | Kategori:{" "}
                               {a.kategori?.nama || "-"} | Tags:{" "}
                               {a.tags?.map((t) => t.nama).join(", ") || "-"}
                              </p>
                           </div>
+                          <div className="flex justify-around space-x-2">
+                          <button
+                            onClick={() => navigate(`/artikel/${a.id}`)}
+                            className="text-blue-600 hover:underline text-sm"
+                          >
+                            View
+                          </button>
                             {(isOwner || isAdmin) && (
                               <div className="space-x-2">
                                 <button
@@ -265,6 +272,7 @@ export default function ArtikelPage() {
                                 </button>
                               </div>
                             )}
+                          </div>
                           </li>
                         );
                       })}

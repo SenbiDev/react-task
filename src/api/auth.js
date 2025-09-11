@@ -31,6 +31,8 @@ export async function register(username, email, password, password2) {
     }),
   });
   const data = await res.json().catch(() => ({}));
+  console.log("DEBUG REGISTER RESPONE", data)
+
   if (!res.ok) throw new Error(data.detail || data.error || "Register gagal");
   
   return data;

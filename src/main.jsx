@@ -9,6 +9,8 @@ import LoginPage from './pages/Login';
 import RegisterPage from './pages/Register';
 import ArtikelPage from './pages/Artikel';
 import AdminPage from './pages/AdminPage';
+import ArtikelView from './pages/ArtikelView';
+import PrivateRoute from './components/PrivateRoute';
 
 const router = createBrowserRouter([
   {
@@ -33,11 +35,19 @@ const router = createBrowserRouter([
       },
       {
         path: "artikel",
-        element: <ArtikelPage />
+        element:(
+          <PrivateRoute>
+            <ArtikelPage/>
+          </PrivateRoute>
+        )
       },
       {
         path: "admin",
         element: <AdminPage />
+      },
+      {
+        path: "artikel/:id",
+        element: <ArtikelView />
       },
       {
         path: "*",
@@ -50,6 +60,5 @@ const router = createBrowserRouter([
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <RouterProvider router={router} />
-
   </React.StrictMode>
 )

@@ -77,167 +77,172 @@ export default function AdminPage() {
   };
 
   return (
-    <div className="bg-white p-6 border border-gray-300 rounded shadow-sm">
-      <button
-        onClick={() => navigate("/artikel")}
-        className="mb-4 bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-900 transition-colors"
-      >
-        Kembali
-      </button>
-
-      <h3 className="text-xl font-semibold text-black">Kelola Kategori</h3>
-      <div className="mb-4 flex">
-        <input
-          type="text"
-          value={newKategori}
-          onChange={(e) => setNewKategori(e.target.value)}
-          placeholder="Nama kategori"
-          className="flex text-black w-full px-3 py-2 border border-gray-400 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
-        />
+    <div className="min-h-screen bg-white p-6 border border-gray-300 rounded shadow-sm">
+      <div className="flex justify-end">
         <button
-          onClick={() => {
-            if (!newKategori.trim()) return;
-            handleAddKategori(newKategori);
-            setNewKategori("");
-          }}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
+          onClick={() => navigate("/artikel")}
+          className="flex items-end mb-4 bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-900 transition-colors"
         >
-          Tambah
+          Kembali
         </button>
       </div>
+      <div className="min-h-screen flex justify-around gap-5">
+        <div className="w-full">
+          <h3 className="text-xl font-semibold text-black">Kelola Kategori</h3>
+          <div className="mb-4 flex">
+            <input
+              type="text"
+              value={newKategori}
+              onChange={(e) => setNewKategori(e.target.value)}
+              placeholder="Nama kategori"
+              className="flex text-black w-full px-3 py-2 border border-gray-400 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+            />
+            <button
+              onClick={() => {
+                if (!newKategori.trim()) return;
+                handleAddKategori(newKategori);
+                setNewKategori("");
+              }}
+              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
+            >
+              Tambah
+            </button>
+          </div>
 
-      <ul className="space-y-3">
-        {kategoriList.map((k) => (
-          <li
-            key={k.id}
-            className="flex justify-between text-black items-center p-3 border border-gray-400 rounded"
-          >
-            {editKategoriId === k.id ? (
-              <div className="mb-4 flex">
-                <input
-                  type="text"
-                  value={editKategoriName}
-                  onChange={(e) => setEditKategoriName(e.target.value)}
-                  className="flex text-black w-full px-3 py-2 border border-gray-400 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
-                />
-                <button
-                  onClick={() => {
-                    handleUpdateKategori(k.id, editKategoriName);
-                    setEditKategoriId(null);
-                  }}
-                  className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors"
-                >
-                  Simpan
-                </button>
-                <button
-                  onClick={() => setEditKategoriId(null)}
-                  className="bg-red-600 text-black px-4 py-2 rounded hover:bg-red-700 transition-colors"
-                >
-                  Batal
-                </button>
-              </div>
-            ) : (
-              <>
-                <span>{k.nama}</span>
-                <div className="mb-4 flex">
-                  <button
-                    onClick={() => {
-                      setEditKategoriId(k.id);
-                      setEditKategoriName(k.nama);
-                    }}
-                    className="text-green-600 hover:underline text-sm"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDeleteKategori(k.id)}
-                    className="text-red-600 hover:underline text-sm"
-                  >
-                    Hapus
-                  </button>
-                </div>
-              </>
-            )}
-          </li>
-        ))}
-      </ul>
-
-      <h3 className="text-xl mt-5 font-semibold text-black">Kelola Tags</h3>
-      <div className="mb-4 flex">
-        <input
-          type="text"
-          value={newTag}
-          onChange={(e) => setNewTag(e.target.value)}
-          placeholder="Nama tag"
-          className="flex text-black w-full px-3 py-2 border border-gray-400 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
-        />
-        <button
-          onClick={() => {
-            if (!newTag.trim()) return;
-            handleAddTag(newTag);
-            setNewTag("");
-          }}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
-        >
-          Tambah
-        </button>
+          <ul>
+            {kategoriList.map((k) => (
+              <li
+                key={k.id}
+                className="flex justify-between text-black items-center p-3 border border-gray-400 rounded"
+              >
+                {editKategoriId === k.id ? (
+                  <div className="mb-4 flex">
+                    <input
+                      type="text"
+                      value={editKategoriName}
+                      onChange={(e) => setEditKategoriName(e.target.value)}
+                      className="flex text-black w-full px-3 py-2 border border-gray-400 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    />
+                    <button
+                      onClick={() => {
+                        handleUpdateKategori(k.id, editKategoriName);
+                        setEditKategoriId(null);
+                      }}
+                      className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors"
+                    >
+                      Simpan
+                    </button>
+                    <button
+                      onClick={() => setEditKategoriId(null)}
+                      className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors"
+                    >
+                      Batal
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <span>{k.nama}</span>
+                    <div className="mb-4 flex">
+                      <button
+                        onClick={() => {
+                          setEditKategoriId(k.id);
+                          setEditKategoriName(k.nama);
+                        }}
+                        className="text-green-600 hover:underline text-sm"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDeleteKategori(k.id)}
+                        className="text-red-600 hover:underline text-sm"
+                      >
+                        Hapus
+                      </button>
+                    </div>
+                  </>
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div className="w-full">
+          <h3 className="text-xl font-semibold text-black">Kelola Tags</h3>
+          <div className="mb-4 flex">
+            <input
+              type="text"
+              value={newTag}
+              onChange={(e) => setNewTag(e.target.value)}
+              placeholder="Nama tag"
+              className="flex text-black w-full px-3 py-2 border border-gray-400 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+            />
+            <button
+              onClick={() => {
+                if (!newTag.trim()) return;
+                handleAddTag(newTag);
+                setNewTag("");
+              }}
+              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
+            >
+              Tambah
+            </button>
+          </div>
+          <ul className="mt-3">
+            {tagList.map((t) => (
+              <li
+                key={t.id}
+                className="flex justify-between text-black items-center p-3 border border-gray-400 rounded"
+              >
+                {editTagId === t.id ? (
+                  <div className="mb-4 flex">
+                    <input
+                      type="text"
+                      value={editTagName}
+                      onChange={(e) => setEditTagName(e.target.value)}
+                      className="flex text-black w-full px-3 py-2 border border-gray-400 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    />
+                    <button
+                      onClick={() => {
+                        handleUpdateTag(t.id, editTagName);
+                        setEditTagId(null);
+                      }}
+                      className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors"
+                    >
+                      Simpan
+                    </button>
+                    <button
+                      onClick={() => setEditTagId(null)}
+                      className="text-white hover:underline text-sm"
+                    >
+                      Batal
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <span>{t.nama}</span>
+                    <div className="mb-4 flex">
+                      <button
+                        onClick={() => {
+                          setEditTagId(t.id);
+                          setEditTagName(t.nama);
+                        }}
+                        className="text-green-600 hover:underline text-sm"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDeleteTag(t.id)}
+                        className="text-red-600 hover:underline text-sm"
+                      >
+                        Hapus
+                      </button>
+                    </div>
+                  </>
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
-
-      <ul className="mt-3">
-        {tagList.map((t) => (
-          <li
-            key={t.id}
-            className="flex justify-between text-black items-center p-3 border border-gray-400 rounded"
-          >
-            {editTagId === t.id ? (
-              <div className="mb-4 flex">
-                <input
-                  type="text"
-                  value={editTagName}
-                  onChange={(e) => setEditTagName(e.target.value)}
-                  className="flex text-black w-full px-3 py-2 border border-gray-400 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
-                />
-                <button
-                  onClick={() => {
-                    handleUpdateTag(t.id, editTagName);
-                    setEditTagId(null);
-                  }}
-                  className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors"
-                >
-                  Simpan
-                </button>
-                <button
-                  onClick={() => setEditTagId(null)}
-                  className="text-gray-600 hover:underline text-sm"
-                >
-                  Batal
-                </button>
-              </div>
-            ) : (
-              <>
-                <span>{t.nama}</span>
-                <div className="mb-4 flex">
-                  <button
-                    onClick={() => {
-                      setEditTagId(t.id);
-                      setEditTagName(t.nama);
-                    }}
-                    className="text-green-600 hover:underline text-sm"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDeleteTag(t.id)}
-                    className="text-red-600 hover:underline text-sm"
-                  >
-                    Hapus
-                  </button>
-                </div>
-              </>
-            )}
-          </li>
-        ))}
-      </ul>
     </div>
   );
 }
