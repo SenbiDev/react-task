@@ -1,8 +1,20 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom"; // ✅ ditambahkan
 import { getAuthHeader, refreshToken } from "../api/config";
-import { getKategori, createKategori, updateKategori, deleteKategori, getTags, createTag, updateTag, deleteTag, } from "../api/admin";
+import {
+  getKategori,
+  createKategori,
+  updateKategori,
+  deleteKategori,
+  getTags,
+  createTag,
+  updateTag,
+  deleteTag,
+} from "../api/admin";
 
-export default function AdminPage () {
+export default function AdminPage() {
+  const navigate = useNavigate(); 
+
   const [newKategori, setNewKategori] = useState("");
   const [newTag, setNewTag] = useState("");
   const [editKategoriId, setEditKategoriId] = useState(null);
@@ -13,60 +25,66 @@ export default function AdminPage () {
   const [tagList, setTagList] = useState([]);
   const [isLogin, setIsLogin] = useState(false);
   const [role, setRole] = useState("");
-  
+
   useEffect(() => {
-      const token = localStorage.getItem("access");
-      const savedRole = localStorage.getItem("role");
-      if (token) {
-        setIsLogin(true);
-        if (savedRole)
-        setRole(savedRole);
-        loadData();
-      }
-    }, []);
-    
-    const loadData = async () => {
-      try {
-        const kat = await getKategori();
-        const tg = await getTags();
-        setKategoriList(kat);
-        setTagList(tg);
-      } catch (err) {
-        console.error("Gagal load data:", err);
-      }
-    };
-    
-    const handleAddKategori = async (nama) => {
-      await createKategori(nama);
+    const token = localStorage.getItem("access");
+    const savedRole = localStorage.getItem("role");
+    if (token) {
+      setIsLogin(true);
+      if (savedRole) setRole(savedRole);
       loadData();
-    };
-    const handleAddTag = async (nama) => {
-      await createTag(nama);
-      loadData();
-    };
-    const handleDeleteKategori = async (id) => {
-      if (!window.confirm("Yakin hapus kategori?")) return;
-      await deleteKategori(id);
-      loadData();
-    };
-    const handleDeleteTag = async (id) => {
-      if (!window.confirm("Yakin hapus tag?")) return;
-      await deleteTag(id);
-      loadData();
-    };
-    const handleUpdateKategori = async (id, nama) => {
-      if (!nama.trim()) return;
-      await updateKategori(id, nama);
-      loadData();
-    };
-    const handleUpdateTag = async (id, nama) => {
-      if (!nama.trim()) return;
-      await updateTag(id, nama);
-      loadData();
-    };
+    }
+  }, []);
+
+  const loadData = async () => {
+    try {
+      const kat = await getKategori();
+      const tg = await getTags();
+      setKategoriList(kat);
+      setTagList(tg);
+    } catch (err) {
+      console.error("Gagal load data:", err);
+    }
+  };
+
+  const handleAddKategori = async (nama) => {
+    await createKategori(nama);
+    loadData();
+  };
+  const handleAddTag = async (nama) => {
+    await createTag(nama);
+    loadData();
+  };
+  const handleDeleteKategori = async (id) => {
+    if (!window.confirm("Yakin hapus kategori?")) return;
+    await deleteKategori(id);
+    loadData();
+  };
+  const handleDeleteTag = async (id) => {
+    if (!window.confirm("Yakin hapus tag?")) return;
+    await deleteTag(id);
+    loadData();
+  };
+  const handleUpdateKategori = async (id, nama) => {
+    if (!nama.trim()) return;
+    await updateKategori(id, nama);
+    loadData();
+  };
+  const handleUpdateTag = async (id, nama) => {
+    if (!nama.trim()) return;
+    await updateTag(id, nama);
+    loadData();
+  };
 
   return (
     <div className="bg-white p-6 border border-gray-300 rounded shadow-sm">
+      <button
+        onClick={() => navigate("/artikel")}
+        className="mb-4 bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-900 transition-colors"
+      >
+        Kembali
+      </button>
+
       <h3 className="text-xl font-semibold text-black">Kelola Kategori</h3>
       <div className="mb-4 flex">
         <input
@@ -92,7 +110,7 @@ export default function AdminPage () {
         {kategoriList.map((k) => (
           <li
             key={k.id}
-            className="flex justify-between items-center p-3 border border-gray-200 rounded"
+            className="flex justify-between text-black items-center p-3 border border-gray-400 rounded"
           >
             {editKategoriId === k.id ? (
               <div className="mb-4 flex">
@@ -143,7 +161,8 @@ export default function AdminPage () {
           </li>
         ))}
       </ul>
-      <h3 className="text-xl font-semibold text-black">Kelola Tags</h3>
+
+      <h3 className="text-xl mt-5 font-semibold text-black">Kelola Tags</h3>
       <div className="mb-4 flex">
         <input
           type="text"
@@ -168,7 +187,7 @@ export default function AdminPage () {
         {tagList.map((t) => (
           <li
             key={t.id}
-            className="flex justify-between items-center p-3 border border-gray-200 rounded"
+            className="flex justify-between text-black items-center p-3 border border-gray-400 rounded"
           >
             {editTagId === t.id ? (
               <div className="mb-4 flex">

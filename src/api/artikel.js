@@ -82,6 +82,6 @@ export async function getMyArtikels() {
   throw new Error(data.detail || "Gagal fetch artikel saya");
 
   const artikels = data.results || [];
-  if (user?.role === "admin") return artikels;
+  // if (user?.role === "admin") return artikels;
   return artikels.filter((a) => a.penulis?.id === user?.id);
 }

@@ -123,7 +123,7 @@ export default function ArtikelPage() {
                     </div>
                   </div>
                 <div className="bg-white p-6 border border-gray-300 rounded shadow-sm mb-8">
-                    <h3 className="mb-4 text-lg font-medium">{editingId ? "Edit Artikel" : "Buat Artikel"}</h3>
+                    <h3 className="mb-4 text-lg text-black font-medium">{editingId ? "Edit Artikel" : "Buat Artikel"}</h3>
                     <form onSubmit={handleSubmit}>
                         <div className="mb-4">
                             <label className="block mb-1 font-medium text-gray-700">Judul</label>
@@ -198,7 +198,7 @@ export default function ArtikelPage() {
                     </form>
                 </div>
                 <div className="bg-white p-6 border border-gray-300 rounded shadow-sm">
-                    <h3 className="mb-4 text-lg font-medium">Artikel Saya</h3>
+                    <h3 className="mb-4 text-lg text-black font-medium">Artikel Saya</h3>
                     {myArtikel.length === 0 ? (
                         <p className="text-gray-500">Belum ada artikel</p>
                     ) : (
@@ -229,7 +229,7 @@ export default function ArtikelPage() {
                     )}
                 </div>
                 <div className="bg-white p-6 border border-gray-300 rounded shadow-sm">
-                  <h3 className="mb-4 text-lg font-medium">Artikel Publik</h3>
+                  <h3 className="mb-4 text-lg text-black font-medium">Artikel Publik</h3>
                     {publikArtikel.length === 0 ? (
                       <p className="text-gray-500">Belum ada artikel publik.</p>
                     ) : (
