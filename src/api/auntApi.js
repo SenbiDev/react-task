@@ -1,4 +1,4 @@
-const API_BASE = "http://localhost:8000/api"; // alamat backend Django kamu
+const API_BASE = "http://localhost:8000/api"; 
 
 export const loginUser = async (credentials) => {
   const response = await fetch(`${API_BASE}/login/`, {
@@ -34,7 +34,7 @@ export const registerUser = async (newUser) => {
 
 export async function logout() {
   localStorage.removeItem("access");
-  localStorage.removeItem("refrsh");
+  localStorage.removeItem("refresh");
   localStorage.removeItem("user");
   localStorage.removeItem("role");
   return true;

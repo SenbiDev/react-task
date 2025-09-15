@@ -312,6 +312,7 @@ export default function ArtikelPage({ onLogout }) {
             </div>
           )}
         </div> 
+        {role == "admin" && (
         <div className="bg-white p-6 rounded-xl shadow border">
           <h2 className="text-lg font-semibold mb-4 text-black">Public Artikel</h2>
           {loading ? (
@@ -368,6 +369,7 @@ export default function ArtikelPage({ onLogout }) {
             </div>
           )}
         </div>
+        )}
       </div>
     </div>    
   );

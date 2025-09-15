@@ -9,6 +9,7 @@ import SignIn from './pages/SignIn'
 import SignUp from './pages/SignUp'
 import AdminPage from './pages/AdminPage'
 import './index.css'
+import { ProtectedRoute } from './components/ProtectedRoute';
 
 const router = createBrowserRouter([
   {
@@ -29,7 +30,11 @@ const router = createBrowserRouter([
       },
       {
         path: 'artikel',
-        element: <ArtikelPage />
+        element: (
+          <ProtectedRoute>
+            <ArtikelPage/>
+          </ProtectedRoute>
+        )
       },
       {
         path: 'signin',
@@ -41,7 +46,11 @@ const router = createBrowserRouter([
       },
       {
         path: 'admin',
-        element: <AdminPage />
+        element: (
+          <ProtectedRoute>
+            <AdminPage />
+          </ProtectedRoute>
+        )
       }
     ]
   },

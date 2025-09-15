@@ -24,6 +24,7 @@ export async function createKategori(nama) {
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(data.detail || "gagal membuat kategori");
+    return data;
 }
 
 export async function updateKategori(id, nama) {
@@ -38,6 +39,7 @@ export async function updateKategori(id, nama) {
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(data.detail || "gagal update kategori");
+    return data;
 }
 
 export async function deleteKategori(id) {
@@ -51,4 +53,5 @@ export async function deleteKategori(id) {
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(data.detail || "gagal delete kategori");
+    return true;
 }

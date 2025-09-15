@@ -24,6 +24,7 @@ export async function createTag(nama) {
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(data.detail || "gagal membuat tag");
+    return data;
 }
 
 export async function updateTag(id, nama) {
@@ -38,6 +39,7 @@ export async function updateTag(id, nama) {
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(data.detail || "gagal update tag");
+    return data;
 }
 
 export async function deleteTag(id) {
@@ -51,5 +53,6 @@ export async function deleteTag(id) {
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(data.detail || "gagal delete tag");
+    return true;
 }
 
