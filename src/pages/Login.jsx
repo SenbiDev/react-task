@@ -29,7 +29,7 @@ export default function Login() {
       const loggedInUser = await login(username, password);
       if (loggedInUser) {
         resetForm();
-        navigate("/artikel-api");
+        navigate("/app/artikel-api");
       }
     } catch (err) {
       setError(err.message || "Login gagal");

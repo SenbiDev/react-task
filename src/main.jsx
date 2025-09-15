@@ -13,23 +13,33 @@ import "./index.css";
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <App />, // App selalu render Navbar + Outlet
+    element: <Login />,
+  },
+  {
+    path: "/app",
+    element: <App />, 
     children: [
-      { index: true, element: <Home /> },
-      { path: "about", element: <About /> },
+      { index: true, 
+        element: 
+        <ProtectedRoute>
+          <Home /> 
+        </ProtectedRoute>
+      },
+      { path: "about", 
+        element: 
+        <ProtectedRoute>
+          <About /> 
+        </ProtectedRoute>
+      },
       {
         path: "artikel-api",
         element: (
           <ProtectedRoute>
-            <ArtikelApi /> {/* ArtikelApi tetap lewat App, jadi Navbar tampil */}
+            <ArtikelApi /> 
           </ProtectedRoute>
         ),
       },
     ],
-  },
-  {
-    path: "/login", // login dipisahkan 
-    element: <Login />,
   },
 ]);
 

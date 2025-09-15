@@ -3,7 +3,7 @@ import { Navigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import { Loader2 } from "lucide-react";
 
-export default function ProtectedRoute({ children, redirectTo = "/login", roles }) {
+export default function ProtectedRoute({ children, redirectTo = "/", roles }) {
   const { user, isLoading } = useAuth();
 
   if (isLoading) {
@@ -24,7 +24,7 @@ export default function ProtectedRoute({ children, redirectTo = "/login", roles 
 
   // Kalau roles dibatasi (misalnya hanya admin)
   if (roles && !roles.includes(user.role)) {
-    return <Navigate to="/" replace />; // redirect ke home
+    return <Navigate to="/app" replace />; // redirect ke home
   }
 
   // Akses diizinkan

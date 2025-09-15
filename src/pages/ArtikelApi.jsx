@@ -185,52 +185,54 @@ export default function ArtikelApi() {
       </div>
 
       {/* ================= LIST ARTIKEL PUBLIK ================= */}
-      <div className="bg-gray-800 p-4 rounded">
-        <h3 className="text-xl font-semibold mb-2">Artikel Publik</h3>
-        {publicArtikel.length === 0 ? (
-          <p className="text-gray-400">Belum ada artikel publik.</p>
-        ) : (
-          <ul className="space-y-3">
-            {publicArtikel.map((a) => {
-              const isOwner = user?.id === a.penulis?.id;
-              const isAdmin = role === "admin";
-              return (
-                <li
-                  key={a.id}
-                  className="bg-gray-900 p-3 rounded flex justify-between items-start"
-                >
-                  <div>
-                    <h4 className="font-bold">{a.judul}</h4>
-                    <p className="text-gray-300">{a.konten}</p>
-                    <p className="text-sm text-gray-400 mt-1">
-                      Penulis:{" "}
-                      {a.penulis?.username || a.penulis?.name || "-"} | Kategori:{" "}
-                      {a.kategori?.nama || "-"} | Tags:{" "}
-                      {a.tags?.map((t) => t.nama).join(", ") || "-"}
-                    </p>
-                  </div>
-                  {(isOwner || isAdmin) && (
-                    <div className="flex gap-2 ml-4">
-                      <button
-                        onClick={() => handleEdit(a)}
-                        className="bg-blue-500 px-2 py-1 rounded text-sm"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDelete(a.id)}
-                        className="bg-red-600 px-2 py-1 rounded text-sm"
-                      >
-                        Hapus
-                      </button>
+      {role === "admin" && (
+        <div className="bg-gray-800 p-4 rounded">
+          <h3 className="text-xl font-semibold mb-2">Artikel Publik</h3>
+          {publicArtikel.length === 0 ? (
+            <p className="text-gray-400">Belum ada artikel publik.</p>
+          ) : (
+            <ul className="space-y-3">
+              {publicArtikel.map((a) => {
+                const isOwner = user?.id === a.penulis?.id;
+                const isAdmin = role === "admin";
+                return (
+                  <li
+                    key={a.id}
+                    className="bg-gray-900 p-3 rounded flex justify-between items-start"
+                  >
+                    <div>
+                      <h4 className="font-bold">{a.judul}</h4>
+                      <p className="text-gray-300">{a.konten}</p>
+                      <p className="text-sm text-gray-400 mt-1">
+                        Penulis:{" "}
+                        {a.penulis?.username || a.penulis?.name || "-"} | Kategori:{" "}
+                        {a.kategori?.nama || "-"} | Tags:{" "}
+                        {a.tags?.map((t) => t.nama).join(", ") || "-"}
+                      </p>
                     </div>
-                  )}
-                </li>
-              );
-            })}
-          </ul>
-        )}
-      </div>
+                    {(isOwner || isAdmin) && (
+                      <div className="flex gap-2 ml-4">
+                        <button
+                          onClick={() => handleEdit(a)}
+                          className="bg-blue-500 px-2 py-1 rounded text-sm"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDelete(a.id)}
+                          className="bg-red-600 px-2 py-1 rounded text-sm"
+                        >
+                          Hapus
+                        </button>
+                      </div>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
+      )}
     </div>
   );
 }
