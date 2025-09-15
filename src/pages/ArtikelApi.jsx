@@ -9,19 +9,19 @@ import {
   createArticle,
   updateArticle,
   deleteArticle,
-} from "../api/artikel";
+} from "../axiosApi/artikel";
 import {
   getKategori,
   createKategori,
   updateKategori,
   deleteKategori,
-} from "../api/kategori";
+} from "../axiosApi/kategori";
 import {
   getTags,
   createTag,
   updateTag,
   deleteTag,
-} from "../api/tags";
+} from "../axiosApi/tags";
 
 export default function ArtikelApi() {
   const { user } = useAuth();   
