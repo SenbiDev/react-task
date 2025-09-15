@@ -85,7 +85,7 @@ export default function SignUp() {
         </form>
         <p className="mt-4 text-sm text-center">
           Sudah punya akun?{" "}
-          <a href="/signin" className="text-blue-600 hover:underline">
+          <a href="/signin/" className="text-blue-600 hover:underline">
             Login di sini
           </a>
         </p>

@@ -1,45 +1,53 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
 import App from './App'
 import Home from './pages/Home'
 import About from './pages/About'
 import ArtikelPage from './pages/ArtikelPage'
 import SignIn from './pages/SignIn'
 import SignUp from './pages/SignUp'
-import AdminPage from './pages/AdminPage';
+import AdminPage from './pages/AdminPage'
 import './index.css'
 
 const router = createBrowserRouter([
   {
-    path: "/",
+    path: '/',
+    element: <Navigate to="/home" replace />
+  },
+  {
+    path: '/',
     element: <App />,
     children: [
       {
-        index: true,
+        path: 'home',
         element: <Home />
       },
       {
-        path: "about",
+        path: 'about',
         element: <About />
       },
       {
-        path: "artikel",
+        path: 'artikel',
         element: <ArtikelPage />
       },
       {
-        path: "signin",
+        path: 'signin',
         element: <SignIn />
       },
       {
-        path: "signup",
+        path: 'signup',
         element: <SignUp />
       },
       {
-        path: "admin",
+        path: 'admin',
         element: <AdminPage />
       }
     ]
+  },
+  {
+    path: '*',
+    element: <Navigate to="/home" replace />
   }
 ]);
 
