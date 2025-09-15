@@ -9,6 +9,7 @@ export async function getTags() {
     throw error;
   }
 }
+
 export async function createTag(nama) {
   try {
     const res = await api.post("tags/", { nama });
@@ -18,6 +19,7 @@ export async function createTag(nama) {
     throw error;
   }
 }
+
 export async function updateTag(id, nama) {
   try {
     const res = await api.put(`tags/${id}/`, { nama });
@@ -27,9 +29,10 @@ export async function updateTag(id, nama) {
     throw error;
   }
 }
-export async function deleteTag(id, nama) {
+
+export async function deleteTag(id) {
   try {
-    await api.delete(`tags/${id}/`, { nama });
+    await api.delete(`tags/${id}/`);
     return true;
   } catch (error) {
     console.error("Gagal hapus tag:", error);

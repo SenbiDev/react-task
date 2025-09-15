@@ -1,4 +1,4 @@
-import { Mail, Lock, User, Loader2, ArrowRight } from "lucide-react";
+import { Mail, Lock, User, ArrowRight } from "lucide-react";
 import PasswordInput from "./PasswordInput";
 
 export default function AuthForm({
@@ -123,6 +123,7 @@ export default function AuthForm({
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
                 <PasswordInput
+                  id="password"   
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter your password"
@@ -141,6 +142,7 @@ export default function AuthForm({
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
                   <PasswordInput
+                    id="password2"  
                     value={password2}
                     onChange={(e) => setPassword2(e.target.value)}
                     placeholder="Confirm your password"
@@ -169,6 +171,7 @@ export default function AuthForm({
               </button>
             </p>
           </div>
+
           {/* Demo Credentials */}
           <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
             <p className="text-sm text-blue-800 font-medium mb-2">Demo Credentials:</p>

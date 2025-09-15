@@ -9,6 +9,7 @@ export async function getKategori() {
     throw error;
   }
 }
+
 export async function createKategori(nama) {
   try {
     const res = await api.post("kategori/", { nama });
@@ -18,6 +19,7 @@ export async function createKategori(nama) {
     throw error;
   }
 }
+
 export async function updateKategori(id, nama) {
   try {
     const res = await api.put(`kategori/${id}/`, { nama });
@@ -27,9 +29,10 @@ export async function updateKategori(id, nama) {
     throw error;
   }
 }
-export async function deleteKategori(id, nama) {
+
+export async function deleteKategori(id) {
   try {
-    await api.delete(`kategori/${id}/`, { nama });
+    await api.delete(`kategori/${id}/`);
     return true;
   } catch (error) {
     console.error("Gagal hapus kategori:", error);

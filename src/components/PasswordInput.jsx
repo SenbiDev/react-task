@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Eye, EyeOff, Lock } from "lucide-react";
 
-export default function PasswordInput({ value, onChange, placeholder }) {
+export default function PasswordInput({ id, value, onChange, placeholder }) {
   const [show, setShow] = useState(false);
 
   return (
@@ -10,6 +10,7 @@ export default function PasswordInput({ value, onChange, placeholder }) {
       <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
 
       <input
+        id={id}  
         type={show ? "text" : "password"}
         placeholder={placeholder}
         value={value}
