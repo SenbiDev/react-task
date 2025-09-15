@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { getKategori, createKategori, updateKategori, deleteKategori } from "../api/kategori";
 import { getTags, createTag, updateTag, deleteTag } from "../api/tags";
-import { logout } from "../api/auntApi";
+import { logout } from "../api/authApi";
 import { useNavigate } from "react-router-dom";
 
 export default function AdminPage({ onLogout }) {

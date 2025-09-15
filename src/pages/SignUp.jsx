@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { registerUser } from "../api/auntApi";
+import { registerUser } from "../api/authApi";
 
 export default function SignUp() {
   const [username, setUsername] = useState("");

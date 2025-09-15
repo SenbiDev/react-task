@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { loginUser } from "../api/auntApi";
+import { loginUser } from "../api/authApi";
 import { useNavigate } from "react-router-dom";
 
-export default function SignIn({ onLogin }) {
+export default function SignIn() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");

@@ -5,7 +5,7 @@ import {
   updateArticle,
   deleteArticle,
 } from "../api/artikelApi";
-import { logout } from "../api/auntApi";
+import { logout } from "../api/authApi";
 import { getTags } from "../api/tags";
 import { getKategori } from "../api/kategori";
 import { useNavigate } from "react-router-dom";
@@ -68,9 +68,11 @@ export default function ArtikelPage({ onLogout }) {
     }
   };
 
-  useEffect(() => {
-    loadData();
-  }, []);
+useEffect(() => {
+  loadData();
+// eslint-disable-next-line react-hooks/exhaustive-deps
+}, []);
+
 
   const resetForm = () =>
     setForm({ judul: "", konten: "", kategori_id: "", tag_ids: [], status: "draft" });
