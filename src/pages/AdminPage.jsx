@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom"; // ✅ ditambahkan
-import { getAuthHeader, refreshToken } from "../api/config";
+import { useNavigate } from "react-router-dom";
 import {
   getKategori,
   createKategori,
@@ -10,7 +9,7 @@ import {
   createTag,
   updateTag,
   deleteTag,
-} from "../api/admin";
+} from "../axiosApi/admin";
 
 export default function AdminPage() {
   const navigate = useNavigate(); 

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { register } from "../api/auth";
+import { register } from "../axiosApi/auth";
 import PasswordInput from "../components/PasswordInput";
 
 export default function RegisterPage() {

@@ -1,11 +1,8 @@
 import { useEffect, useState } from "react";
-import { login } from "../api/auth";
+import { login } from "../axiosApi/auth";
 import { Link } from "react-router-dom";
-import { getPublikArtikels, getMyArtikels } from "../api/artikel";
 import PasswordInput from "../components/PasswordInput";
 import { useNavigate } from "react-router-dom";
-import { getKategori, getTags } from "../api/admin";
-
 
 export default function LoginPage({ onLogin, switchPage }) {
     const [username, setUsername] = useState("");

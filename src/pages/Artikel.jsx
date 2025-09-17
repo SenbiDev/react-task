@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
-import { getAuthHeader, refreshToken } from "../api/config";
-import { getArtikelList, createArtikel, updateArtikel, deleteArtikel, getMyArtikels, getPublikArtikels } from "../api/artikel";
+import { createArtikel, updateArtikel, deleteArtikel, getMyArtikels, getPublikArtikels } from "../axiosApi/artikel";
 import { logout } from "../api/auth";
-import { getKategori, getTags } from "../api/admin";
+import { getKategori, getTags } from "../axiosApi/admin";
 import { useNavigate } from "react-router-dom";
 
 export default function ArtikelPage() {
@@ -25,22 +24,29 @@ export default function ArtikelPage() {
       const savedRole = localStorage.getItem("role");
       if (token) {
         setIsLogin(true);
-        if (savedRole)
-        setRole(savedRole);
-        loadData();
+        if (savedRole) {
+          setRole(savedRole);
+          loadData(savedRole);
+        }
       }
     }, []);
     
-    const loadData = async () => {
+    const loadData = async (role) => {
       try {
-        const pub = await getPublikArtikels();
-        setPublikArtikel(pub);
         const mine = await getMyArtikels();
         setMyArtikel(mine);
+
         const kat = await getKategori();
         setKategoriList(kat);
+        
         const tg = await getTags();
         setTagList(tg);
+
+        if (role === "admin") {
+          const pub = await getPublikArtikels();
+          setPublikArtikel(pub);
+        }
+
       } catch (err) {
         console.error("Gagal load data:", err);
       }
@@ -209,25 +215,34 @@ export default function ArtikelPage() {
                                         <p className="font-medium text-black">{artikel.judul}</p>
                                         <p className="text-sm text-black">{artikel.status}</p>
                                     </div>
-                                    <div className="space-x-2">
-                                        <button
-                                            onClick={() => handleEdit(artikel)}
-                                            className="text-green-600 hover:underline text-sm"
-                                        >
-                                            Edit
-                                        </button>
-                                        <button
-                                            onClick={() => handleDelete(artikel.id)}
-                                            className="text-red-600 hover:underline text-sm"
-                                        >
-                                            Hapus
-                                        </button>
+                                    <div className="flex justify-around space-x-2">
+                                      <button
+                                        onClick={() => navigate(`/artikel/${artikel.id}`)}
+                                        className="text-blue-600 hover:underline text-sm"
+                                      >
+                                        View
+                                      </button>
+                                      <div className="space-x-2">
+                                          <button
+                                              onClick={() => handleEdit(artikel)}
+                                              className="text-green-600 hover:underline text-sm"
+                                          >
+                                              Edit
+                                          </button>
+                                          <button
+                                              onClick={() => handleDelete(artikel.id)}
+                                              className="text-red-600 hover:underline text-sm"
+                                          >
+                                              Hapus
+                                          </button>
+                                      </div>
                                     </div>
                                 </li>
                             ))}
                         </ul>
                     )}
                 </div>
+                {role === "admin" && (
                 <div className="bg-white p-6 border border-gray-300 rounded shadow-sm">
                   <h3 className="mb-4 text-lg text-black font-medium">Artikel Publik</h3>
                     {publikArtikel.length === 0 ? (
@@ -250,28 +265,26 @@ export default function ArtikelPage() {
                              </p>
                           </div>
                           <div className="flex justify-around space-x-2">
-                          <button
-                            onClick={() => navigate(`/artikel/${a.id}`)}
-                            className="text-blue-600 hover:underline text-sm"
-                          >
-                            View
-                          </button>
-                            {(isOwner || isAdmin) && (
-                              <div className="space-x-2">
                                 <button
-                                  onClick={() => handleEdit(a)}
-                                  className="text-green-600 hover:underline text-sm"
+                                  onClick={() => navigate(`/artikel/${a.id}`)}
+                                  className="text-blue-600 hover:underline text-sm"
                                 >
-                                  Edit
+                                  View
                                 </button>
-                                <button
-                                  onClick={() => handleDelete(a.id)}
-                                  className="text-red-600 hover:underline text-sm"
-                                >
-                                  Hapus
-                                </button>
-                              </div>
-                            )}
+                                <div className="space-x-2">
+                                  <button
+                                    onClick={() => handleEdit(a)}
+                                    className="text-green-600 hover:underline text-sm"
+                                  >
+                                    Edit
+                                  </button>
+                                  <button
+                                    onClick={() => handleDelete(a.id)}
+                                    className="text-red-600 hover:underline text-sm"
+                                  >
+                                    Hapus
+                                  </button>
+                                </div>
                           </div>
                           </li>
                         );
@@ -279,6 +292,7 @@ export default function ArtikelPage() {
                     </ul>
                   )}
               </div>
+              )}
             </div>
         </div>
     );

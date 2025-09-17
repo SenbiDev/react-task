@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getArtikelById } from "../api/artikel";
+import { getArtikelById } from "../axiosApi/artikel";
 
 export default function ArtikelView () {
     const {id} = useParams();
