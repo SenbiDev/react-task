@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { loginUser } from "../api/authApi";
+import { loginUser } from "../axiosApi/authApi";
 import { useNavigate } from "react-router-dom";
 
 export default function SignIn() {

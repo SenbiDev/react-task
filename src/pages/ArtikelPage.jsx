@@ -4,10 +4,10 @@ import {
   createArticle,
   updateArticle,
   deleteArticle,
-} from "../api/artikelApi";
-import { logout } from "../api/authApi";
-import { getTags } from "../api/tags";
-import { getKategori } from "../api/kategori";
+} from "../axiosApi/artikelApi";
+import { logout } from "../axiosApi/authApi";
+import { getTags } from "../axiosApi/tags";
+import { getKategori } from "../axiosApi/kategori";
 import { useNavigate } from "react-router-dom";
 
 export default function ArtikelPage({ onLogout }) {
