@@ -5,7 +5,7 @@ export default function App() {
   return (
     <div className="flex flex-col">
       <Navbar />
-      <main className="flex-grow">
+      <main className="flex-grow h-screen">
         <Outlet />
       </main>
     </div>

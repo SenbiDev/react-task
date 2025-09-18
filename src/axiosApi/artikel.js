@@ -1,4 +1,3 @@
-// artikel.js
 import api from "./apiConfig";
 
 export async function getArtikelList() {
@@ -8,6 +7,16 @@ export async function getArtikelList() {
     return data.results || [];
   } catch (error) {
     console.error("Gagal fetch artikel:", error);
+    throw error;
+  }
+}
+
+export async function createArticle(payload) {
+  try {
+    const res = await api.post("artikel/", payload);
+    return res.data;
+  } catch (error) {
+    console.error("Gagal membuat artikel:", error);
     throw error;
   }
 }

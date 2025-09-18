@@ -3,8 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import { Mail, Lock, Loader2, ArrowRight } from 'lucide-react';
 
-export default function Login () {
-  const [email, setEmail] = useState('');
+export default function Login() {
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const { login, isLoading } = useAuth();
@@ -14,11 +14,12 @@ export default function Login () {
     e.preventDefault();
     setError('');
 
-    const success = await login(email, password);
+    const success = await login(username, password);
+
     if (success) {
-      navigate('/dashboard');
+      navigate('/artikel');
     } else {
-      setError('Invalid credentials. Please try again.');
+      setError('Username atau password salah. Silakan coba lagi.');
     }
   };
 
@@ -44,18 +45,18 @@ export default function Login () {
             )}
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                Email Address
+              <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
+                Username
               </label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                 <input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  id="username"
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
                   className="text-black w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-                  placeholder="Enter your email"
+                  placeholder="Enter your username"
                   required
                 />
               </div>
@@ -110,14 +111,13 @@ export default function Login () {
             </p>
           </div>
 
-          {/* Demo Credentials */}
+          {/* Catatan (opsional) */}
           <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-            <p className="text-sm text-blue-800 font-medium mb-2">Demo Credentials:</p>
-            <p className="text-xs text-blue-700">Email: any valid email</p>
-            <p className="text-xs text-blue-700">Password: minimum 6 characters</p>
+            <p className="text-sm text-blue-800 font-medium mb-2">Note:</p>
+            <p className="text-xs text-blue-700">Gunakan akun yang terdaftar di sistem backend Anda.</p>
           </div>
         </div>
       </div>
     </div>
   );
-};
+}

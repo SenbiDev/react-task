@@ -1,5 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useLogin } from '../hooks/auth';
 
 const AuthContext = createContext();
 
@@ -15,68 +16,53 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  const { mutateAsync: loginMutation } = useLogin();
+
   useEffect(() => {
-    const storedUser = localStorage.getItem('auth-user');
+    const storedUser = localStorage.getItem('user');
     if (storedUser) {
       try {
         setUser(JSON.parse(storedUser));
-      // eslint-disable-next-line no-unused-vars
       } catch (error) {
-        localStorage.removeItem('auth-user');
+        localStorage.removeItem('user');
       }
     }
     setIsLoading(false);
   }, []);
 
-  const login = async (email, password) => {
+  const login = async (username, password) => {
     setIsLoading(true);
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        if (email && password.length >= 6) {
-          const user = {
-            id: '1',
-            email,
-            name: email.split('@')[0],
-            avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`,
-          };
-          setUser(user);
-          localStorage.setItem('auth-user', JSON.stringify(user));
-          setIsLoading(false);
-          resolve(true);
-        } else {
-          setIsLoading(false);
-          resolve(false);
-        }
-      }, 1500);
-    });
+    try {
+      const data = await loginMutation({ username, password });
+
+      // Simpan token dan user
+      if (data.access) localStorage.setItem('access', data.access);
+      if (data.refresh) localStorage.setItem('refresh', data.refresh);
+      if (data.user) {
+        localStorage.setItem('user', JSON.stringify(data.user));
+        setUser(data.user);
+      }
+
+      return true;
+    } catch (error) {
+      console.error("Login gagal:", error);
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const register = async (email, password, name) => {
-    setIsLoading(true);
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        if (email && password.length >= 6 && name) {
-          const user = {
-            id: '1',
-            email,
-            name,
-            avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`,
-          };
-          setUser(user);
-          localStorage.setItem('auth-user', JSON.stringify(user));
-          setIsLoading(false);
-          resolve(true);
-        } else {
-          setIsLoading(false);
-          resolve(false);
-        }
-      }, 1500);
-    });
+    // TODO: Integrasi API register jika tersedia
+    alert("Registrasi belum diimplementasikan.");
+    return false;
   };
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem('auth-user');
+    localStorage.removeItem('user');
+    localStorage.removeItem('access');
+    localStorage.removeItem('refresh');
   };
 
   return (

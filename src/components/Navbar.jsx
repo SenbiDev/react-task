@@ -20,6 +20,10 @@ export default function Navbar() {
         <Link to="/" className="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium">
           Home
         </Link>
+
+        <Link to="/artikel" className="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium">
+          Artikel
+        </Link>
       </div>
 
       {/* User Menu */}
