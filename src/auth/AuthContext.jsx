@@ -1,73 +1,56 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import * as authApi from "../axiosApi/auth"; 
+import { useLogin, useRegister } from "../hooks/auth";
 
 const AuthContext = createContext();
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
-};
+export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const loginMutation = useLogin();
+  const registerMutation = useRegister();
 
   useEffect(() => {
-    // Ambil user dari localStorage (hasil login sebelumnya)
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
       try {
         setUser(JSON.parse(storedUser));
-      } catch (error) {
+      } catch {
         localStorage.removeItem("user");
       }
     }
-    setIsLoading(false);
   }, []);
 
   const login = async (username, password) => {
-    setIsLoading(true);
-    try {
-      const data = await authApi.login(username, password);
-      // simpan user + token ke state & localStorage
-      setUser(data.user);
-      localStorage.setItem("user", JSON.stringify(data.user));
-      localStorage.setItem("access", data.access);
-      localStorage.setItem("refresh", data.refresh);
-      setIsLoading(false);
-      return data.user;
-    } catch (error) {
-      setIsLoading(false);
-      throw error;
-    }
+    const data = await loginMutation.mutateAsync({ username, password });
+    setUser(data.user);
+    localStorage.setItem("user", JSON.stringify(data.user));
+    localStorage.setItem("access", data.access);
+    localStorage.setItem("refresh", data.refresh);
+    return data.user;
   };
 
   const register = async (username, email, password, password2) => {
-    setIsLoading(true);
-    try {
-      const data = await authApi.register(username, email, password, password2);
-      if (data.user) {
-        setUser(data.user);
-        localStorage.setItem("user", JSON.stringify(data.user));
-      }
-      setIsLoading(false);
-      return data;
-    } catch (error) {
-      setIsLoading(false);
-      throw error;
+    const data = await registerMutation.mutateAsync({
+      username,
+      email,
+      password,
+      password2,
+    });
+    if (data.user) {
+      setUser(data.user);
+      localStorage.setItem("user", JSON.stringify(data.user));
     }
+    return data;
   };
 
   const logout = () => {
     setUser(null);
-    localStorage.clear(); 
+    localStorage.clear();
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, isLoading }}>
+    <AuthContext.Provider value={{ user, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );
