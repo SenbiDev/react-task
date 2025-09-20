@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { registerUser } from "../axiosApi/authApi";
+import { registerUser } from "../hooks/useAuthQuery";
 
 export default function SignUp() {
   const [username, setUsername] = useState("");

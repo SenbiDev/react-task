@@ -1,41 +1,27 @@
 import { useState } from "react";
-import { loginUser } from "../axiosApi/authApi";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../auth/AuthContext"; 
 
 export default function SignIn() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const { login, isLoading } = useAuth(); 
 
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      const res = await loginUser({username, password});
-      alert("login berhasil");
+    setError("");
 
-      // simpan token
-      localStorage.setItem("access", res.access);
-      localStorage.setItem("refresh", res.refresh);
+    const success = await login(username, password); 
 
-      // simpan data user & role
-      if (res.user) {
-        localStorage.setItem("user", JSON.stringify(res.user));
-        localStorage.setItem("role", res.user.role);
-      }
-
-      setError("");
-      if (res.user.role === "admin") {
-        navigate("/artikel/");
-      } else {
-        navigate("/artikel/");
-      }
-      } catch (err) {
-      console.error("Login gagal:", err);
+    if (success) {
+      navigate("/artikel");
+    } else {
       setError("Username atau password salah");
-      }
-    };
+    }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-black">
@@ -65,9 +51,10 @@ export default function SignIn() {
           </div>
           <button
             type="submit"
+            disabled={isLoading} 
             className="w-full bg-black text-white py-2 rounded-lg hover:bg-gray-800 transition"
           >
-            Login
+            {isLoading ? "Loading..." : "Login"}
           </button>
         </form>
         <p className="mt-4 text-sm text-center">
