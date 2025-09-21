@@ -17,16 +17,13 @@ export default function ProtectedRoute({ children, redirectTo = "/", roles }) {
     );
   }
 
-  // Belum login → redirect
   if (!user) {
     return <Navigate to={redirectTo} replace />;
   }
 
-  // Kalau roles dibatasi (misalnya hanya admin)
-  if (roles && !roles.includes(user.role)) {
-    return <Navigate to="/app" replace />; // redirect ke home
+  if (roles?.length && !roles.includes(user.role)) {
+    return <Navigate to="/app" replace />; 
   }
 
-  // Akses diizinkan
   return <>{children}</>;
 }

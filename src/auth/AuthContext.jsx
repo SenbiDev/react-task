@@ -7,6 +7,7 @@ export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true); // ⬅️ tambahan
   const loginMutation = useLogin();
   const registerMutation = useRegister();
 
@@ -19,6 +20,7 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem("user");
       }
     }
+    setIsLoading(false); 
   }, []);
 
   const login = async (username, password) => {
@@ -50,7 +52,9 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout }}>
+    <AuthContext.Provider
+      value={{ user, isLoading, login, register, logout }} 
+    >
       {children}
     </AuthContext.Provider>
   );

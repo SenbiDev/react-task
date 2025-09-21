@@ -32,10 +32,14 @@ export async function createArticle(payload) {
 
 export async function updateArticle(id, payload) {
   try {
-    const res = await api.put(`artikel/${id}/`, payload);
+    const cleanPayload = {
+      ...payload,
+      tag_ids: (payload.tag_ids || []).filter((id) => id != null),
+    };
+    const res = await api.put(`artikel/${id}/`, cleanPayload);
     return res.data;
   } catch (error) {
-    console.error("Gagal update artikel:", error);
+    console.error("Gagal update artikel:", error.response?.data || error);
     throw error;
   }
 }

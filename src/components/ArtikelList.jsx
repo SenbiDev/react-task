@@ -25,7 +25,8 @@ export default function ArtikelList({ artikel, onEdit, onDelete, isMyList }) {
                 <p className="text-sm text-gray-400 mt-1">
                   {isMyList ? (
                     <>
-                      Status: {a.status} | Kategori: {a.kategori?.nama || "-"}
+                      Status: {a.status} | Kategori: {a.kategori?.nama || "-"} | Tags:{" "}
+                      {a.tags?.map((t) => t.nama).join(", ") || "-"}
                     </>
                   ) : (
                     <>
