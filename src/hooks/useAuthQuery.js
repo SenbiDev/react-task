@@ -1,6 +1,6 @@
 // hooks/useAuthQuery.js
 import { useMutation } from "@tanstack/react-query";
-import { loginUser, registerUser, logout } from "../api/authApi";
+import { loginUser, registerUser, logout } from "../axiosApi/authApi";
 
 // Login
 export function useLogin() {

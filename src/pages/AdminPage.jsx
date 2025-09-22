@@ -1,6 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { getKategori, createKategori, updateKategori, deleteKategori } from "../hooks/useKategoriQuery";
-import { getTags, createTag, updateTag, deleteTag } from "../hooks/useTagsQuery";
+import {
+  useKategoriList,
+  useCreateKategori,
+  useUpdateKategori,
+  useDeleteKategori,
+} from "../hooks/useKategoriQuery";
+import {
+  useTagsList,
+  useCreateTag,
+  useUpdateTag,
+  useDeleteTag,
+} from "../hooks/useTagsQuery";
 import { logout } from "../hooks/useAuthQuery";
 import { useNavigate } from "react-router-dom";
 

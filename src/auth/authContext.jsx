@@ -1,6 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { loginUser, registerUser, logout as logoutApi } from "../axios/authApi";
+import { useLogin, useRegister, useLogout } from "../hooks/useAuthQuery";
 
 const AuthContext = createContext();
 
@@ -16,12 +16,16 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  const loginMutation = useLogin();
+  const registerMutation = useRegister();
+  const logoutMutation = useLogout();
+
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
       try {
         setUser(JSON.parse(storedUser));
-      } catch (error) {
+      } catch {
         localStorage.removeItem("user");
       }
     }
@@ -31,16 +35,13 @@ export const AuthProvider = ({ children }) => {
   const login = async (username, password) => {
     setIsLoading(true);
     try {
-      const data = await loginUser({ username, password });
-
+      const data = await loginMutation.mutateAsync({ username, password });
       if (data.user) {
         localStorage.setItem("user", JSON.stringify(data.user));
         setUser(data.user);
       }
-
       return true;
-    } catch (error) {
-      console.error("Login gagal:", error);
+    } catch {
       return false;
     } finally {
       setIsLoading(false);
@@ -49,16 +50,15 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (newUser) => {
     try {
-      const data = await registerUser(newUser);
+      const data = await registerMutation.mutateAsync(newUser);
       return data;
     } catch (error) {
-      console.error("Registrasi gagal:", error);
       throw error;
     }
   };
 
   const logout = () => {
-    logoutApi(); 
+    logoutMutation.mutate();
     setUser(null);
   };
 

@@ -5,7 +5,7 @@ import {
   createArticle,
   updateArticle,
   deleteArticle,
-} from "../api/artikelApi";
+} from "../axiosApi/artikelApi";
 
 // Ambil semua artikel
 export function useArticles() {

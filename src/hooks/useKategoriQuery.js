@@ -5,7 +5,7 @@ import {
   createKategori,
   updateKategori,
   deleteKategori,
-} from "../api/kategori";
+} from "../axiosApi/kategori";
 
 // Ambil semua kategori
 export function useKategoriList() {

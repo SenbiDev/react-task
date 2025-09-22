@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import {
-  getArticles,
-  createArticle,
-  updateArticle,
-  deleteArticle,
+  useArticles,
+  useCreateArticle,
+  useUpdateArticle,
+  useDeleteArticle,
 } from "../hooks/useArtikelQuery";
 import { logout } from "../hooks/useAuthQuery";
 import { getTags } from "../hooks/useTagsQuery";

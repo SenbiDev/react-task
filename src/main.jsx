@@ -4,7 +4,7 @@ import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom"
 import {
   QueryClient,
   QueryClientProvider,
-} from '@tantask/react-query';
+} from "@tanstack/react-query";
 import App from "./App";
 import Home from "./pages/Home";
 import About from "./pages/About";
@@ -14,7 +14,7 @@ import SignUp from "./pages/SignUp";
 import AdminPage from "./pages/AdminPage";
 import "./index.css";
 import { ProtectedRoute } from "./components/ProtectedRoute";
-import { AuthProvider } from "./auth/AuthContext"; 
+import { AuthProvider } from "./auth/AuthContext";
 
 const router = createBrowserRouter([
   {
@@ -33,9 +33,9 @@ const router = createBrowserRouter([
     path: "/",
     element: (
       <ProtectedRoute>
-        <App />,
+        <App />
       </ProtectedRoute>
-    )
+    ),
     children: [
       {
         path: "home",
@@ -66,7 +66,7 @@ const queryClient = new QueryClient();
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
-      <AuthProvider> 
+      <AuthProvider>
         <RouterProvider router={router} />
       </AuthProvider>
     </QueryClientProvider>

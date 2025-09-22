@@ -1,6 +1,6 @@
 // hooks/useTagsQuery.js
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getTags, createTag, updateTag, deleteTag } from "../api/tags";
+import { getTags, createTag, updateTag, deleteTag } from "../axiosApi/tags";
 
 // Ambil semua tag
 export function useTagsList() {
