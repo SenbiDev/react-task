@@ -1,57 +1,64 @@
-import { useEffect, useState } from "react";
-import { login } from "../axiosApi/auth";
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { useAuth } from "../auth/authContext";
+import { Link, useNavigate } from "react-router-dom";
 import PasswordInput from "../components/PasswordInput";
-import { useNavigate } from "react-router-dom";
 
 export default function LoginPage({ onLogin, switchPage }) {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-    const [isLogin, setIsLogin] = useState(false);
-    const [role, setRole] = useState("");
+    const [error, setError] = useState("");
+    const { login, isLoading } = useAuth();
     const navigate = useNavigate();
     
-    
-    useEffect(() => {
-      const token = localStorage.getItem("access");
-      const savedRole = localStorage.getItem("role");
-      if (token) {
-        setIsLogin(true);
-        if (savedRole)
-        setRole(savedRole);
-        loadData();
-      }
-    }, []);
+    // useEffect(() => {
+    //   const token = localStorage.getItem("access");
+    //   const savedRole = localStorage.getItem("role");
+    //   if (token) {
+    //     setIsLogin(true);
+    //     if (savedRole)
+    //     setRole(savedRole);
+    //     loadData();
+    //   }
+    // }, []);
 
-    async function handleSubmit(e) {
-       e.preventDefault();
-       try {
-          const data = await login(username, password);
-          alert("Login berhasil");
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+        setError("");
 
-          if(data.access && data.refresh) {
-            localStorage.setItem("access", data.access)
-            localStorage.setItem("refresh", data.refresh)
-          }
+        const success = await login(username, password);
 
-          if (data.user) {
-            localStorage.setItem("user", JSON.stringify(data.user));
-            localStorage.setItem("role", data.user.role);
-            setRole(data.user.role || "user");
-          }
-
-          console.log("Access Token", data.access)
-          console.log("Refresh Token", data.refresh)
-          console.log("User", data.user)
-          
-          if (onLogin) onLogin();
-
-          setIsLogin(true);
-          navigate("/artikel");
-        } catch  (err) {
-          alert("Login gagal");
-          console.error("Error saat login", err)
+        if (success) {
+          navigate('/artikel');
+        } else {
+          setError('Username atau password salah. Silahkan coba lagi');
         }
+      //   try {
+      //     const data = await login(username, password);
+      //     alert("Login berhasil");
+
+      //     if(data.access && data.refresh) {
+      //       localStorage.setItem("access", data.access)
+      //       localStorage.setItem("refresh", data.refresh)
+      //     }
+
+      //     if (data.user) {
+      //       localStorage.setItem("user", JSON.stringify(data.user));
+      //       localStorage.setItem("role", data.user.role);
+      //       setRole(data.user.role || "user");
+      //     }
+
+      //     console.log("Access Token", data.access)
+      //     console.log("Refresh Token", data.refresh)
+      //     console.log("User", data.user)
+          
+      //     if (onLogin) onLogin();
+
+      //     setIsLogin(true);
+      //     navigate("/artikel");
+      //   } catch  (err) {
+      //     alert("Login gagal");
+      //     console.error("Error saat login", err)
+      //   }
     };
 
     return (
@@ -80,6 +87,7 @@ export default function LoginPage({ onLogin, switchPage }) {
                     </div>
                     <button
                         type="submit"
+                        disabled={isLoading}
                         className="w-full py-2 bg-blue-600 text-gray-200 rounded hover:bg-blue-700 transition-colors mb-2"
                     >
                         Login

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { register } from "../axiosApi/auth";
+import { useAuth } from "../auth/authContext"; 
 import PasswordInput from "../components/PasswordInput";
 
 export default function RegisterPage() {
@@ -8,6 +8,7 @@ export default function RegisterPage() {
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
   const [password2, setPassword2] = useState("");
+  const { register } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {

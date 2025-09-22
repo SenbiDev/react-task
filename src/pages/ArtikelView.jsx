@@ -1,33 +1,31 @@
-import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getArtikelById } from "../axiosApi/artikel";
+import { useArtikelById } from "../hooks/artikel";
 
 export default function ArtikelView () {
-    const {id} = useParams();
     const navigate = useNavigate();
-    const [artikel, setArtikel] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(""); 
+    const {id} = useParams();
 
-    useEffect(() => {
-        const loadArtikel = async () => {
-            setLoading(true);
-            setError("");
-            try {
-                const data = await getArtikelById(id);
-                setArtikel(data);
-            } catch (err) {
-                console.error("Gagal memuat artikel", err);
-                setError("Gagal memuat artikel");
-            } finally {
-                setLoading(false);
-            }
-        };
-        loadArtikel();
-    }, [id]);
+    const { data : artikel, isLoading, isError, error} = useArtikelById(id);
 
-    if (loading) return <p className="p-4">Loading...</p>
-    if (error) return <p className="p-4">{error}</p>
+    // useEffect(() => {
+    //     const loadArtikel = async () => {
+    //         setLoading(true);
+    //         setError("");
+    //         try {
+    //             const data = await getArtikelById(id);
+    //             setArtikel(data);
+    //         } catch (err) {
+    //             console.error("Gagal memuat artikel", err);
+    //             setError("Gagal memuat artikel");
+    //         } finally {
+    //             setLoading(false);
+    //         }
+    //     };
+    //     loadArtikel();
+    // }, [id]);
+
+    if (isLoading) return <p className="p-4">Loading...</p>
+    if (isError) return <p className="p-4">{error.message}</p>
     if (!artikel) return <p className="p-4">Artikel tidak ditemukan.</p>
 
     return (

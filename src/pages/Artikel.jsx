@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
-import { createArtikel, updateArtikel, deleteArtikel, getMyArtikels, getPublikArtikels } from "../axiosApi/artikel";
-import { logout } from "../api/auth";
-import { getKategori, getTags } from "../axiosApi/admin";
+import { useState } from "react";
+import * as artikel from "../hooks/artikel";
+import { useAuth } from "../auth/authContext";
+import { useKategori, useTags } from "../hooks/admin";
 import { useNavigate } from "react-router-dom";
 
 export default function ArtikelPage() {
@@ -10,101 +10,150 @@ export default function ArtikelPage() {
   const [status, setStatus] = useState("draft");
   const [editingId, setEditingId] = useState(null);
   const [kategori, setKategori] = useState("");
-  const [tags, setTags] = useState([]);
-  const [kategoriList, setKategoriList] = useState([]);
-  const [tagList, setTagList] = useState([]);
-  const [publikArtikel, setPublikArtikel] = useState([]);
-  const [myArtikel, setMyArtikel] = useState([]);
-  const [isLogin, setIsLogin] = useState(false);
-  const [role, setRole] = useState("");
+  const [tags, setTags] = useState([]);;
+  const {user, logout} = useAuth();
+  const role = user?.role || "";
   const navigate = useNavigate();
-  
-   useEffect(() => {
-      const token = localStorage.getItem("access");
-      const savedRole = localStorage.getItem("role");
-      if (token) {
-        setIsLogin(true);
-        if (savedRole) {
-          setRole(savedRole);
-          loadData(savedRole);
-        }
-      }
-    }, []);
-    
-    const loadData = async (role) => {
-      try {
-        const mine = await getMyArtikels();
-        setMyArtikel(mine);
 
-        const kat = await getKategori();
-        setKategoriList(kat);
-        
-        const tg = await getTags();
-        setTagList(tg);
+  const { data: myArtikel = [] } = artikel.useMyArtikels();
+  const { data: publikArtikel = [] } = artikel.usePublikArtikels(role === "admin");
+  const { data: kategoriList = [] } = useKategori();
+  const { data: tagList = [] } = useTags();
 
-        if (role === "admin") {
-          const pub = await getPublikArtikels();
-          setPublikArtikel(pub);
-        }
+  const createArtikel = artikel.useCreateArtikel();
+  const updateArtikel = artikel.useUpdateArtikel();
+  const deleteArtikel = artikel.useDeleteArtikel();
 
-      } catch (err) {
-        console.error("Gagal load data:", err);
-      }
-    };
-  
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
+    const payload = {judul, konten, kategori_id:kategori, tag_ids:tags, status};
+
     try {
-      const user = JSON.parse(localStorage.getItem("user"));
-      const payload = {
-        judul,
-        konten,
-        status,
-        kategori_id: kategori,
-        tag_ids: tags,
-      };
       if (editingId) {
-        await updateArtikel(editingId, payload);
-        alert("Artikel berhasil diupdate");
+        updateArtikel.mutate({id: editingId, payload});
+        alert("Artikel berhasil diupdate")
       } else {
-        await createArtikel(payload);
-        alert("Artikel berhasil dibuat");
+        createArtikel.mutate(payload);
+        alert("Artikel berhasil dibuat")
       }
       resetForm();
-      loadData();
     } catch (err) {
-      alert(err.message);
-    }
-  };
-
-  const handleDelete = async (id) => {
-    if (!window.confirm("Yakin hapus artikel ini?")) return;
-    try {
-      await deleteArtikel(id);
-      alert("Artikel dihapus");
-      loadData();
-    } catch (err) {
-      alert(err.message);
+      console.error("Gagal simpan artikel", err);
+      alert(err.message || "Gagal simpan artikel")
     }
   };
 
   const handleEdit = (artikel) => {
+    if (!artikel) return;
     setEditingId(artikel.id);
-    setJudul(artikel.judul);
-    setKonten(artikel.konten);
-    setStatus(artikel.status);
+    setJudul(artikel.judul||"");
+    setKonten(artikel.konten||"");
     setKategori(artikel.kategori?.id || "");
     setTags(artikel.tags?.map((t) => t.id) || []);
+    setStatus(artikel.status|| "draft");
   };
 
   const resetForm = () => {
-    setEditingId(null);
+    setEditingId("");
     setJudul("");
     setKonten("");
-    setStatus("draft");
     setKategori("");
     setTags([]);
+    setStatus("draft");
   };
+
+
+  const handleDelete = (id) => {
+    if (window.confirm("Hapus artikel ini?")){
+      deleteArtikel.mutate(id);
+    }
+  }
+  // useEffect(() => {
+  //     const token = localStorage.getItem("access");
+  //     const savedRole = localStorage.getItem("role");
+  //     if (token) {
+  //       setIsLogin(true);
+  //       if (savedRole) {
+  //         setRole(savedRole);
+  //         loadData(savedRole);
+  //       }
+  //     }
+  //   }, []);
+    
+  //   const loadData = async (role) => {
+  //     try {
+  //       const mine = await getMyArtikels();
+  //       setMyArtikel(mine);
+
+  //       const kat = await getKategori();
+  //       setKategoriList(kat);
+        
+  //       const tg = await getTags();
+  //       setTagList(tg);
+
+  //       if (role === "admin") {
+  //         const pub = await getPublikArtikels();
+  //         setPublikArtikel(pub);
+  //       }
+
+  //     } catch (err) {
+  //       console.error("Gagal load data:", err);
+  //     }
+  //   };
+  
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   try {
+  //     const user = JSON.parse(localStorage.getItem("user"));
+  //     const payload = {
+  //       judul,
+  //       konten,
+  //       status,
+  //       kategori_id: kategori,
+  //       tag_ids: tags,
+  //     };
+  //     if (editingId) {
+  //       await updateArtikel(editingId, payload);
+  //       alert("Artikel berhasil diupdate");
+  //     } else {
+  //       await createArtikel(payload);
+  //       alert("Artikel berhasil dibuat");
+  //     }
+  //     resetForm();
+  //     loadData();
+  //   } catch (err) {
+  //     alert(err.message);
+  //   }
+  // };
+
+  // const handleDelete = async (id) => {
+  //   if (!window.confirm("Yakin hapus artikel ini?")) return;
+  //   try {
+  //     await deleteArtikel(id);
+  //     alert("Artikel dihapus");
+  //     loadData();
+  //   } catch (err) {
+  //     alert(err.message);
+  //   }
+  // };
+
+  // const handleEdit = (artikel) => {
+  //   setEditingId(artikel.id);
+  //   setJudul(artikel.judul);
+  //   setKonten(artikel.konten);
+  //   setStatus(artikel.status);
+  //   setKategori(artikel.kategori?.id || "");
+  //   setTags(artikel.tags?.map((t) => t.id) || []);
+  // };
+
+  // const resetForm = () => {
+  //   setEditingId(null);
+  //   setJudul("");
+  //   setKonten("");
+  //   setStatus("draft");
+  //   setKategori("");
+  //   setTags([]);
+  // };
   
   return (
         <div className="min-h-screen bg-gray-100 font-sans p-8">
@@ -262,7 +311,7 @@ export default function ArtikelPage() {
                               Penulis: {a.penulis?.username || "-"} | Kategori:{" "}
                               {a.kategori?.nama || "-"} | Tags:{" "}
                               {a.tags?.map((t) => t.nama).join(", ") || "-"}
-                             </p>
+                            </p>
                           </div>
                           <div className="flex justify-around space-x-2">
                                 <button

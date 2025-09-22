@@ -1,15 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  getKategori,
-  createKategori,
-  updateKategori,
-  deleteKategori,
-  getTags,
-  createTag,
-  updateTag,
-  deleteTag,
-} from "../axiosApi/admin";
+import * as admin from "../hooks/admin"
 
 export default function AdminPage() {
   const navigate = useNavigate(); 
@@ -20,60 +11,114 @@ export default function AdminPage() {
   const [editKategoriName, setEditKategoriName] = useState("");
   const [editTagId, setEditTagId] = useState(null);
   const [editTagName, setEditTagName] = useState("");
-  const [kategoriList, setKategoriList] = useState([]);
-  const [tagList, setTagList] = useState([]);
-  const [isLogin, setIsLogin] = useState(false);
-  const [role, setRole] = useState("");
 
-  useEffect(() => {
-    const token = localStorage.getItem("access");
-    const savedRole = localStorage.getItem("role");
-    if (token) {
-      setIsLogin(true);
-      if (savedRole) setRole(savedRole);
-      loadData();
-    }
-  }, []);
+  const {data: kategoriList = [], isLoading: isLoadingKategori, isError: isErrorKategori } = admin.useKategori();
+  const createKategori = admin.useCreateKategori();
+  const updateKategori = admin.useUpdateKategori();
+  const deleteKategori = admin.useDeleteKategori();
 
-  const loadData = async () => {
-    try {
-      const kat = await getKategori();
-      const tg = await getTags();
-      setKategoriList(kat);
-      setTagList(tg);
-    } catch (err) {
-      console.error("Gagal load data:", err);
-    }
+  const {data: tagList = [], isLoading: isLoadingTag, isError: isErrorTag } = admin.useTags();
+  const createTag = admin.useCreateTag();
+  const updateTag = admin.useUpdateTag();
+  const deleteTag = admin.useDeleteTag();
+
+  const handleAddKategori = () => {
+    if (!newKategori.trim()) return;
+    createKategori.mutate({nama: newKategori});
+    setNewKategori(null);
   };
 
-  const handleAddKategori = async (nama) => {
-    await createKategori(nama);
-    loadData();
-  };
-  const handleAddTag = async (nama) => {
-    await createTag(nama);
-    loadData();
-  };
-  const handleDeleteKategori = async (id) => {
-    if (!window.confirm("Yakin hapus kategori?")) return;
-    await deleteKategori(id);
-    loadData();
-  };
-  const handleDeleteTag = async (id) => {
-    if (!window.confirm("Yakin hapus tag?")) return;
-    await deleteTag(id);
-    loadData();
-  };
-  const handleUpdateKategori = async (id, nama) => {
+  const handleUpdateKategori = (id, nama) => {
     if (!nama.trim()) return;
-    await updateKategori(id, nama);
-    loadData();
+    updateKategori.mutate({id, nama});
+    setEditKategoriId(null);
   };
-  const handleUpdateTag = async (id, nama) => {
+
+  const handleDeleteKategori = (id) => {
+    if (!window.confirm("Hapus kategori ini?")) return;
+    deleteKategori.mutate(id);
+  };
+
+  const handleAddTag = () => {
+    if (!newTag.trim()) return;
+    createTag.mutate({nama: newTag});
+    setNewTag(null);
+  };
+
+  const handleUpdateTag = (id, nama) => {
     if (!nama.trim()) return;
-    await updateTag(id, nama);
-    loadData();
+    updateTag.mutate({id, nama});
+    setEditTagId(null);
   };
+
+  const handleDeleteTag = (id) => {
+    if (!window.confirm("Hapus kategori ini?")) return;
+    deleteTag.mutate(id);
+  };
+
+  if (isLoadingKategori || isLoadingTag) {
+    return <div>Loading...</div>
+  }
+
+  if (isErrorKategori || isErrorTag) {
+    return <div>Gagal memuat data</div>
+  }
+
+
+  // const [kategoriList, setKategoriList] = useState([]);
+  // const [tagList, setTagList] = useState([]);
+  // const [isLogin, setIsLogin] = useState(false);
+  // const [role, setRole] = useState("");
+
+  // useEffect(() => {
+  //   const token = localStorage.getItem("access");
+  //   const savedRole = localStorage.getItem("role");
+  //   if (token) {
+  //     setIsLogin(true);
+  //     if (savedRole) setRole(savedRole);
+  //     loadData();
+  //   }
+  // }, []);
+
+  // const loadData = async () => {
+  //   try {
+  //     const kat = await getKategori();
+  //     const tg = await getTags();
+  //     setKategoriList(kat);
+  //     setTagList(tg);
+  //   } catch (err) {
+  //     console.error("Gagal load data:", err);
+  //   }
+  // };
+
+  // const handleAddKategori = async (nama) => {
+  //   await createKategori(nama);
+  //   loadData();
+  // };
+  // const handleAddTag = async (nama) => {
+  //   await createTag(nama);
+  //   loadData();
+  // };
+  // const handleDeleteKategori = async (id) => {
+  //   if (!window.confirm("Yakin hapus kategori?")) return;
+  //   await deleteKategori(id);
+  //   loadData();
+  // };
+  // const handleDeleteTag = async (id) => {
+  //   if (!window.confirm("Yakin hapus tag?")) return;
+  //   await deleteTag(id);
+  //   loadData();
+  // };
+  // const handleUpdateKategori = async (id, nama) => {
+  //   if (!nama.trim()) return;
+  //   await updateKategori(id, nama);
+  //   loadData();
+  // };
+  // const handleUpdateTag = async (id, nama) => {
+  //   if (!nama.trim()) return;
+  //   await updateTag(id, nama);
+  //   loadData();
+  // };
 
   return (
     <div className="min-h-screen bg-white p-6 border border-gray-300 rounded shadow-sm">
