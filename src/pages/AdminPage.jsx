@@ -1,16 +1,31 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useKategoriStore, useTagStore } from "../store/useAdminStore";
 import * as admin from "../hooks/admin"
 
 export default function AdminPage() {
   const navigate = useNavigate(); 
 
-  const [newKategori, setNewKategori] = useState("");
-  const [newTag, setNewTag] = useState("");
-  const [editKategoriId, setEditKategoriId] = useState(null);
-  const [editKategoriName, setEditKategoriName] = useState("");
-  const [editTagId, setEditTagId] = useState(null);
-  const [editTagName, setEditTagName] = useState("");
+  // const [newKategori, setNewKategori] = useState("");
+  // const [newTag, setNewTag] = useState("");
+  // const [editKategoriId, setEditKategoriId] = useState(null);
+  // const [editKategoriName, setEditKategoriName] = useState("");
+  // const [editTagId, setEditTagId] = useState(null);
+  // const [editTagName, setEditTagName] = useState("");
+  const newKategori = useKategoriStore((state) => state.newKategori)
+  const setNewKategori = useKategoriStore((state) => state.setNewKategori)
+  const setEditKategoriName = useKategoriStore((state) => state.setEditKategoriName)
+  const editKategoriId = useKategoriStore((state) => state.editKategoriId)
+  const editKategoriName = useKategoriStore((state) => state.editKategoriName)
+  const setDeleteKategori = useKategoriStore((state) => state.setDeleteKategori)
+
+  const newTag = useKategoriStore((state) => state.newTag)
+  const setNewTag = useKategoriStore((state) => state.setNewTag)
+  const setEditTagName = useKategoriStore((state) => state.setEditTagName)
+  const editTagId = useKategoriStore((state) => state.editTagId)
+  const editTagName = useKategoriStore((state) => state.editTagName)
+  const setDeleteTag = useKategoriStore((state) => state.setDeleteTag)
+
 
   const {data: kategoriList = [], isLoading: isLoadingKategori, isError: isErrorKategori } = admin.useKategori();
   const createKategori = admin.useCreateKategori();
@@ -25,35 +40,39 @@ export default function AdminPage() {
   const handleAddKategori = () => {
     if (!newKategori.trim()) return;
     createKategori.mutate({nama: newKategori});
-    setNewKategori(null);
+    setNewKategori("");
   };
 
   const handleUpdateKategori = (id, nama) => {
     if (!nama.trim()) return;
     updateKategori.mutate({id, nama});
-    setEditKategoriId(null);
+    editKategoriId(null);
   };
 
   const handleDeleteKategori = (id) => {
     if (!window.confirm("Hapus kategori ini?")) return;
-    deleteKategori.mutate(id);
+    deleteKategori.mutate(id, {
+      onSuccess:() => setDeleteKategori(id),
+    });
   };
 
   const handleAddTag = () => {
     if (!newTag.trim()) return;
     createTag.mutate({nama: newTag});
-    setNewTag(null);
+    setNewTag("");
   };
 
   const handleUpdateTag = (id, nama) => {
     if (!nama.trim()) return;
     updateTag.mutate({id, nama});
-    setEditTagId(null);
+    editTagId(null);
   };
 
   const handleDeleteTag = (id) => {
     if (!window.confirm("Hapus kategori ini?")) return;
-    deleteTag.mutate(id);
+    deleteTag.mutate(id, {
+      onSuccess:() => setDeleteTag(id),
+    });
   };
 
   if (isLoadingKategori || isLoadingTag) {
@@ -170,14 +189,14 @@ export default function AdminPage() {
                     <button
                       onClick={() => {
                         handleUpdateKategori(k.id, editKategoriName);
-                        setEditKategoriId(null);
+                        editKategoriId(null);
                       }}
                       className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors"
                     >
                       Simpan
                     </button>
                     <button
-                      onClick={() => setEditKategoriId(null)}
+                      onClick={() => editKategoriId(null)}
                       className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors"
                     >
                       Batal
@@ -189,7 +208,7 @@ export default function AdminPage() {
                     <div className="mb-4 flex">
                       <button
                         onClick={() => {
-                          setEditKategoriId(k.id);
+                          editKategoriId(k.id);
                           setEditKategoriName(k.nama);
                         }}
                         className="text-green-600 hover:underline text-sm"
@@ -247,14 +266,14 @@ export default function AdminPage() {
                     <button
                       onClick={() => {
                         handleUpdateTag(t.id, editTagName);
-                        setEditTagId(null);
+                        editTagId(null);
                       }}
                       className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors"
                     >
                       Simpan
                     </button>
                     <button
-                      onClick={() => setEditTagId(null)}
+                      onClick={() => editTagId(null)}
                       className="text-white hover:underline text-sm"
                     >
                       Batal
@@ -266,7 +285,7 @@ export default function AdminPage() {
                     <div className="mb-4 flex">
                       <button
                         onClick={() => {
-                          setEditTagId(t.id);
+                          editTagId(t.id);
                           setEditTagName(t.nama);
                         }}
                         className="text-green-600 hover:underline text-sm"
