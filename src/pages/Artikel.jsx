@@ -68,6 +68,11 @@ export default function ArtikelPage() {
       deleteArtikel.mutate(id);
     }
   }
+
+  const handleLogOut = () => {
+    logout();
+    navigate("/login")
+  }
   // useEffect(() => {
   //     const token = localStorage.getItem("access");
   //     const savedRole = localStorage.getItem("role");
@@ -170,7 +175,7 @@ export default function ArtikelPage() {
                         </button>
                       )}
                       <button
-                        onClick={logout}
+                        onClick={handleLogOut}
                         className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
                       >
                         Logout
