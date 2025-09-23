@@ -21,6 +21,10 @@ export default function Navbar() {
           Home
         </Link>
 
+        <Link to="/user" className="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium">
+          User
+        </Link>
+
         <Link to="/artikel" className="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium">
           Artikel
         </Link>
