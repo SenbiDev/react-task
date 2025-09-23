@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { registerUser } from "../hooks/useAuthQuery";
+import { useLogout } from "../hooks/useAuthQuery";
 
 export default function SignUp() {
   const [username, setUsername] = useState("");
@@ -16,7 +16,7 @@ export default function SignUp() {
       return;
     }
     try {
-      await registerUser({username, email, password, password2});
+      await useRegister({username, email, password, password2});
       setSuccess("Registrasi berhasil! Silakan login.");
       setError("");
       setUsername("");

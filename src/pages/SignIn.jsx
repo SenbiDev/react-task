@@ -17,7 +17,7 @@ export default function SignIn() {
     const success = await login(username, password); 
 
     if (success) {
-      navigate("/artikel");
+      navigate("/home");
     } else {
       setError("Username atau password salah");
     }

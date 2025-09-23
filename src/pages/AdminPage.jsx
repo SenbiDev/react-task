@@ -11,7 +11,7 @@ import {
   useUpdateTag,
   useDeleteTag,
 } from "../hooks/useTagsQuery";
-import { logout } from "../hooks/useAuthQuery";
+import { useLogout } from "../hooks/useAuthQuery";
 import { useNavigate } from "react-router-dom";
 
 export default function AdminPage({ onLogout }) {
@@ -29,15 +29,15 @@ export default function AdminPage({ onLogout }) {
   const loadData = async () => {
     try {
       setLoading(true);
-      const kategoriData = await getKategori();
-      const tagData = await getTags();
+      const kategoriData = await useKategoriList();
+      const tagData = await useTagsList();
 
       setKategoriList(Array.isArray(kategoriData) ? kategoriData : []);
       setTagList(Array.isArray(tagData) ? tagData : []);
     } catch (err) {
       console.error("Error load data", err);
       setErrorMsg("Gagal mengambil data, silahkan login ulang");
-      logout();
+      useLogout();
       if (typeof onLogout === "function") onLogout();
     } finally {
       setLoading(false);
@@ -49,7 +49,7 @@ export default function AdminPage({ onLogout }) {
     const role = localStorage.getItem("role");
     if (role !== "admin") {
       alert("Akses ditolak! Halaman ini hanya untuk admin.");
-      logout();
+      useLogout();
       if (typeof onLogout === "function") onLogout();
       return;
     }
@@ -68,9 +68,9 @@ export default function AdminPage({ onLogout }) {
     }
     try {
       if (selectedKategori) {
-        await updateKategori(selectedKategori.id, kategoriForm.nama.trim());
+        await useUpdateKategori(selectedKategori.id, kategoriForm.nama.trim());
       } else {
-        await createKategori(kategoriForm.nama.trim());
+        await useCreateKategori(kategoriForm.nama.trim());
       }
       resetFormKategori();
       setSelectedKategori(null);
@@ -87,7 +87,7 @@ export default function AdminPage({ onLogout }) {
 
   const handleDeleteKategori = async (id) => {
     if (!window.confirm("Yakin ingin menghapus kategori ini?")) return;
-    await deleteKategori(id);
+    await useDeleteKategori(id);
     loadData();
   };
 
@@ -99,9 +99,9 @@ export default function AdminPage({ onLogout }) {
     }
     try {
       if (selectedTag) {
-        await updateTag(selectedTag.id, tagForm.nama.trim());
+        await useUpdateTag(selectedTag.id, tagForm.nama.trim());
       } else {
-        await createTag(tagForm.nama.trim());
+        await useCreateTag(tagForm.nama.trim());
       }
       resetFormTag();
       setSelectedTag(null);
@@ -118,7 +118,7 @@ export default function AdminPage({ onLogout }) {
 
   const handleDeleteTag = async (id) => {
     if (!window.confirm("Yakin ingin menghapus tag ini?")) return;
-    await deleteTag(id);
+    await useDeleteTag(id);
     loadData();
   };
 
@@ -135,7 +135,7 @@ export default function AdminPage({ onLogout }) {
           </button>
           <button
             onClick={() => {
-              logout();
+              uselogout();
               if (typeof onLogout === "function") onLogout();
             }}
             className="bg-black text-white px-4 py-2 rounded-lg border"
