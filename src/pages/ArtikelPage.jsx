@@ -1,24 +1,16 @@
-import { useState } from "react";
+import { useArtikelStore } from "../store/artikelStore";
 import {
   useArticles,
   useCreateArticle,
   useUpdateArticle,
   useDeleteArticle,
 } from "../hooks/useArtikelQuery";
-import { useLogout } from "../hooks/useAuthQuery";
 import { useTagsList } from "../hooks/useTagsQuery";
 import { useKategoriList } from "../hooks/useKategoriQuery";
 import { useNavigate } from "react-router-dom";
 
 export default function ArtikelPage() {
-  const [selected, setSelected] = useState(null);
-  const [form, setForm] = useState({
-    judul: "",
-    konten: "",
-    kategori_id: "",
-    tag_ids: [],
-    status: "draft",
-  });
+  const { form, setForm, resetForm, selected, setSelected} = useArtikelStore();
 
   const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
   const role = currentUser?.role || "user";
@@ -30,10 +22,6 @@ export default function ArtikelPage() {
   const { mutate: createArticle } = useCreateArticle();
   const { mutate: updateArticle } = useUpdateArticle();
   const { mutate: deleteArticle } = useDeleteArticle();
-  const { mutate: logout } = useLogout();
-
-  const resetForm = () =>
-    setForm({ judul: "", konten: "", kategori_id: "", tag_ids: [], status: "draft" });
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -50,7 +38,6 @@ export default function ArtikelPage() {
       createArticle(payload);
     }
     resetForm();
-    setSelected(null);
   };
 
   const handleEdit = (artikel) => {
@@ -67,11 +54,6 @@ export default function ArtikelPage() {
   const handleDelete = (id) => {
     if (!window.confirm("Yakin ingin menghapus artikel ini?")) return;
     deleteArticle(id);
-  };
-
-  const handleLogout = () => {
-    logout();
-    navigate("/signin");
   };
 
   const myArtikel = artikels.filter((a) => a.penulis?.id === currentUser?.id);

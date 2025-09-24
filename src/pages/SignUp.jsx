@@ -18,7 +18,6 @@ export default function SignUp() {
       return;
     }
     try {
-      // await useRegister({username, email, password, password2});
       await register({username, email, password, password2});
       setSuccess("Registrasi berhasil! Silakan login.");
       setError("");

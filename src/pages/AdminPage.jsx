@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   useKategoriList,
   useCreateKategori,
@@ -11,17 +11,15 @@ import {
   useUpdateTag,
   useDeleteTag,
 } from "../hooks/useTagsQuery";
-import { useLogout } from "../hooks/useAuthQuery";
 import { useNavigate } from "react-router-dom";
+import useAdminStore from "../store/adminStore";
 
 export default function AdminPage() {
   const navigate = useNavigate();
 
-  // ambil data kategori dan tag dari query
   const { data: kategoriList = [], isLoading: loadingKategori } = useKategoriList();
   const { data: tagList = [], isLoading: loadingTag } = useTagsList();
 
-  // mutation hooks
   const { mutate: createKategori } = useCreateKategori();
   const { mutate: updateKategori } = useUpdateKategori();
   const { mutate: deleteKategori } = useDeleteKategori();
@@ -30,16 +28,20 @@ export default function AdminPage() {
   const { mutate: updateTag } = useUpdateTag();
   const { mutate: deleteTag } = useDeleteTag();
 
-  const { mutate: doLogout } = useLogout();
+const {
+  selectedKategori,
+  kategoriForm,
+  setSelectedKategori,
+  setKategoriForm,
+  resetKategori,
 
-  // state form
-  const [selectedKategori, setSelectedKategori] = useState(null);
-  const [kategoriForm, setKategoriForm] = useState({ nama: "" });
+  selectedTag,
+  tagForm,
+  setSelectedTag,
+  setTagForm,
+  resetTag,
+} = useAdminStore();
 
-  const [selectedTag, setSelectedTag] = useState(null);
-  const [tagForm, setTagForm] = useState({ nama: "" });
-
-  // submit kategori
   const handleSubmitKategori = (e) => {
     e.preventDefault();
     if (!kategoriForm.nama.trim()) return;
@@ -48,11 +50,9 @@ export default function AdminPage() {
     } else {
       createKategori(kategoriForm.nama.trim());
     }
-    setSelectedKategori(null);
-    setKategoriForm({ nama: "" });
+    resetKategori();
   };
 
-  // submit tag
   const handleSubmitTag = (e) => {
     e.preventDefault();
     if (!tagForm.nama.trim()) return;
@@ -61,8 +61,7 @@ export default function AdminPage() {
     } else {
       createTag(tagForm.nama.trim());
     }
-    setSelectedTag(null);
-    setTagForm({ nama: "" });
+    resetTag();
   };
 
   return (
