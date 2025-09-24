@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../auth/authContext"; 
 import PasswordInput from "../components/PasswordInput";
 
@@ -29,9 +29,9 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
-      <div className="w-80 p-6 bg-white border border-gray-300 rounded shadow-sm">
-        <h2 className="text-center mb-6 text-gray-800 text-xl font-medium">
+    <div className="flex justify-center items-center min-h-screen bg-gray-900">
+      <div className="w-80 p-6 bg-gray-800 border border-gray-300 rounded shadow-sm">
+        <h2 className="text-center mb-6 text-gray-100 text-xl font-medium">
           Registrasi
         </h2>
         <form onSubmit={handleSubmit}>
@@ -81,12 +81,12 @@ export default function RegisterPage() {
           </button>
         </form>
         <div className="text-center mt-3">
-          <button
-            onClick={() => navigate("/login")}
-            className="text-blue-600 hover:underline"
+          <Link
+            to="/login"
+            className="flex justify-center w-full py-2 text-blue-400 hover:text-blue-600 transition-colors"
           >
             Sudah punya akun ?
-          </button>
+          </Link>
         </div>
       </div>
     </div>

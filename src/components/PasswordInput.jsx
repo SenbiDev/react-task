@@ -12,13 +12,12 @@ export default function PasswordInput({ value, onChange, placeholder }) {
         onChange={onChange}
         className="w-full p-2 rounded bg-gray-800 border border-gray-600 pr-10"
       />
-      <button
-        type="button"
+      <span
         onClick={() => setShow(!show)}
         className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
       >
         {show ? <EyeOff size={18} /> : <Eye size={18} />}
-      </button>
+      </span>
     </div>
   );
 }

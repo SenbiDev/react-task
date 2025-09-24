@@ -11,10 +11,8 @@ export const useKategoriStore = create ((set) => ({
         newKategori: kategori, 
     })),
     
-    setEditKategoriName: (id, nama) => set ({
-        editKategoriId: id,
-        editKategoriName: nama
-    }),
+    setEditKategoriId: (id) => set({ editKategoriId: id }),
+    setEditKategoriName: (nama) => set ({ editKategoriName: nama }),
 
     setDeleteKategori : (id) => set ((state) => ({
         kats : state.kats.filter((kategori) => kategori.id !== id)
@@ -31,10 +29,8 @@ export const useTagStore = create ((set) => ({
         newTag: tag, 
     })),
     
-    setEditTagName: (id, nama) => set ({
-        editTagId: id,
-        editTagName: nama
-    }),
+    setEditTagId: (id) => set({ editTagId: id }),
+    setEditTagName: (nama) => set ({ editTagName: nama }),
 
     setDeleteTag : (id) => set ((state) => ({
         tgs : state.tgs.filter((tag) => tag.id !== id)

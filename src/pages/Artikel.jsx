@@ -1,16 +1,29 @@
-import { useState } from "react";
 import * as artikel from "../hooks/artikel";
 import { useAuth } from "../auth/authContext";
 import { useKategori, useTags } from "../hooks/admin";
 import { useNavigate } from "react-router-dom";
+import { useArtikelStore } from "../store/useArtikelStore";
+import { EyeIcon, PencilIcon, Trash2Icon, TrashIcon } from "lucide-react";
 
 export default function ArtikelPage() {
-  const [judul, setJudul] = useState("");
-  const [konten, setKonten] = useState("");
-  const [status, setStatus] = useState("draft");
-  const [editingId, setEditingId] = useState(null);
-  const [kategori, setKategori] = useState("");
-  const [tags, setTags] = useState([]);;
+
+const judul = useArtikelStore((state) => state.judul)
+const setJudul = useArtikelStore((state) => state.setJudul)
+const konten = useArtikelStore((state) => state.konten)
+const setKonten = useArtikelStore((state) => state.setKonten)
+const kategori = useArtikelStore((state) => state.kategori)
+const setKategori = useArtikelStore((state) => state.setKategori)
+const tags = useArtikelStore((state) => state.tags)
+const setTags = useArtikelStore((state) => state.setTags)
+const status = useArtikelStore((state) => state.status)
+const setStatus = useArtikelStore((state) => state.setStatus)
+const createArt = useArtikelStore((state) => state.createArt)
+const deleteArt = useArtikelStore((state) => state.deleteArt)
+const startEdit = useArtikelStore((state) => state.startEdit)
+const updateArt = useArtikelStore((state) => state.updateArt)
+const resForm = useArtikelStore((state) => state.resForm)
+const editingId = useArtikelStore((state) => state.editingId)
+
   const {user, logout} = useAuth();
   const role = user?.role || "";
   const navigate = useNavigate();
@@ -31,12 +44,14 @@ export default function ArtikelPage() {
     try {
       if (editingId) {
         updateArtikel.mutate({id: editingId, payload});
+        updateArt();
         alert("Artikel berhasil diupdate")
       } else {
         createArtikel.mutate(payload);
+        createArt();
         alert("Artikel berhasil dibuat")
       }
-      resetForm();
+      resForm();
     } catch (err) {
       console.error("Gagal simpan artikel", err);
       alert(err.message || "Gagal simpan artikel")
@@ -44,17 +59,18 @@ export default function ArtikelPage() {
   };
 
   const handleEdit = (artikel) => {
-    if (!artikel) return;
-    setEditingId(artikel.id);
-    setJudul(artikel.judul||"");
-    setKonten(artikel.konten||"");
-    setKategori(artikel.kategori?.id || "");
-    setTags(artikel.tags?.map((t) => t.id) || []);
-    setStatus(artikel.status|| "draft");
+    startEdit(artikel);
+    // if (!artikel) return;
+    // editingId(artikel.id);
+    // setJudul(artikel.judul||"");
+    // setKonten(artikel.konten||"");
+    // setKategori(artikel.kategori?.id || "");
+    // setTags(artikel.tags?.map((t) => t.id) || []);
+    // setStatus(artikel.status|| "draft");
   };
 
   const resetForm = () => {
-    setEditingId("");
+    editingId("");
     setJudul("");
     setKonten("");
     setKategori("");
@@ -66,6 +82,7 @@ export default function ArtikelPage() {
   const handleDelete = (id) => {
     if (window.confirm("Hapus artikel ini?")){
       deleteArtikel.mutate(id);
+      deleteArt(id);
     }
   }
 
@@ -161,10 +178,10 @@ export default function ArtikelPage() {
   // };
   
   return (
-        <div className="min-h-screen bg-gray-100 font-sans p-8">
+        <div className="min-h-screen bg-gray-900 font-sans p-8">
             <div className="max-w-3xl mx-auto">
                 <div className="flex justify-between items-center mb-8">
-                    <h1 className="text-xl font-semibold text-black">Selamat datang</h1>
+                    <h1 className="text-xl font-semibold text-white">Selamat datang</h1>
                     <div className="space-x-2">
                       {role === "admin" && (
                         <button
@@ -182,45 +199,45 @@ export default function ArtikelPage() {
                       </button>
                     </div>
                   </div>
-                <div className="bg-white p-6 border border-gray-300 rounded shadow-sm mb-8">
-                    <h3 className="mb-4 text-lg text-black font-medium">{editingId ? "Edit Artikel" : "Buat Artikel"}</h3>
+                <div className="bg-gray-800 p-6 border border-gray-300 rounded shadow-sm mb-8">
+                    <h3 className="mb-4 text-lg text-white font-medium">{editingId ? "Edit Artikel" : "Buat Artikel"}</h3>
                     <form onSubmit={handleSubmit}>
                         <div className="mb-4">
-                            <label className="block mb-1 font-medium text-gray-700">Judul</label>
+                            <label className="block mb-1 font-medium text-gray-100">Judul</label>
                             <input
                                 placeholder="Judul"
                                 value={judul}
                                 onChange={e => setJudul(e.target.value)}
-                                className="text-black w-full px-3 py-2 border border-gray-400 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                className="text-gray-100 w-full px-3 py-2 border border-gray-400 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
                             />
                         </div>
                         <div className="mb-4">
-                            <label className="block mb-1 font-medium text-gray-700">Konten</label>
+                            <label className="block mb-1 font-medium text-gray-100">Konten</label>
                             <textarea
                                 placeholder="Isi konten..."
                                 value={konten}
                                 onChange={e => setKonten(e.target.value)}
-                                className="text-black w-full px-3 py-2 border border-gray-400 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                className="text-gray-100 w-full px-3 py-2 border border-gray-400 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
                             />
                         </div>
                         <div className="mb-4">
-                            <label className="block mb-1 font-medium text-gray-700">Kategori</label>
+                            <label className="block mb-1 font-medium text-gray-100">Kategori</label>
                             <select
                                 value={kategori}
                                 onChange={e => setKategori(e.target.value)}
                                 required
-                                className="text-black w-full px-3 py-2 border border-gray-400 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                className="text-gray-100 w-full px-3 py-2 border border-gray-400 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
                             >
                                 <option value="" className="text-black">Kategori</option>
                                 {kategoriList.map((k) => (
-                                    <option key={k.id} value={k.id} className="text-black">
+                                    <option key={k.id} value={k.id} className="text-gray-100">
                                         {k.nama}
                                     </option>
                                 ))}
                             </select>
                         </div>
                         <div className="space-y-2">
-                            <p className="block mb-1 font-medium text-gray-700">Tag</p>
+                            <p className="block mb-1 font-medium text-gray-100">Tag</p>
                             <div className="grid grid-cols-2 gap-2">
                                 {tagList.map((t) => (
                                 <label key={t.id} className="flex justify-center space-x-2">  
@@ -232,18 +249,18 @@ export default function ArtikelPage() {
                                         else setTags(tags.filter((id) => id !== t.id));
                                         }}
                                     />
-                                    <span className="text-black">{t.nama}</span>
+                                    <span className="text-gray-100">{t.nama}</span>
                                 </label>
                                 ))}
                             </div>
                         </div>
                         <div className="mb-4">
-                            <label className="block mb-1 font-medium text-gray-700">Status</label>
+                            <label className="block mb-1 font-medium text-gray-100">Status</label>
                             <select
                                 value={status}
                                 onChange={e => setStatus(e.target.value)}
                                 required
-                                className="text-black w-full px-3 py-2 border border-gray-400 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                className="text-gray-100 w-full px-3 py-2 border border-gray-400 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
                             >
                                 <option value="draft" className="text-black">Draft</option>
                                 <option value="published" className="text-black">Published</option>
@@ -257,8 +274,8 @@ export default function ArtikelPage() {
                         </button>
                     </form>
                 </div>
-                <div className="bg-white p-6 border border-gray-300 rounded shadow-sm">
-                    <h3 className="mb-4 text-lg text-black font-medium">Artikel Saya</h3>
+                <div className="bg-gray-800 p-6 border border-gray-300 rounded shadow-sm">
+                    <h3 className="mb-4 text-lg text-gray-100 font-medium">Artikel Saya</h3>
                     {myArtikel.length === 0 ? (
                         <p className="text-gray-500">Belum ada artikel</p>
                     ) : (
@@ -266,28 +283,28 @@ export default function ArtikelPage() {
                             {myArtikel.map((artikel) => (
                                 <li key={artikel.id} className="flex justify-between items-center p-3 border border-gray-200 rounded">
                                     <div>
-                                        <p className="font-medium text-black">{artikel.judul}</p>
-                                        <p className="text-sm text-black">{artikel.status}</p>
+                                        <p className="font-medium text-gray-100">{artikel.judul}</p>
+                                        <p className="text-sm text-gray-100">{artikel.status}</p>
                                     </div>
                                     <div className="flex justify-around space-x-2">
                                       <button
                                         onClick={() => navigate(`/artikel/${artikel.id}`)}
                                         className="text-blue-600 hover:underline text-sm"
                                       >
-                                        View
+                                        <EyeIcon/>
                                       </button>
                                       <div className="space-x-2">
                                           <button
                                               onClick={() => handleEdit(artikel)}
                                               className="text-green-600 hover:underline text-sm"
                                           >
-                                              Edit
+                                              <PencilIcon/>
                                           </button>
                                           <button
                                               onClick={() => handleDelete(artikel.id)}
                                               className="text-red-600 hover:underline text-sm"
                                           >
-                                              Hapus
+                                              <Trash2Icon/>
                                           </button>
                                       </div>
                                     </div>
@@ -297,8 +314,8 @@ export default function ArtikelPage() {
                     )}
                 </div>
                 {role === "admin" && (
-                <div className="bg-white p-6 border border-gray-300 rounded shadow-sm">
-                  <h3 className="mb-4 text-lg text-black font-medium">Artikel Publik</h3>
+                <div className="bg-gray-800 p-6 border border-gray-300 rounded shadow-sm">
+                  <h3 className="mb-4 text-lg text-gray-100 font-medium">Artikel Publik</h3>
                     {publikArtikel.length === 0 ? (
                       <p className="text-gray-500">Belum ada artikel publik.</p>
                     ) : (
@@ -310,9 +327,9 @@ export default function ArtikelPage() {
                           return (
                             <li key={a.id} className="flex justify-between items-center p-3 border border-gray-200 rounded">
                           <div>
-                            <p className="font-medium text-black">{a.judul}</p>
+                            <p className="font-medium text-gray-100">{a.judul}</p>
                             {/* <p className="text-sm text-black">{a.konten}</p> */}
-                            <p className="text-sm text-black mt-1">
+                            <p className="text-sm text-gray-100 mt-1">
                               Penulis: {a.penulis?.username || "-"} | Kategori:{" "}
                               {a.kategori?.nama || "-"} | Tags:{" "}
                               {a.tags?.map((t) => t.nama).join(", ") || "-"}
@@ -323,20 +340,20 @@ export default function ArtikelPage() {
                                   onClick={() => navigate(`/artikel/${a.id}`)}
                                   className="text-blue-600 hover:underline text-sm"
                                 >
-                                  View
+                                  <EyeIcon/>
                                 </button>
                                 <div className="space-x-2">
                                   <button
                                     onClick={() => handleEdit(a)}
                                     className="text-green-600 hover:underline text-sm"
                                   >
-                                    Edit
+                                    <PencilIcon/>
                                   </button>
                                   <button
                                     onClick={() => handleDelete(a.id)}
                                     className="text-red-600 hover:underline text-sm"
                                   >
-                                    Hapus
+                                    <Trash2Icon/>
                                   </button>
                                 </div>
                           </div>
