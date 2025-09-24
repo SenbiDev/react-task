@@ -17,56 +17,67 @@ import useAdminStore from "../store/adminStore";
 export default function AdminPage() {
   const navigate = useNavigate();
 
+  // Ambil data kategori & tag via React Query
   const { data: kategoriList = [], isLoading: loadingKategori } = useKategoriList();
   const { data: tagList = [], isLoading: loadingTag } = useTagsList();
 
+  // Mutation hooks kategori
   const { mutate: createKategori } = useCreateKategori();
   const { mutate: updateKategori } = useUpdateKategori();
   const { mutate: deleteKategori } = useDeleteKategori();
 
+  // Mutation hooks tag
   const { mutate: createTag } = useCreateTag();
   const { mutate: updateTag } = useUpdateTag();
   const { mutate: deleteTag } = useDeleteTag();
 
-const {
-  selectedKategori,
-  kategoriForm,
-  setSelectedKategori,
-  setKategoriForm,
-  resetKategori,
+  // Form state dari Zustand
+  const {
+    selectedKategori,
+    kategoriForm,
+    setSelectedKategori,
+    setKategoriForm,
+    resetKategori,
 
-  selectedTag,
-  tagForm,
-  setSelectedTag,
-  setTagForm,
-  resetTag,
-} = useAdminStore();
+    selectedTag,
+    tagForm,
+    setSelectedTag,
+    setTagForm,
+    resetTag,
+  } = useAdminStore();
 
+  // Submit kategori
   const handleSubmitKategori = (e) => {
     e.preventDefault();
     if (!kategoriForm.nama.trim()) return;
+
     if (selectedKategori) {
       updateKategori({ id: selectedKategori.id, nama: kategoriForm.nama.trim() });
     } else {
       createKategori(kategoriForm.nama.trim());
     }
+
     resetKategori();
   };
 
+  // Submit tag
   const handleSubmitTag = (e) => {
     e.preventDefault();
     if (!tagForm.nama.trim()) return;
+
     if (selectedTag) {
       updateTag({ id: selectedTag.id, nama: tagForm.nama.trim() });
     } else {
       createTag(tagForm.nama.trim());
     }
+
     resetTag();
   };
 
   return (
     <div className="min-h-screen bg-white p-8 font-sans text-black">
       <div className="max-w-5xl mx-auto space-y-8">
+        {/* Header */}
         <div className="flex justify-between items-center">
           <h1 className="text-2xl font-bold">Dashboard Admin</h1>
           <div className="space-x-2">
@@ -99,7 +110,7 @@ const {
             {selectedKategori && (
               <button
                 type="button"
-                onClick={() => setSelectedKategori(null)}
+                onClick={resetKategori}
                 className="bg-gray-500 text-white px-4 py-2 rounded-lg border"
               >
                 Batal
@@ -132,7 +143,7 @@ const {
                     </button>
                     <button
                       onClick={() => deleteKategori(k.id)}
-                      className="px-3 py-1 text-sm bg-black text-white rounded"
+                      className="px-3 py-1 text-sm bg-red-600 text-white rounded"
                     >
                       Hapus
                     </button>
@@ -163,7 +174,7 @@ const {
             {selectedTag && (
               <button
                 type="button"
-                onClick={() => setSelectedTag(null)}
+                onClick={resetTag}
                 className="bg-gray-500 text-white px-4 py-2 rounded-lg border"
               >
                 Batal
@@ -196,7 +207,7 @@ const {
                     </button>
                     <button
                       onClick={() => deleteTag(t.id)}
-                      className="px-3 py-1 text-sm bg-black text-white rounded"
+                      className="px-3 py-1 text-sm bg-red-600 text-white rounded"
                     >
                       Hapus
                     </button>

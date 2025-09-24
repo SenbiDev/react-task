@@ -10,12 +10,14 @@ import { useKategoriList } from "../hooks/useKategoriQuery";
 import { useNavigate } from "react-router-dom";
 
 export default function ArtikelPage() {
-  const { form, setForm, resetForm, selected, setSelected} = useArtikelStore();
+  // ✅ Ambil store Zustand
+  const { form, setForm, resetForm, selected, setSelected } = useArtikelStore();
 
   const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
   const role = currentUser?.role || "user";
   const navigate = useNavigate();
 
+  // ✅ React Query untuk API
   const { data: artikels = [], isLoading } = useArticles();
   const { data: kategoriList = [] } = useKategoriList();
   const { data: tagList = [] } = useTagsList();
@@ -23,6 +25,7 @@ export default function ArtikelPage() {
   const { mutate: updateArticle } = useUpdateArticle();
   const { mutate: deleteArticle } = useDeleteArticle();
 
+  // ✅ Submit artikel
   const handleSubmit = (e) => {
     e.preventDefault();
     const payload = {
@@ -32,6 +35,7 @@ export default function ArtikelPage() {
       tag_ids: form.tag_ids,
       status: form.status,
     };
+
     if (selected) {
       updateArticle({ id: selected.id, data: payload });
     } else {
@@ -40,6 +44,7 @@ export default function ArtikelPage() {
     resetForm();
   };
 
+  // ✅ Edit artikel
   const handleEdit = (artikel) => {
     setSelected(artikel);
     setForm({
@@ -51,35 +56,37 @@ export default function ArtikelPage() {
     });
   };
 
+  // ✅ Delete artikel
   const handleDelete = (id) => {
     if (!window.confirm("Yakin ingin menghapus artikel ini?")) return;
     deleteArticle(id);
   };
 
+  // ✅ Filter artikel
   const myArtikel = artikels.filter((a) => a.penulis?.id === currentUser?.id);
   const publicArtikel = artikels.filter((a) => a.status === "published");
 
-  const canManage = (artikel) => {
-    return role === "admin" || artikel.penulis?.id === currentUser?.id;
-  };
+  // ✅ Role check
+  const canManage = (artikel) =>
+    role === "admin" || artikel.penulis?.id === currentUser?.id;
 
   return (
     <div className="min-h-screen bg-black p-8 font-sans">
       <div className="max-w-5xl mx-auto space-y-8">
+        {/* Header */}
         <div className="flex justify-between items-center">
           <h1 className="text-2xl font-bold text-white">Dashboard Artikel</h1>
-          <div className="space-x-2">
-            {role === "admin" && (
-              <button
-                onClick={() => navigate("/admin/")}
-                className="!bg-white text-black px-4 py-2 rounded-lg"
-              >
-                Kelola kategori dan Tag
-              </button>
-            )}
-          </div>
+          {role === "admin" && (
+            <button
+              onClick={() => navigate("/admin/")}
+              className="!bg-white text-black px-4 py-2 rounded-lg"
+            >
+              Kelola Kategori & Tag
+            </button>
+          )}
         </div>
 
+        {/* Form Artikel */}
         <div className="bg-white p-6 rounded-xl shadow border text-black">
           <h2 className="text-lg font-semibold mb-4">
             {selected ? "Edit Artikel" : "Tambah Artikel"}
@@ -88,6 +95,7 @@ export default function ArtikelPage() {
             onSubmit={handleSubmit}
             className="grid grid-cols-1 md:grid-cols-2 gap-4"
           >
+            {/* Judul */}
             <div className="col-span-2">
               <label className="block mb-1 font-medium">Judul</label>
               <input
@@ -99,6 +107,7 @@ export default function ArtikelPage() {
               />
             </div>
 
+            {/* Konten */}
             <div className="col-span-2">
               <label className="block mb-1 font-medium">Konten</label>
               <textarea
@@ -110,6 +119,7 @@ export default function ArtikelPage() {
               />
             </div>
 
+            {/* Kategori */}
             <div>
               <label className="block mb-1 font-medium">Kategori</label>
               <select
@@ -126,6 +136,7 @@ export default function ArtikelPage() {
               </select>
             </div>
 
+            {/* Tag */}
             <div>
               <label className="block mb-1 font-medium">Tag</label>
               <div className="flex flex-wrap gap-4 text-black">
@@ -154,6 +165,7 @@ export default function ArtikelPage() {
               </div>
             </div>
 
+            {/* Status */}
             <div>
               <label className="block mb-1 font-medium">Status</label>
               <select
@@ -166,6 +178,7 @@ export default function ArtikelPage() {
               </select>
             </div>
 
+            {/* Tombol */}
             <div className="col-span-2">
               <button
                 type="submit"
@@ -180,7 +193,7 @@ export default function ArtikelPage() {
                     setSelected(null);
                     resetForm();
                   }}
-                  className="ml-3 bg-black text-white px-4 py-2 rounded-lg"
+                  className="ml-3 bg-gray-600 text-white px-4 py-2 rounded-lg"
                 >
                   Batal
                 </button>
@@ -189,6 +202,7 @@ export default function ArtikelPage() {
           </form>
         </div>
 
+        {/* My Artikel */}
         <div className="bg-white p-6 rounded-xl shadow border">
           <h2 className="text-lg font-semibold mb-4 text-black">My Artikel</h2>
           {isLoading ? (
@@ -196,58 +210,16 @@ export default function ArtikelPage() {
           ) : myArtikel.length === 0 ? (
             <p className="text-gray-500">Belum ada artikel</p>
           ) : (
-            <div className="overflow-x-auto text-black">
-              <table className="w-full border text-sm">
-                <thead className="bg-gray-100">
-                  <tr>
-                    <th className="p-2 border">Judul</th>
-                    <th className="p-2 border">Konten</th>
-                    <th className="p-2 border">Penulis</th>
-                    <th className="p-2 border">Kategori</th>
-                    <th className="p-2 border">Tag</th>
-                    <th className="p-2 border">Status</th>
-                    <th className="p-2 border">Aksi</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {myArtikel.map((a) => (
-                    <tr key={a.id} className="hover:bg-gray-50">
-                      <td className="p-2 border">{a.judul}</td>
-                      <td className="p-2 border">{a.konten}</td>
-                      <td className="p-2 border">{a.penulis?.username || "-"}</td>
-                      <td className="p-2 border">{a.kategori?.nama || "-"}</td>
-                      <td className="p-2 border">
-                        {a.tags?.length > 0
-                          ? a.tags.map((t) => t.nama).join(", ")
-                          : "-"}
-                      </td>
-                      <td className="p-2 border">{a.status}</td>
-                      <td className="p-2 border space-x-2">
-                        {canManage(a) && (
-                          <>
-                            <button
-                              onClick={() => handleEdit(a)}
-                              className="px-2 py-1 text-sm bg-black text-white rounded"
-                            >
-                              Edit
-                            </button>
-                            <button
-                              onClick={() => handleDelete(a.id)}
-                              className="px-2 py-1 text-sm bg-black text-white rounded"
-                            >
-                              Hapus
-                            </button>
-                          </>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <ArtikelTable
+              data={myArtikel}
+              canManage={canManage}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+            />
           )}
         </div>
 
+        {/* Public Artikel - hanya admin */}
         {role === "admin" && (
           <div className="bg-white p-6 rounded-xl shadow border">
             <h2 className="text-lg font-semibold mb-4 text-black">
@@ -258,59 +230,71 @@ export default function ArtikelPage() {
             ) : publicArtikel.length === 0 ? (
               <p className="text-gray-500">Belum ada artikel publish</p>
             ) : (
-              <div className="overflow-x-auto text-black">
-                <table className="w-full border text-sm">
-                  <thead className="bg-gray-100">
-                    <tr>
-                      <th className="p-2 border">Judul</th>
-                      <th className="p-2 border">Konten</th>
-                      <th className="p-2 border">Penulis</th>
-                      <th className="p-2 border">Kategori</th>
-                      <th className="p-2 border">Tag</th>
-                      <th className="p-2 border">Status</th>
-                      <th className="p-2 border">Aksi</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {publicArtikel.map((a) => (
-                      <tr key={a.id} className="hover:bg-gray-50">
-                        <td className="p-2 border">{a.judul}</td>
-                        <td className="p-2 border">{a.konten}</td>
-                        <td className="p-2 border">{a.penulis?.username || "-"}</td>
-                        <td className="p-2 border">{a.kategori?.nama || "-"}</td>
-                        <td className="p-2 border">
-                          {a.tags?.length > 0
-                            ? a.tags.map((t) => t.nama).join(", ")
-                            : "-"}
-                        </td>
-                        <td className="p-2 border">{a.status}</td>
-                        <td className="p-2 border space-x-2">
-                          {canManage(a) && (
-                            <>
-                              <button
-                                onClick={() => handleEdit(a)}
-                                className="px-2 py-1 text-sm bg-black text-white rounded"
-                              >
-                                Edit
-                              </button>
-                              <button
-                                onClick={() => handleDelete(a.id)}
-                                className="px-2 py-1 text-sm bg-black text-white rounded"
-                              >
-                                Hapus
-                              </button>
-                            </>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <ArtikelTable
+                data={publicArtikel}
+                canManage={canManage}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+              />
             )}
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+// ✅ Komponen tabel biar gak duplikat
+function ArtikelTable({ data, canManage, onEdit, onDelete }) {
+  return (
+    <div className="overflow-x-auto text-black">
+      <table className="w-full border text-sm">
+        <thead className="bg-gray-100">
+          <tr>
+            <th className="p-2 border">Judul</th>
+            <th className="p-2 border">Konten</th>
+            <th className="p-2 border">Penulis</th>
+            <th className="p-2 border">Kategori</th>
+            <th className="p-2 border">Tag</th>
+            <th className="p-2 border">Status</th>
+            <th className="p-2 border">Aksi</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((a) => (
+            <tr key={a.id} className="hover:bg-gray-50">
+              <td className="p-2 border">{a.judul}</td>
+              <td className="p-2 border">{a.konten}</td>
+              <td className="p-2 border">{a.penulis?.username || "-"}</td>
+              <td className="p-2 border">{a.kategori?.nama || "-"}</td>
+              <td className="p-2 border">
+                {a.tags?.length > 0
+                  ? a.tags.map((t) => t.nama).join(", ")
+                  : "-"}
+              </td>
+              <td className="p-2 border">{a.status}</td>
+              <td className="p-2 border space-x-2">
+                {canManage(a) && (
+                  <>
+                    <button
+                      onClick={() => onEdit(a)}
+                      className="px-2 py-1 text-sm bg-black text-white rounded"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => onDelete(a.id)}
+                      className="px-2 py-1 text-sm bg-red-600 text-white rounded"
+                    >
+                      Hapus
+                    </button>
+                  </>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
