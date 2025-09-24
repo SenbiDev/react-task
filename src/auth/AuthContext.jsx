@@ -7,7 +7,7 @@ export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [isLoading, setIsLoading] = useState(true); // ⬅️ tambahan
+  const [isLoading, setIsLoading] = useState(true); 
   const loginMutation = useLogin();
   const registerMutation = useRegister();
 

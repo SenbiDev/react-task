@@ -8,7 +8,6 @@ export async function login(username, password) {
     if (data.access) localStorage.setItem("access", data.access);
     if (data.refresh) localStorage.setItem("refresh", data.refresh);
     if (data.user) localStorage.setItem("user", JSON.stringify(data.user));
-    alert("Login Berhasil!")
     
     return data;
   } catch (error) {

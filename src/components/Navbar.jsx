@@ -1,9 +1,9 @@
 // src/components/Navbar.jsx
-import { Link } from "react-router-dom";
-import { useAuth } from "../auth/AuthContext";
+import { Link } from "react-router-dom"
+import { useAuthStore } from "../store/useAuthStore"
 
 export default function Navbar() {
-  const { user, logout } = useAuth();
+  const { user, logout } = useAuthStore()
 
   return (
     <nav className="bg-gray-800 p-4">
@@ -27,12 +27,10 @@ export default function Navbar() {
           Artikel Api
         </Link>
 
-        {/* Spacer ke kanan */}
         <div className="ml-auto flex items-center space-x-3">
           {user ? (
             <>
               <span className="text-gray-300 text-sm">
-                {/* tampilkan name dan email dari AuthContext */}
                 {user.name} ({user.email})
               </span>
               <button
@@ -53,5 +51,5 @@ export default function Navbar() {
         </div>
       </div>
     </nav>
-  );
+  )
 }

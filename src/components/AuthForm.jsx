@@ -15,7 +15,18 @@ export default function AuthForm({
   handleLogin,
   handleRegister,
   error,
+  isLoading,
 }) {
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log("Form submitted", isRegister);
+    if (isRegister) {
+      handleRegister(e);
+    } else {
+      handleLogin(e);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
       <div className="max-w-md w-full">
@@ -34,39 +45,41 @@ export default function AuthForm({
 
         {/* Form */}
         <div className="bg-white/70 backdrop-blur-lg rounded-2xl shadow-xl border border-gray-200/50 p-8">
-          <form
-            onSubmit={isRegister ? handleRegister : handleLogin}
-            className="space-y-6"
-          >
+          <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
               <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
                 {error}
               </div>
             )}
 
-            {isRegister && (
-              <div>
-                <label
-                  htmlFor="username"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  Username
-                </label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-                  <input
-                    id="username"
-                    type="text"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    className="text-black w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200"
-                    placeholder="Enter your username"
-                    required
-                  />
-                </div>
+            {/* Username */}
+            <div>
+              <label
+                htmlFor="username"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
+                Username
+              </label>
+              <div className="relative">
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <input
+                  id="username"
+                  type="text"
+                  autoComplete="username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className={`text-black w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 ${
+                    isRegister
+                      ? "focus:ring-purple-500 focus:border-purple-500"
+                      : "focus:ring-blue-500 focus:border-blue-500"
+                  } transition-all duration-200`}
+                  placeholder="Enter your username"
+                  required
+                />
               </div>
-            )}
+            </div>
 
+            {/* Email (register only) */}
             {isRegister && (
               <div>
                 <label
@@ -80,6 +93,7 @@ export default function AuthForm({
                   <input
                     id="email"
                     type="email"
+                    autoComplete="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="text-black w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200"
@@ -90,29 +104,7 @@ export default function AuthForm({
               </div>
             )}
 
-            {!isRegister && (
-              <div>
-                <label
-                  htmlFor="username"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  Username
-                </label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-                  <input
-                    id="username"
-                    type="text"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    className="text-black w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-                    placeholder="Enter your username"
-                    required
-                  />
-                </div>
-              </div>
-            )}
-
+            {/* Password */}
             <div>
               <label
                 htmlFor="password"
@@ -123,7 +115,8 @@ export default function AuthForm({
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
                 <PasswordInput
-                  id="password"   
+                  id="password"
+                  autoComplete={isRegister ? "new-password" : "current-password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter your password"
@@ -131,6 +124,7 @@ export default function AuthForm({
               </div>
             </div>
 
+            {/* Confirm Password (register only) */}
             {isRegister && (
               <div>
                 <label
@@ -142,7 +136,8 @@ export default function AuthForm({
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
                   <PasswordInput
-                    id="password2"  
+                    id="password2"
+                    autoComplete="new-password"
                     value={password2}
                     onChange={(e) => setPassword2(e.target.value)}
                     placeholder="Confirm your password"
@@ -153,6 +148,7 @@ export default function AuthForm({
 
             <button
               type="submit"
+              disabled={isLoading}
               className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-4 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 transition-all duration-200 flex items-center justify-center space-x-2"
             >
               <span>{isRegister ? "Sign Up" : "Sign In"}</span>
@@ -174,9 +170,13 @@ export default function AuthForm({
 
           {/* Demo Credentials */}
           <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-            <p className="text-sm text-blue-800 font-medium mb-2">Demo Credentials:</p>
+            <p className="text-sm text-blue-800 font-medium mb-2">
+              Demo Credentials:
+            </p>
             <p className="text-xs text-blue-700">Email: any valid email</p>
-            <p className="text-xs text-blue-700">Password: minimum 8 characters</p>
+            <p className="text-xs text-blue-700">
+              Password: minimum 8 characters
+            </p>
           </div>
         </div>
       </div>

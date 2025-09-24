@@ -1,10 +1,9 @@
-import React from "react";
-import { Navigate } from "react-router-dom";
-import { useAuth } from "../auth/AuthContext";
-import { Loader2 } from "lucide-react";
+import { Navigate } from "react-router-dom"
+import { Loader2 } from "lucide-react"
+import { useAuthStore } from "../store/useAuthStore"
 
 export default function ProtectedRoute({ children, redirectTo = "/", roles }) {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading } = useAuthStore()
 
   if (isLoading) {
     return (
@@ -14,16 +13,16 @@ export default function ProtectedRoute({ children, redirectTo = "/", roles }) {
           <span className="text-lg">Loading...</span>
         </div>
       </div>
-    );
+    )
   }
 
   if (!user) {
-    return <Navigate to={redirectTo} replace />;
+    return <Navigate to={redirectTo} replace />
   }
 
   if (roles?.length && !roles.includes(user.role)) {
-    return <Navigate to="/app" replace />; 
+    return <Navigate to="/app" replace />
   }
 
-  return <>{children}</>;
+  return <>{children}</>
 }

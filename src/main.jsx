@@ -8,7 +8,6 @@ import About from "./pages/About";
 import ArtikelApi from "./pages/ArtikelApi";
 import Login from "./pages/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
-import { AuthProvider } from "./auth/AuthContext";
 import "./index.css";
 
 const router = createBrowserRouter([
@@ -18,25 +17,29 @@ const router = createBrowserRouter([
   },
   {
     path: "/app",
-    element: <App />, 
+    element: <App />,
     children: [
-      { index: true, 
-        element: 
-        <ProtectedRoute>
-          <Home /> 
-        </ProtectedRoute>
+      {
+        index: true,
+        element: (
+          <ProtectedRoute>
+            <Home />
+          </ProtectedRoute>
+        ),
       },
-      { path: "about", 
-        element: 
-        <ProtectedRoute>
-          <About /> 
-        </ProtectedRoute>
+      {
+        path: "about",
+        element: (
+          <ProtectedRoute>
+            <About />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "artikel-api",
         element: (
           <ProtectedRoute>
-            <ArtikelApi /> 
+            <ArtikelApi />
           </ProtectedRoute>
         ),
       },
@@ -49,9 +52,7 @@ const queryClient = new QueryClient();
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <RouterProvider router={router} />
-      </AuthProvider>
+      <RouterProvider router={router} />
     </QueryClientProvider>
   </React.StrictMode>
 );

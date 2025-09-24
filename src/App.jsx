@@ -1,7 +1,15 @@
-import { Outlet } from 'react-router-dom';
-import Navbar from './components/Navbar';
+import { Outlet } from "react-router-dom";
+import { useEffect } from "react";
+import Navbar from "./components/Navbar";
+import { useAuthStore } from "./store/useAuthStore";
 
 export default function App() {
+  const initAuth = useAuthStore((state) => state.initAuth);
+
+  useEffect(() => {
+    initAuth();
+  }, [initAuth]);
+
   return (
     <div className="flex flex-col">
       <Navbar />
