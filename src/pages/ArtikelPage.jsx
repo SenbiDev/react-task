@@ -96,12 +96,6 @@ export default function ArtikelPage() {
               </button>
             )}
           </div>
-          <button
-            onClick={handleLogout}
-            className="!bg-white hover:bg-red-600 text-black px-4 py-2 rounded-lg transition"
-          >
-            Logout
-          </button>
         </div>
 
         <div className="bg-white p-6 rounded-xl shadow border text-black">

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useLogout } from "../hooks/useAuthQuery";
+import { useRegister } from "../hooks/useAuthQuery";
 
 export default function SignUp() {
   const [username, setUsername] = useState("");
@@ -9,6 +9,8 @@ export default function SignUp() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
+  const { mutateAsync: register } = useRegister();
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (password !== password2) {
@@ -16,7 +18,8 @@ export default function SignUp() {
       return;
     }
     try {
-      await useRegister({username, email, password, password2});
+      // await useRegister({username, email, password, password2});
+      await register({username, email, password, password2});
       setSuccess("Registrasi berhasil! Silakan login.");
       setError("");
       setUsername("");

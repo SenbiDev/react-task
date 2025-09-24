@@ -77,15 +77,6 @@ export default function AdminPage() {
             >
               Kembali
             </button>
-            <button
-              onClick={() => {
-                doLogout();
-                navigate("/signin");
-              }}
-              className="bg-black text-white px-4 py-2 rounded-lg border"
-            >
-              Logout
-            </button>
           </div>
         </div>
 
