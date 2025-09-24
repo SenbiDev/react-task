@@ -1,42 +1,27 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { getTags, createTag, updateTag, deleteTag } from "../axiosApi/tags"
+import { useEffect } from "react"
 import { useTagStore } from "../store/useTagStore"
 
 export function useTagList() {
-  const setState = useTagStore.setState
-  return useQuery({
-    queryKey: ["tagList"],
-    queryFn: getTags,
-    onSuccess: (data) => setState({ tags: data }),
-  })
+  const { tags, fetchTags, isLoading, error } = useTagStore()
+
+  useEffect(() => {
+    fetchTags()
+  }, [fetchTags])
+
+  return { tags, isLoading, error }
 }
 
 export function useCreateTag() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: (nama) => createTag(nama),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["tagList"] })
-    },
-  })
+  const { addTag, error } = useTagStore()
+  return { addTag, error }
 }
 
 export function useUpdateTag() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: ({ id, nama }) => updateTag(id, nama),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["tagList"] })
-    },
-  })
+  const { updateTag, error } = useTagStore()
+  return { updateTag, error }
 }
 
 export function useDeleteTag() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: (id) => deleteTag(id),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["tagList"] })
-    },
-  })
+  const { deleteTag, error } = useTagStore()
+  return { deleteTag, error }
 }

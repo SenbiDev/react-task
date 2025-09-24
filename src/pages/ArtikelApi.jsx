@@ -11,8 +11,15 @@ export default function ArtikelApi() {
   const { user } = useAuthStore()
   const role = user?.role || "user"
 
-  const { fetchArtikel, artikel, artikelEdit, setArtikelEdit, clearArtikelEdit, deleteArtikel } =
-    useArtikelStore()
+  const {
+    fetchArtikel,
+    artikel = [], 
+    artikelEdit,
+    setArtikelEdit,
+    clearArtikelEdit,
+    deleteArtikel,
+  } = useArtikelStore()
+
   const { fetchKategori } = useKategoriStore()
   const { fetchTags } = useTagStore()
 
@@ -43,7 +50,7 @@ export default function ArtikelApi() {
 
       {/* My Artikel */}
       <ArtikelList
-        artikel={artikel.filter((a) => a.is_owner)} // filter langsung di komponen
+        artikel={(artikel || []).filter((a) => a.is_owner)}
         onEdit={setArtikelEdit}
         onDelete={handleDelete}
         isMyList={true}
@@ -51,7 +58,7 @@ export default function ArtikelApi() {
 
       {role === "admin" && (
         <ArtikelList
-          artikel={artikel.filter((a) => a.status === "published")}
+          artikel={(artikel || []).filter((a) => a.status === "published")}
           onEdit={setArtikelEdit}
           onDelete={handleDelete}
           isMyList={false}

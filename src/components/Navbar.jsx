@@ -1,27 +1,32 @@
-// src/components/Navbar.jsx
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { useAuthStore } from "../store/useAuthStore"
 
 export default function Navbar() {
   const { user, logout } = useAuthStore()
+  const navigate = useNavigate()
+
+  const handleLogout = () => {
+    logout()
+    navigate("/login")
+  }
 
   return (
     <nav className="bg-gray-800 p-4">
       <div className="container mx-auto flex items-center space-x-4">
         <Link
-          to="/app"
+          to="/home"
           className="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium"
         >
           Home
         </Link>
         <Link
-          to="/app/about"
+          to="/about"
           className="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium"
         >
           About
         </Link>
         <Link
-          to="/app/artikel-api"
+          to="/artikel-api"
           className="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium"
         >
           Artikel Api

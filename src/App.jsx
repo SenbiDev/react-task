@@ -4,7 +4,7 @@ import Navbar from "./components/Navbar";
 import { useAuthStore } from "./store/useAuthStore";
 
 export default function App() {
-  const initAuth = useAuthStore((state) => state.initAuth);
+  const initAuth = useAuthStore((state) => state.init);
 
   useEffect(() => {
     initAuth();

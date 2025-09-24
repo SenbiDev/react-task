@@ -1,12 +1,17 @@
+import { useAuthStore } from "../store/useAuthStore"
 import { useArtikelStore } from "../store/useArtikelStore"
 
 export default function ArtikelList({ isMyList }) {
+  const { user } = useAuthStore()
   const { artikel, deleteArtikel, setArtikelEdit } = useArtikelStore()
 
-  // filter artikel kalau "my list"
+  // 🔹 logika list
   const list = isMyList
-    ? artikel.filter((a) => a.is_owner) // asumsinya API kasih info owner
+    ? artikel.filter((a) => a.penulis?.id === user?.id)
     : artikel.filter((a) => a.status === "published")
+
+  const canModify = (a) =>
+    user?.role === "admin" || a.penulis?.id === user?.id
 
   return (
     <div className="bg-gray-900 text-white p-4 rounded-lg shadow-md mt-3">
@@ -45,7 +50,8 @@ export default function ArtikelList({ isMyList }) {
                 </p>
               </div>
 
-              {isMyList && (
+              {/* 🔹 Tampilkan tombol kalau admin ATAU pemilik */}
+              {canModify(a) && (
                 <div className="flex gap-2 ml-4">
                   <button
                     onClick={() => setArtikelEdit(a)}

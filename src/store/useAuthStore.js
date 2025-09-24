@@ -3,7 +3,7 @@ import * as authApi from "../axiosApi/auth";
 
 export const useAuthStore = create((set) => ({
   user: JSON.parse(localStorage.getItem("user")) || null,
-  isLoading: true, 
+  isLoading: false, 
   error: null,
 
   init: () => {

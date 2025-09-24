@@ -2,7 +2,7 @@ import { Navigate } from "react-router-dom"
 import { Loader2 } from "lucide-react"
 import { useAuthStore } from "../store/useAuthStore"
 
-export default function ProtectedRoute({ children, redirectTo = "/", roles }) {
+export default function ProtectedRoute({ children, redirectTo = "/login", roles }) {
   const { user, isLoading } = useAuthStore()
 
   if (isLoading) {
@@ -21,7 +21,7 @@ export default function ProtectedRoute({ children, redirectTo = "/", roles }) {
   }
 
   if (roles?.length && !roles.includes(user.role)) {
-    return <Navigate to="/app" replace />
+    return <Navigate to="/home" replace />
   }
 
   return <>{children}</>

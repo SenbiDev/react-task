@@ -1,31 +1,26 @@
 import api from "./apiConfig";
 
 export async function getTags() {
+  const res = await api.get("tags/");
+  return res.data;
+}
+
+export async function createTag(payload) {
   try {
-    const res = await api.get("tags/");
+    const res = await api.post("tags/", payload);
     return res.data;
   } catch (error) {
-    console.error("Gagal fetch tag:", error);
+    console.error("Gagal membuat tag:", error.response?.data || error.message);
     throw error;
   }
 }
 
-export async function createTag(nama) {
+export async function updateTag(id, payload) {
   try {
-    const res = await api.post("tags/", { nama });
+    const res = await api.put(`tags/${id}/`, payload);
     return res.data;
   } catch (error) {
-    console.error("Gagal membuat tag:", error);
-    throw error;
-  }
-}
-
-export async function updateTag(id, nama) {
-  try {
-    const res = await api.put(`tags/${id}/`, { nama });
-    return res.data;
-  } catch (error) {
-    console.error("Gagal update tag:", error);
+    console.error("Gagal update tag:", error.response?.data || error.message);
     throw error;
   }
 }
@@ -35,7 +30,7 @@ export async function deleteTag(id) {
     await api.delete(`tags/${id}/`);
     return true;
   } catch (error) {
-    console.error("Gagal hapus tag:", error);
+    console.error("Gagal hapus tag:", error.response?.data || error.message);
     throw error;
   }
 }

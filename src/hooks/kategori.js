@@ -1,42 +1,27 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { getKategori, createKategori, updateKategori, deleteKategori } from "../axiosApi/kategori"
+import { useEffect } from "react"
 import { useKategoriStore } from "../store/useKategoriStore"
 
 export function useKategoriList() {
-  const setState = useKategoriStore.setState
-  return useQuery({
-    queryKey: ["kategoriList"],
-    queryFn: getKategori,
-    onSuccess: (data) => setState({ kategori: data }),
-  })
+  const { kategori, fetchKategori, isLoading, error } = useKategoriStore()
+
+  useEffect(() => {
+    fetchKategori()
+  }, [fetchKategori])
+
+  return { kategori, isLoading, error }
 }
 
 export function useCreateKategori() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: (nama) => createKategori(nama),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["kategoriList"] })
-    },
-  })
+  const { addKategori, error } = useKategoriStore()
+  return { addKategori, error }
 }
 
 export function useUpdateKategori() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: ({ id, nama }) => updateKategori(id, nama),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["kategoriList"] })
-    },
-  })
+  const { updateKategori, error } = useKategoriStore()
+  return { updateKategori, error }
 }
 
 export function useDeleteKategori() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: (id) => deleteKategori(id),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["kategoriList"] })
-    },
-  })
+  const { deleteKategori, error } = useKategoriStore()
+  return { deleteKategori, error }
 }
