@@ -10,14 +10,12 @@ import { useKategoriList } from "../hooks/useKategoriQuery";
 import { useNavigate } from "react-router-dom";
 
 export default function ArtikelPage() {
-  // ✅ Ambil store Zustand
   const { form, setForm, resetForm, selected, setSelected } = useArtikelStore();
 
   const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
   const role = currentUser?.role || "user";
   const navigate = useNavigate();
 
-  // ✅ React Query untuk API
   const { data: artikels = [], isLoading } = useArticles();
   const { data: kategoriList = [] } = useKategoriList();
   const { data: tagList = [] } = useTagsList();
@@ -25,7 +23,6 @@ export default function ArtikelPage() {
   const { mutate: updateArticle } = useUpdateArticle();
   const { mutate: deleteArticle } = useDeleteArticle();
 
-  // ✅ Submit artikel
   const handleSubmit = (e) => {
     e.preventDefault();
     const payload = {
@@ -44,7 +41,6 @@ export default function ArtikelPage() {
     resetForm();
   };
 
-  // ✅ Edit artikel
   const handleEdit = (artikel) => {
     setSelected(artikel);
     setForm({
@@ -56,17 +52,18 @@ export default function ArtikelPage() {
     });
   };
 
-  // ✅ Delete artikel
   const handleDelete = (id) => {
     if (!window.confirm("Yakin ingin menghapus artikel ini?")) return;
     deleteArticle(id);
   };
 
-  // ✅ Filter artikel
-  const myArtikel = artikels.filter((a) => a.penulis?.id === currentUser?.id);
-  const publicArtikel = artikels.filter((a) => a.status === "published");
+  const myArtikel = (artikels || []).filter(
+    (a) => a.penulis?.id === currentUser?.id
+  );
+  const publicArtikel = (artikels || []).filter(
+    (a) => a.status === "published"
+  );
 
-  // ✅ Role check
   const canManage = (artikel) =>
     role === "admin" || artikel.penulis?.id === currentUser?.id;
 
@@ -124,11 +121,13 @@ export default function ArtikelPage() {
               <label className="block mb-1 font-medium">Kategori</label>
               <select
                 value={form.kategori_id}
-                onChange={(e) => setForm({ ...form, kategori_id: e.target.value })}
+                onChange={(e) =>
+                  setForm({ ...form, kategori_id: e.target.value })
+                }
                 className="w-full border px-3 py-2 rounded text-black"
               >
                 <option value="">Pilih kategori</option>
-                {kategoriList.map((kat) => (
+                {(kategoriList || []).map((kat) => (
                   <option key={kat.id} value={kat.id}>
                     {kat.nama}
                   </option>
@@ -140,7 +139,7 @@ export default function ArtikelPage() {
             <div>
               <label className="block mb-1 font-medium">Tag</label>
               <div className="flex flex-wrap gap-4 text-black">
-                {tagList.map((tag) => (
+                {(tagList || []).map((tag) => (
                   <label key={tag.id} className="flex items-center gap-2">
                     <input
                       type="checkbox"
@@ -149,7 +148,10 @@ export default function ArtikelPage() {
                       onChange={(e) => {
                         const tagId = parseInt(e.target.value);
                         if (e.target.checked) {
-                          setForm({ ...form, tag_ids: [...form.tag_ids, tagId] });
+                          setForm({
+                            ...form,
+                            tag_ids: [...form.tag_ids, tagId],
+                          });
                         } else {
                           setForm({
                             ...form,
@@ -244,8 +246,8 @@ export default function ArtikelPage() {
   );
 }
 
-// ✅ Komponen tabel biar gak duplikat
-function ArtikelTable({ data, canManage, onEdit, onDelete }) {
+// ✅ Tabel
+function ArtikelTable({ data = [], canManage, onEdit, onDelete }) {
   return (
     <div className="overflow-x-auto text-black">
       <table className="w-full border text-sm">

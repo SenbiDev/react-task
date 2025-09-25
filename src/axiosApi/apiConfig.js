@@ -1,7 +1,7 @@
 // apiConfig.js
 import axios from "axios";
 
-export const BASE_URL = "http://127.0.0.1:8000/api";
+export const API_BASE = "http://127.0.0.1:8000/api";
 
 let isRefreshing = false;
 let failedQueue = [];
@@ -9,6 +9,12 @@ let failedQueue = [];
 export function forceLogout() {
   localStorage.clear();
   window.location.reload();
+}
+
+// 🔹 Tambahin ini
+export function getAuthHeader() {
+  const token = localStorage.getItem("access");
+  return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
 function processQueue(error, token = null) {
@@ -20,7 +26,7 @@ function processQueue(error, token = null) {
 }
 
 const api = axios.create({
-  baseURL: BASE_URL,
+  baseURL: API_BASE,
 });
 
 // Tambah token otomatis sebelum request
@@ -64,7 +70,7 @@ api.interceptors.response.use(
     }
 
     try {
-      const res = await axios.post(BASE_URL + "token/refresh/", { refresh });
+      const res = await axios.post(API_BASE + "token/refresh/", { refresh });
       const newToken = res.data.access;
 
       localStorage.setItem("access", newToken);

@@ -17,28 +17,24 @@ import useAdminStore from "../store/adminStore";
 export default function AdminPage() {
   const navigate = useNavigate();
 
-  // Ambil data kategori & tag via React Query
-  const { data: kategoriList = [], isLoading: loadingKategori } = useKategoriList();
+  const { data: kategoriList = [], isLoading: loadingKategori } =
+    useKategoriList();
   const { data: tagList = [], isLoading: loadingTag } = useTagsList();
 
-  // Mutation hooks kategori
   const { mutate: createKategori } = useCreateKategori();
   const { mutate: updateKategori } = useUpdateKategori();
   const { mutate: deleteKategori } = useDeleteKategori();
 
-  // Mutation hooks tag
   const { mutate: createTag } = useCreateTag();
   const { mutate: updateTag } = useUpdateTag();
   const { mutate: deleteTag } = useDeleteTag();
 
-  // Form state dari Zustand
   const {
     selectedKategori,
     kategoriForm,
     setSelectedKategori,
     setKategoriForm,
     resetKategori,
-
     selectedTag,
     tagForm,
     setSelectedTag,
@@ -46,7 +42,6 @@ export default function AdminPage() {
     resetTag,
   } = useAdminStore();
 
-  // Submit kategori
   const handleSubmitKategori = (e) => {
     e.preventDefault();
     if (!kategoriForm.nama.trim()) return;
@@ -60,7 +55,6 @@ export default function AdminPage() {
     resetKategori();
   };
 
-  // Submit tag
   const handleSubmitTag = (e) => {
     e.preventDefault();
     if (!tagForm.nama.trim()) return;
@@ -104,7 +98,10 @@ export default function AdminPage() {
               className="w-full border px-3 py-2 rounded text-black"
               required
             />
-            <button type="submit" className="bg-black text-white px-4 py-2 rounded-lg border">
+            <button
+              type="submit"
+              className="bg-black text-white px-4 py-2 rounded-lg border"
+            >
               {selectedKategori ? "Update" : "Simpan"}
             </button>
             {selectedKategori && (
@@ -124,7 +121,7 @@ export default function AdminPage() {
           <h2 className="text-lg font-semibold mb-4">Daftar Kategori</h2>
           {loadingKategori ? (
             <p>Loading...</p>
-          ) : kategoriList.length === 0 ? (
+          ) : (kategoriList || []).length === 0 ? (
             <p className="text-gray-500">Belum ada kategori</p>
           ) : (
             <ul className="space-y-2">
@@ -168,7 +165,10 @@ export default function AdminPage() {
               className="w-full border px-3 py-2 rounded text-black"
               required
             />
-            <button type="submit" className="bg-black text-white px-4 py-2 rounded-lg border">
+            <button
+              type="submit"
+              className="bg-black text-white px-4 py-2 rounded-lg border"
+            >
               {selectedTag ? "Update" : "Simpan"}
             </button>
             {selectedTag && (
@@ -188,7 +188,7 @@ export default function AdminPage() {
           <h2 className="text-lg font-semibold mb-4">Daftar Tag</h2>
           {loadingTag ? (
             <p>Loading...</p>
-          ) : tagList.length === 0 ? (
+          ) : (tagList || []).length === 0 ? (
             <p className="text-gray-500">Belum ada tag</p>
           ) : (
             <ul className="space-y-2">
