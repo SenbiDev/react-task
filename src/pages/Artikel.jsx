@@ -3,7 +3,7 @@ import { useAuth } from "../auth/authContext";
 import { useKategori, useTags } from "../hooks/admin";
 import { useNavigate } from "react-router-dom";
 import { useArtikelStore } from "../store/useArtikelStore";
-import { EyeIcon, PencilIcon, Trash2Icon, TrashIcon } from "lucide-react";
+import { EyeIcon, FileText, PencilIcon, Trash2Icon } from "lucide-react";
 
 export default function ArtikelPage() {
 
@@ -69,14 +69,14 @@ const editingId = useArtikelStore((state) => state.editingId)
     // setStatus(artikel.status|| "draft");
   };
 
-  const resetForm = () => {
-    editingId("");
-    setJudul("");
-    setKonten("");
-    setKategori("");
-    setTags([]);
-    setStatus("draft");
-  };
+  // const resetForm = () => {
+  //   editingId("");
+  //   setJudul("");
+  //   setKonten("");
+  //   setKategori("");
+  //   setTags([]);
+  //   setStatus("draft");
+  // };
 
 
   const handleDelete = (id) => {
@@ -185,18 +185,18 @@ const editingId = useArtikelStore((state) => state.editingId)
                     <div className="space-x-2">
                       {role === "admin" && (
                         <button
-                          onClick={() => navigate("/admin")}
-                          className="bg-gray-700 text-white px-3 py-1 rounded"
+                          onClick={() => navigate("/create")}
+                          className="flex gap-2 bg-gray-700 text-white px-3 py-1 rounded"
                         >
-                          Admin: Kelola Kategori & Tag
+                          <FileText/> Create
                         </button>
                       )}
-                      <button
+                      {/* <button
                         onClick={handleLogOut}
                         className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
                       >
                         Logout
-                      </button>
+                      </button> */}
                     </div>
                   </div>
                 <div className="bg-gray-800 p-6 border border-gray-300 rounded shadow-sm mb-8">
