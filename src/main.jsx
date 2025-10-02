@@ -1,5 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
+import '@ant-design/v5-patch-for-react-19';
+import { unstableSetRender } from 'antd';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import App from './App'
 import Home from './pages/Home'
@@ -65,6 +67,16 @@ const router = createBrowserRouter([
 ]);
 
 const queryClient = new QueryClient();
+
+unstableSetRender((node, container) => {
+  container._reactRoot ||= ReactDOM.createRoot(container);
+  const root = container._reactRoot;
+  root.render(node);
+  return async () => {
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    root.unmount();
+  };
+});
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

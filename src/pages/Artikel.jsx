@@ -23,6 +23,7 @@ const startEdit = useArtikelStore((state) => state.startEdit)
 const updateArt = useArtikelStore((state) => state.updateArt)
 const resForm = useArtikelStore((state) => state.resForm)
 const editingId = useArtikelStore((state) => state.editingId)
+const arts = useArtikelStore((state) => state.arts)
 
   const {user, logout} = useAuth();
   const role = user?.role || "";
@@ -60,6 +61,7 @@ const editingId = useArtikelStore((state) => state.editingId)
 
   const handleEdit = (artikel) => {
     startEdit(artikel);
+    navigate("/create")
     // if (!artikel) return;
     // editingId(artikel.id);
     // setJudul(artikel.judul||"");
@@ -180,23 +182,23 @@ const editingId = useArtikelStore((state) => state.editingId)
   return (
         <div className="min-h-screen bg-gray-900 font-sans p-8">
             <div className="max-w-3xl mx-auto">
-                <div className="flex justify-between items-center mb-8">
+                <div className="flex justify-between items-end mb-8">
                     <h1 className="text-xl font-semibold text-white">Selamat datang</h1>
                     <div className="space-x-2">
-                      {role === "admin" && (
+                      {/* {role === "admin" && (
                         <button
                           onClick={() => navigate("/create")}
                           className="flex gap-2 bg-gray-700 text-white px-3 py-1 rounded"
                         >
                           <FileText/> Create
                         </button>
-                      )}
-                      {/* <button
-                        onClick={handleLogOut}
-                        className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+                      )} */}
+                      <span
+                        onClick={() => navigate("/create")}
+                        className="flex gap-2 bg-gray-800 text-blue-700 font-semibold px-3 py-1.5 rounded"
                       >
-                        Logout
-                      </button> */}
+                        <FileText/> Create
+                      </span>
                     </div>
                   </div>
                 <div className="bg-gray-800 p-6 border border-gray-300 rounded shadow-sm mb-8">

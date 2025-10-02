@@ -3,7 +3,7 @@ import api from "./apiConfig";
 export async function login(username, password) {
     try {
         const res = await api.post("login/", { username, password });
-        const data = res.data;
+        const data = res.data || {};
 
         if (data.access) localStorage.setItem("access", data.access);
         if (data.refresh) localStorage.setItem("refresh", data.refresh);
@@ -11,7 +11,11 @@ export async function login(username, password) {
 
         return data;
     } catch (error) {
-        const msg = error.response?.data?.detail || "Login gagal";
+        const msg =
+        error.response?.data?.detail ||
+        error.response?.data?.non_field_error?.[0] ||
+        error.response?.data?.message ||
+        "Login gagal";
         console.error("Login error:", msg);
         throw new Error(msg);
     }

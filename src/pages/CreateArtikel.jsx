@@ -1,22 +1,44 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useArtikelStore } from "../store/useArtikelStore";
-import { useKategoriStore, useTagStore } from "../store/useAdminStore";
+import * as admin from "../hooks/admin";
 import { Card, Button, Form, Input, Space, Select, Checkbox, Radio, message } from "antd";
+import * as artikel from "../hooks/artikel";
 
 
 export default function CreateArtikel () {
+    const navigate = useNavigate();
     const setJudul = useArtikelStore((state) => state.setJudul)
     const setKonten = useArtikelStore((state) => state.setKonten)
     const setKategori = useArtikelStore((state) => state.setKategori)
     const setTags = useArtikelStore((state) => state.setTags)
     const setStatus = useArtikelStore((state) => state.setStatus)
     const createArt = useArtikelStore((state) => state.createArt)
+    const updateArt = useArtikelStore((state) => state.updateArt)
+    const artikelData = useArtikelStore((state) => state.editingArtikel)
+
+    const createArtikel = artikel.useCreateArtikel();
+    const updateArtikel = artikel.useUpdateArtikel();
     
 
-    const { data: kategoriList = [] } = useKategoriStore();
-    const { data: tagList = [] } = useTagStore();
+    const { data: kategoriList = [], isLoading: kategoriLoading } = admin.useKategori();
+    const { data: tagList = [], isLoading: tagLoading } = admin.useTags();
 
     const [form] = Form.useForm();
+    
+
+    useEffect(() => {
+        if (artikelData) {
+            form.setFieldsValue({
+                judul: artikelData?.judul || "",
+                konten: artikelData?.konten || "",
+                kategori: artikelData?.kategori?.id || "",
+                tags: artikelData?.tags?.map(t => t.id) || [],
+                status: artikelData?.status || "draft",
+            })
+        }
+    }, [artikelData, form]);
+
 
     const SubmitButton = ({ form, children }) => {
         const [submittable, setSubmittable] = React.useState(false);
@@ -34,20 +56,48 @@ export default function CreateArtikel () {
         );
     };
 
-    const handleFinish = (values) => {
-        setJudul(values.judul);
-        setKonten(values.konten);
-        setKategori(values.kategori);
-        setTags(values.tags);
-        setStatus(values.status);
+    const handleFinish = async (values) => {
+        try {
+            setJudul(values.judul);
+            setKonten(values.konten);
+            setKategori(values.kategori);
+            setTags(values.tags);
+            setStatus(values.status);
+            
+            const payload = {
+                judul: values.judul,
+                konten: values.konten,
+                kategori_id: values.kategori,
+                tag_ids: Array.isArray(values.tags) ? values.tags: [],
+                status: values.status || "draft",
+            };
+    
+            console.log("Payload dikirim ke API", payload, "editingId:", artikelData?.id);
 
-        createArt(values);
-        message.success("Artikel berhasil disimpan");
-        form.resetFields();
+            if (artikelData?.id) {
+                await updateArtikel.mutateAsync({id: artikelData.Id, payload});
+                updateArt();
+                alert("Artikel berhasil diupdate")
+            } else {
+                await createArtikel.mutateAsync(payload);
+                createArt();
+                alert("Artikel berhasil dibuat")
+            }
+            
+            form.resetFields();
+            navigate("/artikel");
+        } catch (err) {
+            console.error("Gagal membuat artikel", err.response?.data || err.message);
+            message.error("Gagam membuat artikel");
+        }
+    };
+
+    const handleCancel = () => {
+        navigate("/artikel");
     }
     return (
-        <Space direction="vertical" size={16} className="w-full flex justify center">
-            <Card title="Create Artikel" style={{ width : 600 }}>
+        <Space direction="vertical" size={16} className="w-full min-h-screen flex items-center">
+            <Card title="Create Artikel" style={{ width : 800 }}>
                 <Form form={form} name="validateOnly" layout="vertical" autoComplete="off" onFinish={handleFinish}>
                     <Form.Item
                         label= "Judul"
@@ -65,7 +115,7 @@ export default function CreateArtikel () {
                         label= "Kategori"
                         name= "kategori"
                         rules={[{ required : true, message: "Pilih kategori!"}]}>
-                        <Select placeholder="Pilih kategori!">
+                        <Select placeholder="Pilih kategori!" loading={kategoriLoading}>
                             {kategoriList.map((k) => (
                                 <Select.Option key={k.id} value={k.id}>
                                     {k.nama}
@@ -77,10 +127,10 @@ export default function CreateArtikel () {
                         label= "Tags"
                         name= "tags"
                         rules={[{ required : true, message: "Pilih minimal 1 tag!"}]}>
-                        <Checkbox.Group>
+                        <Checkbox.Group disabled={tagLoading}>
                             <Space>
                                 {tagList.map((t) => (
-                                    <Checkbox key={t.id} className="flex justify-center space-x-2">  
+                                    <Checkbox key={t.id} value={t.id}>  
                                         {t.nama}
                                     </Checkbox>
                                 ))}
@@ -99,10 +149,17 @@ export default function CreateArtikel () {
                     <Form.Item>
                         <Space>
                             <SubmitButton form={form}>
-                                Simpan artikel
+                                {artikelData ? "perbarui" : "simpan" }
                             </SubmitButton>
-                            <Button htmlType="reset">
+                            <Button onClick={() => form.resetFields()}>
                                 Batal
+                            </Button>
+                        </Space>
+                    </Form.Item>
+                    <Form.Item>
+                        <Space>
+                            <Button onClick={handleCancel}>
+                                Kembali
                             </Button>
                         </Space>
                     </Form.Item>

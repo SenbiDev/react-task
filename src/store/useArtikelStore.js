@@ -1,7 +1,8 @@
 import { create } from "zustand";
 import { updateArtikel } from "../axiosApi/artikel";
+import api from "../axiosApi/apiConfig";
 
-export const useArtikelStore = create((set) => ({
+export const useArtikelStore = create((set, get) => ({
     arts:[],
     judul: "",
     konten: "",
@@ -20,27 +21,43 @@ export const useArtikelStore = create((set) => ({
             tags: state.tags.includes(id) ? state.tags.filter((t) => t !== id) : [...state.tags, id],
         })),
 
-    createArt: () => set((state) => {
-        const newArtikel = {
+    createArt: async () => {
+        const state = get();
+        const payload = {
             id: Date.now(),
             judul: state.judul,
             konten: state.konten,
-            kategori: state.kategori,
-            tags: state.tags,
+            kategori_id: state.kategori,
+            tag_ids: Array.isArray(state.tags) ? state.tags: [],
             status: state.status,
         };
-        return {
-            arts: [ ...state.arts, newArtikel],
-            judul: "",
-            konten: "",
-            kategori: "",
-            tags: [],
-            status: "draft",
-        };
-    }),
+        try {
+            const res = await api.post("/artikel/", payload);
+
+            const detail = await api.get(`/artikel/${res.data.id}`);
+
+            set ((state) => ({
+                arts: [ ...state.arts, res.data],
+                judul: "",
+                konten: "",
+                kategori: "",
+                tags: [],
+                status: "draft",
+            }));
+
+            return res.data;
+        } catch (err) {
+            console.log("Gagam membuat artikel", err.response?.data || err.message);
+            throw err;
+        }
+    },
+
+    editingId: null,
+    editingArtikel: null,
 
     startEdit: (artikel) => set ({
         editingId: artikel.id,
+        editingArtikel: artikel,
         judul: artikel.judul || "",
         konten: artikel.konten || "",
         kategori: artikel.kategori?.id || "",
@@ -63,6 +80,7 @@ export const useArtikelStore = create((set) => ({
         return {
             arts: updatedArt,
             editingId: null,
+            editingArtikel: null,
             judul: "",
             konten: "",
             kategori: "",
@@ -77,6 +95,7 @@ export const useArtikelStore = create((set) => ({
 
     resForm: () => set({
         editingId: null,
+        editingArtikel: null,
         judul: "",
         konten: "",
         kategori: "",
