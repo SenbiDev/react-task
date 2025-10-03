@@ -89,6 +89,8 @@ export const useArtikelStore = create((set, get) => ({
         };
     }),
 
+    clearEditingArtikel: () => set({editingArtikel : null}),
+
     deleteArt: (id) => set((state) => ({
         arts: state.arts.filter((a) => a.id !== id),
     })),
