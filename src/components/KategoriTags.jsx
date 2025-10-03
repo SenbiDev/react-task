@@ -1,7 +1,10 @@
 import { useState, useEffect } from "react"
+import { Card, Input, Button, List, Space, theme, Typography } from "antd"
 import { useKategoriStore } from "../store/useKategoriStore"
 import { useTagStore } from "../store/useTagStore"
 import { useAuthStore } from "../store/useAuthStore"
+
+const { Title } = Typography
 
 export default function KategoriTags() {
   const { user } = useAuthStore()
@@ -13,28 +16,28 @@ export default function KategoriTags() {
     deleteKategori,
   } = useKategoriStore()
   const { tags, fetchTags, addTag, updateTag, deleteTag } = useTagStore()
+  const { token } = theme.useToken()
 
-  // 🔹 state untuk tambah/edit
   const [newKategori, setNewKategori] = useState("")
   const [editKategoriId, setEditKategoriId] = useState(null)
-
   const [newTag, setNewTag] = useState("")
   const [editTagId, setEditTagId] = useState(null)
 
-  // 🔹 fetch data awal
   useEffect(() => {
     fetchKategori()
     fetchTags()
   }, [fetchKategori, fetchTags])
 
   if (!user || user.role !== "admin") {
-    return <p className="text-gray-400">Hanya admin yang bisa mengelola kategori & tags.</p>
+    return (
+      <p style={{ color: token.colorTextSecondary }}>
+        Hanya admin yang bisa mengelola kategori & tags.
+      </p>
+    )
   }
 
-  // 🔹 handler kategori
   const handleSaveKategori = async () => {
-    if (!newKategori.trim()) return alert("Nama kategori tidak boleh kosong")
-
+    if (!newKategori.trim()) return
     try {
       if (editKategoriId) {
         await updateKategori(editKategoriId, { nama: newKategori })
@@ -45,7 +48,6 @@ export default function KategoriTags() {
       setNewKategori("")
     } catch (err) {
       console.error("Gagal simpan kategori:", err)
-      alert("Gagal simpan kategori")
     }
   }
 
@@ -59,10 +61,8 @@ export default function KategoriTags() {
     await deleteKategori(id)
   }
 
-  // 🔹 handler tags
   const handleSaveTag = async () => {
-    if (!newTag.trim()) return alert("Nama tag tidak boleh kosong")
-
+    if (!newTag.trim()) return
     try {
       if (editTagId) {
         await updateTag(editTagId, { nama: newTag })
@@ -73,7 +73,6 @@ export default function KategoriTags() {
       setNewTag("")
     } catch (err) {
       console.error("Gagal simpan tag:", err)
-      alert("Gagal simpan tag")
     }
   }
 
@@ -88,98 +87,132 @@ export default function KategoriTags() {
   }
 
   return (
-    <div className="grid grid-cols-2 gap-6 mt-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
       {/* Kategori */}
-      <div className="bg-gray-900 p-4 rounded-lg">
-        <h3 className="text-lg font-semibold mb-3">Kelola Kategori</h3>
-
-        <div className="flex gap-2 mb-3">
-          <input
-            type="text"
+      <Card
+        title={<Title level={4}>Kelola Kategori</Title>}
+        variant="outlined"
+        styles={{
+          header: {
+            background: token.colorBgElevated,
+            color: token.colorTextHeading,
+          },
+          body: {
+            background: token.colorBgContainer,
+            color: token.colorText,
+          },
+        }}
+        style={{
+          borderRadius: token.borderRadiusLG,
+          boxShadow: token.boxShadowTertiary,
+        }}
+      >
+        <Space.Compact style={{ width: "100%", marginBottom: "12px" }}>
+          <Input
             placeholder="Nama kategori"
             value={newKategori}
             onChange={(e) => setNewKategori(e.target.value)}
-            className="flex-1 p-2 rounded bg-gray-800 border border-gray-600"
           />
-          <button
-            onClick={handleSaveKategori}
-            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
-          >
+          <Button type="primary" onClick={handleSaveKategori}>
             {editKategoriId ? "Update" : "Tambah"}
-          </button>
-        </div>
+          </Button>
+        </Space.Compact>
 
-        <ul className="space-y-2">
-          {kategori.map((k) => (
-            <li
-              key={k.id}
-              className="flex justify-between items-center bg-gray-800 p-2 rounded"
-            >
-              <span>{k.nama}</span>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => handleEditKategori(k)}
-                  className="bg-yellow-600 hover:bg-yellow-700 text-white px-2 py-1 rounded"
-                >
+        <List
+          dataSource={kategori}
+          style={{
+            border: `1px solid ${token.colorBorderSecondary}`,
+            borderRadius: token.borderRadius,
+            overflow: "hidden",
+          }}
+          renderItem={(k) => (
+            <List.Item
+              style={{
+                background: token.colorBgElevated,
+                borderBottom: `1px solid ${token.colorBorderSecondary}`,
+                color: token.colorText,
+              }}
+              actions={[
+                <Button size="small" onClick={() => handleEditKategori(k)}>
                   Edit
-                </button>
-                <button
+                </Button>,
+                <Button
+                  size="small"
+                  danger
                   onClick={() => handleDeleteKategori(k.id)}
-                  className="bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded"
                 >
                   Hapus
-                </button>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </div>
+                </Button>,
+              ]}
+            >
+              {k.nama}
+            </List.Item>
+          )}
+        />
+      </Card>
 
       {/* Tags */}
-      <div className="bg-gray-900 p-4 rounded-lg">
-        <h3 className="text-lg font-semibold mb-3">Kelola Tags</h3>
-
-        <div className="flex gap-2 mb-3">
-          <input
-            type="text"
+      <Card
+        title={<Title level={4}>Kelola Tags</Title>}
+        variant="outlined"
+        styles={{
+          header: {
+            background: token.colorBgElevated,
+            color: token.colorTextHeading,
+          },
+          body: {
+            background: token.colorBgContainer,
+            color: token.colorText,
+          },
+        }}
+        style={{
+          borderRadius: token.borderRadiusLG,
+          boxShadow: token.boxShadowTertiary,
+        }}
+      >
+        <Space.Compact style={{ width: "100%", marginBottom: "12px" }}>
+          <Input
             placeholder="Nama tag"
             value={newTag}
             onChange={(e) => setNewTag(e.target.value)}
-            className="flex-1 p-2 rounded bg-gray-800 border border-gray-600"
           />
-          <button
-            onClick={handleSaveTag}
-            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
-          >
+          <Button type="primary" onClick={handleSaveTag}>
             {editTagId ? "Update" : "Tambah"}
-          </button>
-        </div>
+          </Button>
+        </Space.Compact>
 
-        <ul className="space-y-2">
-          {tags.map((t) => (
-            <li
-              key={t.id}
-              className="flex justify-between items-center bg-gray-800 p-2 rounded"
-            >
-              <span>{t.nama}</span>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => handleEditTag(t)}
-                  className="bg-yellow-600 hover:bg-yellow-700 text-white px-2 py-1 rounded"
-                >
+        <List
+          dataSource={tags}
+          style={{
+            border: `1px solid ${token.colorBorderSecondary}`,
+            borderRadius: token.borderRadius,
+            overflow: "hidden",
+          }}
+          renderItem={(t) => (
+            <List.Item
+              style={{
+                background: token.colorBgElevated,
+                borderBottom: `1px solid ${token.colorBorderSecondary}`,
+                color: token.colorText,
+              }}
+              actions={[
+                <Button size="small" onClick={() => handleEditTag(t)}>
                   Edit
-                </button>
-                <button
+                </Button>,
+                <Button
+                  size="small"
+                  danger
                   onClick={() => handleDeleteTag(t.id)}
-                  className="bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded"
                 >
                   Hapus
-                </button>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </div>
+                </Button>,
+              ]}
+            >
+              {t.nama}
+            </List.Item>
+          )}
+        />
+      </Card>
     </div>
   )
 }

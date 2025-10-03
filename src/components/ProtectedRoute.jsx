@@ -20,9 +20,9 @@ export default function ProtectedRoute({ children, redirectTo = "/login", roles 
     return <Navigate to={redirectTo} replace />
   }
 
-  if (roles?.length && !roles.includes(user.role)) {
+  if (roles && roles.length > 0 && !roles.includes(user.role)) {
     return <Navigate to="/home" replace />
   }
 
-  return <>{children}</>
+  return children
 }

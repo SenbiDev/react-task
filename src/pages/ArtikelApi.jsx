@@ -5,11 +5,15 @@ import { useKategoriStore } from "../store/useKategoriStore"
 import { useTagStore } from "../store/useTagStore"
 import ArtikelForm from "../components/ArtikelForm"
 import ArtikelList from "../components/ArtikelList"
-import KategoriTags from "../components/KategoriTags"
+// import KategoriTags from "../components/KategoriTags"
+import { Button } from "antd"
+import { useNavigate } from "react-router-dom"
+import { Link } from "react-router-dom"
 
 export default function ArtikelApi() {
   const { user } = useAuthStore()
   const role = user?.role || "user"
+  const navigate = useNavigate()
 
   const {
     fetchArtikel,
@@ -37,7 +41,12 @@ export default function ArtikelApi() {
 
   return (
     <div className="p-4 max-w-3xl mx-auto text-white">
-      <h2 className="text-2xl font-bold mb-4">Dashboard ({role})</h2>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-2xl font-bold">Dashboard ({role})</h2>
+        <Link to="/create-artikel">
+          <Button type="primary">Create Artikel</Button>
+        </Link>
+      </div>
 
       <div className="bg-gray-800 p-4 rounded mb-6">
         <h3 className="text-xl font-semibold mb-2">
@@ -46,9 +55,8 @@ export default function ArtikelApi() {
         <ArtikelForm />
       </div>
 
-      {role === "admin" && <KategoriTags />}
+      {/* {role === "admin" && <KategoriTags />} */}
 
-      {/* My Artikel */}
       <ArtikelList
         artikel={(artikel || []).filter((a) => a.is_owner)}
         onEdit={setArtikelEdit}

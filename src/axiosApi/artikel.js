@@ -5,7 +5,6 @@ export async function getArtikelList() {
     const res = await api.get("artikel/");
     return res.data.results || [];
   } catch (error) {
-    console.error("Gagal fetch artikel:", error);
     throw error;
   }
 }
@@ -15,7 +14,6 @@ export async function getArtikelById(id) {
     const res = await api.get(`artikel/${id}/`);
     return res.data;
   } catch (error) {
-    console.error("Gagal fetch detail artikel:", error);
     throw error;
   }
 }
@@ -25,7 +23,6 @@ export async function createArticle(payload) {
     const res = await api.post("artikel/", payload);
     return res.data;
   } catch (error) {
-    console.error("Gagal membuat artikel:", error);
     throw error;
   }
 }
@@ -33,13 +30,15 @@ export async function createArticle(payload) {
 export async function updateArticle(id, payload) {
   try {
     const cleanPayload = {
-      ...payload,
+      judul: payload.judul,
+      konten: payload.konten,
+      status: payload.status,          // tambahkan status
+      kategori_id: payload.kategori_id,
       tag_ids: (payload.tag_ids || []).filter((id) => id != null),
     };
     const res = await api.put(`artikel/${id}/`, cleanPayload);
     return res.data;
   } catch (error) {
-    console.error("Gagal update artikel:", error.response?.data || error);
     throw error;
   }
 }
@@ -49,7 +48,6 @@ export async function deleteArticle(id) {
     await api.delete(`artikel/${id}/`);
     return true;
   } catch (error) {
-    console.error("Gagal hapus artikel:", error);
     throw error;
   }
 }
@@ -59,7 +57,6 @@ export async function getPublicArticles() {
     const res = await api.get("public/artikel/");
     return res.data.results || [];
   } catch (error) {
-    console.error("Gagal fetch artikel publik:", error);
     throw error;
   }
 }
@@ -69,12 +66,9 @@ export async function getMyArticles() {
     const res = await api.get("artikel/");
     const data = res.data;
     const user = JSON.parse(localStorage.getItem("user"));
-
     const articles = data.results || [];
-
     return articles.filter((a) => a.penulis?.id === user?.id);
   } catch (error) {
-    console.error("Gagal fetch artikel saya:", error);
     throw error;
   }
 }
