@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react"
 import {
   Form,
   Input,
@@ -8,53 +8,85 @@ import {
   Card,
   Spin,
   message,
-} from "antd";
-import "@ant-design/v5-patch-for-react-19";
-import { useNavigate } from "react-router-dom";
-import { ArrowLeftOutlined } from "@ant-design/icons";
+} from "antd"
+import "@ant-design/v5-patch-for-react-19"
+import { useNavigate, useParams } from "react-router-dom"
+import { ArrowLeftOutlined } from "@ant-design/icons"
 
-import { createArticle } from "../axiosApi/artikel";
-import { useTagList } from "../hooks/tags";
-import { useKategoriList } from "../hooks/kategori";
+import { createArticle, getArticleById, updateArticle } from "../axiosApi/artikel"
+import { useTagList } from "../hooks/tags"
+import { useKategoriList } from "../hooks/kategori"
 
-const { TextArea } = Input;
+const { TextArea } = Input
 
 export default function CreateArtikel() {
-  const [loading, setLoading] = useState(false);
-  const { tags = [], isLoading: loadingTags } = useTagList();
-  const { kategori = [], isLoading: loadingKategori } = useKategoriList();
-  const navigate = useNavigate();
+  const [form] = Form.useForm()
+  const [loading, setLoading] = useState(false)
+  const [initialLoading, setInitialLoading] = useState(false)
+
+  const { tags = [], isLoading: loadingTags } = useTagList()
+  const { kategori = [], isLoading: loadingKategori } = useKategoriList()
+  const navigate = useNavigate()
+  const { id } = useParams()
+
+  useEffect(() => {
+    const fetchArtikel = async () => {
+      if (!id) return
+      setInitialLoading(true)
+      try {
+        const artikel = await getArticleById(id)
+        if (artikel) {
+          form.setFieldsValue({
+            judul: artikel.judul,
+            konten: artikel.konten,
+            status: artikel.status,
+            kategori_id: artikel.kategori_id || artikel.kategori?.id, 
+            tags: artikel.tags?.map((t) => t.id) || [],
+          })
+        }
+      } catch (err) {
+        message.error("Gagal memuat artikel")
+      } finally {
+        setInitialLoading(false)
+      }
+    }
+    fetchArtikel()
+  }, [id, form])
 
   const onFinish = async (values) => {
-    setLoading(true);
+    setLoading(true)
     try {
-      const user = JSON.parse(localStorage.getItem("user"));
-
+      const user = JSON.parse(localStorage.getItem("user"))
       const payload = {
         judul: values.judul,
         konten: values.konten,
         status: values.status,
         penulis_id: user?.id,
-        kategori_id: values.kategori,
+        kategori_id: values.kategori_id, 
         tag_ids: values.tags || [],
-      };
+      }
 
-      await createArticle(payload);
-      message.success("Artikel berhasil dibuat!");
-      navigate("/artikel-api");
+      if (id) {
+        await updateArticle(id, payload)
+        message.success("Artikel berhasil diperbarui!")
+      } else {
+        await createArticle(payload)
+        message.success("Artikel berhasil dibuat!")
+      }
+      navigate("/artikel-api")
     } catch (err) {
-      message.error(err.message || "Terjadi kesalahan saat membuat artikel");
+      message.error(err.message || "Terjadi kesalahan saat menyimpan artikel")
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
-  if (loadingTags || loadingKategori) {
+  if (loadingTags || loadingKategori || initialLoading) {
     return (
       <div className="flex justify-center mt-20">
-        <Spin tip="Memuat kategori & tags..." />
+        <Spin tip="Memuat data artikel..." />
       </div>
-    );
+    )
   }
 
   return (
@@ -62,7 +94,9 @@ export default function CreateArtikel() {
       <Card
         title={
           <div className="flex items-center justify-between">
-            <span className="font-semibold">Buat Artikel Baru</span>
+            <span className="font-semibold">
+              {id ? "Edit Artikel" : "Buat Artikel Baru"}
+            </span>
             <Button
               icon={<ArrowLeftOutlined />}
               onClick={() => navigate("/artikel-api")}
@@ -73,7 +107,12 @@ export default function CreateArtikel() {
         }
         style={{ width: 600 }}
       >
-        <Form layout="vertical" onFinish={onFinish} initialValues={{ status: "draft" }}>
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={onFinish}
+          initialValues={{ status: "draft" }}
+        >
           <Form.Item
             label="Judul"
             name="judul"
@@ -103,16 +142,16 @@ export default function CreateArtikel() {
 
           <Form.Item
             label="Kategori"
-            name="kategori"
+            name="kategori_id" 
             rules={[{ required: true, message: "Pilih kategori" }]}
           >
-            <Select placeholder="Pilih kategori">
-              {kategori.map((k) => (
-                <Select.Option key={k.id} value={k.id}>
-                  {k.nama}
-                </Select.Option>
-              ))}
-            </Select>
+            <Select 
+              placeholder="Pilih kategori"
+              options={kategori.map((k) => ({
+                label: k.nama,
+                value: k.id,
+              }))}
+            />
           </Form.Item>
 
           <Form.Item label="Tags" name="tags">
@@ -127,11 +166,11 @@ export default function CreateArtikel() {
 
           <Form.Item>
             <Button type="primary" htmlType="submit" loading={loading} block>
-              Simpan Artikel
+              {id ? "Update Artikel" : "Simpan Artikel"}
             </Button>
           </Form.Item>
         </Form>
       </Card>
     </div>
-  );
+  )
 }

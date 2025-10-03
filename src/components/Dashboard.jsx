@@ -1,4 +1,4 @@
-import ArtikelForm from "./ArtikelForm";
+// import ArtikelForm from "./ArtikelForm";
 import ArtikelList from "./ArtikelList";
 import KategoriTags from "./KategoriTags";
 
@@ -21,13 +21,13 @@ export default function Dashboard({
 }) {
   return (
     <div className="space-y-6">
-      <ArtikelForm
+      {/* <ArtikelForm
         kategori={kategori}
         tags={tags}
         onSubmit={onSaveArtikel}
         artikelEdit={artikelEdit}
         onCancel={onCancelEdit}
-      />
+      /> */}
 
       <ArtikelList
         artikel={artikelSaya}

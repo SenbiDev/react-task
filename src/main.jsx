@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import "@ant-design/v5-patch-for-react-19"
 import { unstableSetRender, ConfigProvider, theme } from "antd"
 import { createRoot } from "react-dom/client"
+
 import App from "./App"
 import Home from "./pages/Home"
 import About from "./pages/About"
@@ -54,6 +55,14 @@ const router = createBrowserRouter([
       },
       {
         path: "create-artikel",
+        element: (
+          <ProtectedRoute>
+            <CreateArtikel />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "create-artikel/:id",   // 🔑 Route baru untuk edit artikel
         element: (
           <ProtectedRoute>
             <CreateArtikel />
