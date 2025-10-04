@@ -62,7 +62,7 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "create-artikel/:id",   // 🔑 Route baru untuk edit artikel
+        path: "create-artikel/:id",   
         element: (
           <ProtectedRoute>
             <CreateArtikel />

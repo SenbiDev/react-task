@@ -11,7 +11,6 @@ export async function login(username, password) {
     const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(data.detail || "Login gagal");
 
-    // simpan ke localStorage di sini agar sinkron dengan AuthContext
     if (data.access) {
       localStorage.setItem("access", data.access);
     }
@@ -22,7 +21,7 @@ export async function login(username, password) {
       localStorage.setItem("user", JSON.stringify(data.user));
     }
 
-    return data; // {access, refresh, user}
+    return data; 
   } catch (error) {
     console.error("Login error:", error);
     throw error;
@@ -40,7 +39,6 @@ export async function register(username, email, password, password2) {
     const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(data.detail || data.error || "Register gagal");
 
-    // beberapa API register langsung balikin user
     if (data.user) {
       localStorage.setItem("user", JSON.stringify(data.user));
     }

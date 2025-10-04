@@ -6,7 +6,6 @@ export async function getKategori() {
 }
 
 export async function createKategori(payload) {
-  // payload harus sudah berbentuk { nama: "..." } atau { name: "..." }
   try {
     const res = await api.post("kategori/", payload);
     return res.data;

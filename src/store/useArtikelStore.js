@@ -12,7 +12,6 @@ export const useArtikelStore = create((set) => ({
   loading: false,
   error: null,
 
-  // Fetch semua artikel
   fetchArtikel: async () => {
     set({ loading: true, error: null })
     try {
@@ -24,7 +23,6 @@ export const useArtikelStore = create((set) => ({
     }
   },
 
-  // Tambah artikel baru
   addArtikel: async (payload) => {
     set({ loading: true, error: null })
     try {
@@ -39,7 +37,6 @@ export const useArtikelStore = create((set) => ({
     }
   },
 
-  // Update artikel
   updateArtikel: async (id, payload) => {
     set({ loading: true, error: null })
     try {
@@ -57,7 +54,6 @@ export const useArtikelStore = create((set) => ({
     }
   },
 
-  // Hapus artikel
   deleteArtikel: async (id) => {
     set({ loading: true, error: null })
     try {

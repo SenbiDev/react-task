@@ -7,10 +7,8 @@ export default function ArtikelList({ artikel = [], onDelete, isMyList = false }
   const [modal, contextHolder] = Modal.useModal()
   const navigate = useNavigate()
 
-  // 🔹 Cek apakah user boleh edit/hapus
   const canModify = (a) => user?.role === "admin" || a.penulis?.id === user?.id
 
-  // 🔹 Modal detail artikel
   const showDetail = (a) => {
     modal.info({
       title: a.judul,

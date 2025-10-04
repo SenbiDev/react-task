@@ -73,7 +73,6 @@ export async function deleteArticle(id) {
   return true;
 }
 
-// Artikel Public dan saya
 export async function getPublicArticles() {
   const res = await fetch(BASE_URL + "public/artikel/");
   const data = await res.json().catch(() => ([]));

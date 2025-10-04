@@ -7,11 +7,11 @@ export default function ArtikelContainer({ title, children }) {
       bordered={false}
       className="mb-4 bg-gray-900 text-white"
       headStyle={{
-        background: "#1f2937", // abu-abu gelap (tailwind gray-800)
+        background: "#1f2937", 
         color: "#fff",
       }}
       bodyStyle={{
-        background: "#111827", // tailwind gray-900
+        background: "#111827", 
       }}
     >
       {children}

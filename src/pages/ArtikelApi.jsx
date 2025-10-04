@@ -18,7 +18,6 @@ export default function ArtikelApi() {
   const { fetchKategori, kategori = [] } = useKategoriStore()
   const { fetchTags, tags = [] } = useTagStore()
 
-  // 🔹 state untuk search & filter
   const [search, setSearch] = useState("")
   const [filterKategori, setFilterKategori] = useState(null)
   const [filterTags, setFilterTags] = useState([])
@@ -38,7 +37,6 @@ export default function ArtikelApi() {
     }
   }
 
-  // 🔹 Filtering artikel berdasarkan search & filter
   const filteredArtikel = useMemo(() => {
     return artikel.filter((a) => {
       const matchSearch =
@@ -58,16 +56,13 @@ export default function ArtikelApi() {
     })
   }, [artikel, search, filterKategori, filterTags])
 
-  // 🔹 Filter untuk Artikel Saya
   const myArtikel = filteredArtikel.filter(
     (a) =>
       a.is_owner || a.penulis_id === user?.id || a.penulis?.id === user?.id
   )
 
-  // 🔹 Filter untuk Artikel Publik
   const publicArtikel = filteredArtikel.filter((a) => a.status === "published")
 
-  // Tab untuk user
   const userTabs = [
     {
       key: "my",
@@ -80,7 +75,6 @@ export default function ArtikelApi() {
     },
   ]
 
-  // Tab untuk admin
   const adminTabs = [
     {
       key: "my",
