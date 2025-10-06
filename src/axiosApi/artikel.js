@@ -1,9 +1,20 @@
 import api from "./apiConfig"
 
-export async function getArtikelList() {
+export async function getArtikelList(params = {}) {
   try {
-    const res = await api.get("artikel/")
-    return res.data.results || []
+    const { page = 1, search= "", kategori = null, tags = [] } = params
+
+    const query = new URLSearchParams()
+    query.append("page", page)
+
+    if (search) query.append("search", search)
+    if (kategori) query.append("kategori", kategori)
+    if (Array.isArray(tags) && tags.length > 0) {
+      tags.forEach((tagsId) => query.append("tag", tagsId))
+    }
+
+    const res = await api.get(`artikel/?${query.toString()}`)
+    return res.data || { count: 0, pages: 1, results: [] }
   } catch (err) {
     throw new Error(err.response?.data?.detail || "Gagal memuat artikel")
   }
@@ -52,10 +63,18 @@ export async function deleteArticle(id) {
   }
 }
 
-export async function getPublicArticles() {
+export async function getPublicArticles(params = {}) {
   try {
-    const res = await api.get("public/artikel/")
-    return res.data.results || []
+    const { page = 1, kategori = null, tags = [] } = params
+    const query = new URLSearchParams()
+    query.append("page", page)
+    if (kategori) query.append("kategori", kategori)
+    if (Array.isArray(tags) && tags.length > 0) {
+      tags.forEach((tagId) => query.append("tag", tagId))
+    }
+
+    const res = await api.get(`public/artikel/?${query.toString()}`)
+    return res.data || { count: 0, pages: 1, current_page: 1, results: [] }
   } catch (err) {
     throw new Error(err.response?.data?.detail || "Gagal memuat artikel publik")
   }

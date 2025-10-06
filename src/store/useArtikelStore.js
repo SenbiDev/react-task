@@ -12,11 +12,31 @@ export const useArtikelStore = create((set) => ({
   loading: false,
   error: null,
 
-  fetchArtikel: async () => {
+  pagination: {
+    count: 0,
+    pages: 0,
+    current_page: 1,
+  },
+
+  fetchArtikel: async (params = {}) => {
     set({ loading: true, error: null })
     try {
-      const data = await getArtikelList()
-      set({ artikel: data, loading: false })
+      const { page = 1, search= "", kategori = null, tags = [] } = params
+      const data = await getArtikelList({
+        page,
+        search,
+        kategori,
+        tags,
+      })
+      set({ 
+        artikel: data.results || [],
+        pagination: {
+          count: data.count,
+          pages: data.pages,
+          current_page: data.current_page,
+        },
+        loading: false,
+      })
     } catch (err) {
       console.error("Gagal fetch artikel:", err)
       set({ error: err.message, loading: false })
@@ -28,7 +48,7 @@ export const useArtikelStore = create((set) => ({
     try {
       const newArtikel = await createArticle(payload)
       set((state) => ({
-        artikel: [...state.artikel, newArtikel],
+        artikel: [newArtikel, ...state.artikel],
         loading: false,
       }))
     } catch (err) {
