@@ -1,5 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
+import { Avatar, Dropdown } from 'antd';
+import { UserOutlined, LogoutOutlined, MailOutlined, CrownOutlined, EditOutlined } from '@ant-design/icons';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
@@ -9,6 +11,42 @@ export default function Navbar() {
     logout();
     navigate('/signin');
   };
+
+  const items = [
+    {
+      key: "email",
+      label: <span>{user?.email}</span>,
+      icon: <MailOutlined/>,
+    },
+    {
+      key: "role",
+      label: <span className="capitalize">{user?.role === "admin" ? "admin" : "user"}</span>,
+      icon: user?.role === "admin" ? (
+        <CrownOutlined style={{ color: "gold" }}/>
+      ) : (
+        <UserOutlined style={{ color: "blue" }}/>
+      ),
+    },
+    ...(user?.role === "admin" ? [
+      {
+        key: "manage",
+        label: "kelola Kategori dan Tag",
+        icon: <EditOutlined style={{ color: "blue"}}/>,
+        onClick: () => navigate("/admin/")
+      },
+    ]
+    : []),
+    {
+      type: "divider"
+    },
+    {
+      key: "logout",
+      label: <span style={{ color: 'red', font: 'bold'}}>Logout</span>,
+      icon: <LogoutOutlined style={{ color: "red"}}/>,
+      onClick: handleLogout,
+    }
+
+  ] 
 
   return (
     <nav className="bg-gray-800 p-4 flex justify-between">
@@ -33,12 +71,21 @@ export default function Navbar() {
           Artikel
         </Link>
       </div>
-
-      <button 
-      onClick={handleLogout}
-      className="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium">
-        Logout
-      </button>
+      <div>
+        {user && (
+          <Dropdown menu={{items}} placement="bottomRight" trigger={["click"]} overlayClassName="min-w-[200px]">
+            <div className="flex items-center gap-2">
+            <Avatar
+              src={user?.Avatar}
+              icon={!user?.Avatar && <UserOutlined/>}
+              style={{ backgroundColor: "#fOfOfO", color: "white" }}/>
+            <span className="text-white text-sm font-medium truncate max-w-[100px]">
+              {user.username}
+            </span>
+          </div>
+          </Dropdown>
+          )}
+      </div>
     </nav>
   );
 }

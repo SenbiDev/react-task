@@ -73,14 +73,6 @@ export default function ArtikelPage() {
         {/* Header */}
         <div className="flex justify-between items-center">
           <h1 className="text-2xl font-bold text-white">Dashboard Artikel</h1>
-          {role === "admin" && (
-            <button
-              onClick={() => navigate("/admin/")}
-              className="!bg-white text-black px-4 py-2 rounded-lg"
-            >
-              Kelola Kategori & Tag
-            </button>
-          )}
         </div>
 
         {/* Form Artikel */}
@@ -246,7 +238,6 @@ export default function ArtikelPage() {
   );
 }
 
-// ✅ Tabel
 function ArtikelTable({ data = [], canManage, onEdit, onDelete }) {
   return (
     <div className="overflow-x-auto text-black">
