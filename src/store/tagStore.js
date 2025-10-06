@@ -13,7 +13,7 @@ export const useTagStore = create((set, get) => ({
   fetchTags: async () => {
     set({ loading: true });
     try {
-      const res = await axios.get(`${API_BASE}/tag/`, {
+      const res = await axios.get(`${API_BASE}/tags/`, {
         headers: getAuthHeader(),
       });
       set({ tags: res.data, loading: false });
@@ -24,7 +24,7 @@ export const useTagStore = create((set, get) => ({
 
   createTag: async (data) => {
     try {
-      await axios.post(`${API_BASE}/tag/`, data, {
+      await axios.post(`${API_BASE}/tags/`, data, {
         headers: getAuthHeader(),
       });
       await get().fetchTags();
@@ -35,7 +35,7 @@ export const useTagStore = create((set, get) => ({
 
   updateTag: async (id, data) => {
     try {
-      await axios.put(`${API_BASE}/tag/${id}/`, data, {
+      await axios.put(`${API_BASE}/tags/${id}/`, data, {
         headers: getAuthHeader(),
       });
       await get().fetchTags();
@@ -46,7 +46,7 @@ export const useTagStore = create((set, get) => ({
 
   deleteTag: async (id) => {
     try {
-      await axios.delete(`${API_BASE}/tag/${id}/`, {
+      await axios.delete(`${API_BASE}/tags/${id}/`, {
         headers: getAuthHeader(),
       });
       await get().fetchTags();

@@ -12,6 +12,7 @@ import ArtikelPage from "./pages/ArtikelPage";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import AdminPage from "./pages/AdminPage";
+import CreateArtikel from "./pages/CreateArtikel";
 import "./index.css";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { AuthProvider } from "./auth/AuthContext";
@@ -53,6 +54,10 @@ const router = createBrowserRouter([
         path: "admin",
         element: <AdminPage />
       },
+      {
+        path: "artikel/create",
+        element: <CreateArtikel />
+      }
     ],
   },
   {

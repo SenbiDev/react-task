@@ -1,8 +1,7 @@
 // src/store/artikelStore.js
 import { create } from "zustand";
 import axios from "axios";
-import { API_BASE } from "../axiosApi/apiConfig";
-
+import { API_BASE, getAuthHeader } from "../axiosApi/apiConfig";
 
 export const useArtikelStore = create((set, get) => ({
   artikels: [],
@@ -19,29 +18,36 @@ export const useArtikelStore = create((set, get) => ({
       });
       set({ artikels: res.data, loading: false });
     } catch (err) {
+      console.error("Gagal fetch artikel:", err);
       set({ error: err.message, loading: false });
     }
   },
 
   createArtikel: async (data) => {
     try {
-      await axios.post(`${API_BASE}/artikel/`, data, {
+      const res = await axios.post(`${API_BASE}/artikel/`, data, {
         headers: getAuthHeader(),
       });
-      await get().fetchArtikel(); 
+      await get().fetchArtikel();
+      return res.data; // ✅ return promise
     } catch (err) {
+      console.error("Gagal membuat artikel:", err);
       set({ error: err.message });
+      throw err;
     }
   },
 
   updateArtikel: async (id, data) => {
     try {
-      await axios.put(`${API_BASE}/artikel/${id}/`, data, {
+      const res = await axios.put(`${API_BASE}/artikel/${id}/`, data, {
         headers: getAuthHeader(),
       });
       await get().fetchArtikel();
+      return res.data; // ✅ return promise
     } catch (err) {
+      console.error("Gagal update artikel:", err);
       set({ error: err.message });
+      throw err;
     }
   },
 
@@ -52,6 +58,7 @@ export const useArtikelStore = create((set, get) => ({
       });
       await get().fetchArtikel();
     } catch (err) {
+      console.error("Gagal hapus artikel:", err);
       set({ error: err.message });
     }
   },
