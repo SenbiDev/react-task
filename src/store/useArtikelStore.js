@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { updateArtikel } from "../axiosApi/artikel";
+import { getArtikelList, updateArtikel } from "../axiosApi/artikel";
 import api from "../axiosApi/apiConfig";
 
 export const useArtikelStore = create((set, get) => ({
@@ -20,6 +20,26 @@ export const useArtikelStore = create((set, get) => ({
         set((state) => ({
             tags: state.tags.includes(id) ? state.tags.filter((t) => t !== id) : [...state.tags, id],
         })),
+
+    fetchArtikel: async ({params ={}}) => {
+        set({loading: true, error: null})
+        try{
+            const {page = 1, search= "", kategori= null, tags= []} = params
+            const data = await getArtikelList({page, search, kategori, tags})
+            set({
+                artikel: data.results||[],
+                pagination:{
+                    count: data.count,
+                    page: data.page,
+                    current_page: data.current_page,
+                },
+                loading: false,
+            })
+        }catch(err){
+            console.error("Gagal fetch data:", err)
+            set({error: err.message, loading: true})
+        }
+    },
 
     createArt: async () => {
         const state = get();

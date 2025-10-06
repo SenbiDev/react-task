@@ -1,12 +1,14 @@
-import React, { createContext, useState } from "react";
+import React, { createContext, useEffect, useState } from "react";
 import * as artikel from "../hooks/artikel";
+import * as admin from "../hooks/admin";
 import { useAuth } from "../auth/authContext";
 import { useNavigate } from "react-router-dom";
 import { useArtikelStore } from "../store/useArtikelStore";
 import { EyeIcon, FileText, PencilIcon, Trash2Icon, User } from "lucide-react";
-import { message, Button, Popconfirm, Modal, Tabs, Card, Input, Select } from "antd";
+import { message, Button, Popconfirm, Modal, Tabs, Card, Input, Select, Pagination } from "antd";
 
 const {Search} = Input;
+const {Option} = Select;
 
 export default function ArtikelPage() {
   const deleteArt = useArtikelStore((state) => state.deleteArt)
@@ -18,13 +20,13 @@ export default function ArtikelPage() {
 
   const { data: kategoriList = [], isLoading: kategoriLoading } = admin.useKategori();
   const { data: tagList = [], isLoading: tagLoading } = admin.useTags();
-  const { data: myArtikel = [] } = artikel.useMyArtikels();
-  const { data: publikArtikel = [] } = artikel.usePublikArtikels(role === "admin");
+  const { data: myArtikel = [], refetch : refetchMyArtikel, isFetching : isFetchingMyArtikel,} = artikel.useMyArtikels();
+  const { data: publikArtikel = [], refetch : refetchPublikArtikel, isFetching : isFetchingPublikArtikel } = artikel.usePublikArtikels(role === "admin");
   const deleteArtikel = artikel.useDeleteArtikel();
 
   const [query, setQuery] = useState("");
   const [selectedKategori, setSelectedKategori] = useState("");
-  const [selectedTags, setSelectedTags] = useState("");
+  const [selectedTags, setSelectedTags] = useState([]);
   const [messageApi, contextHolder] = message.useMessage();
 
   const filteredSaya = myArtikel.filter((artikel) =>
@@ -34,20 +36,59 @@ export default function ArtikelPage() {
   );
 
   const filteredPublik = publikArtikel.filter((artikel) =>
-    artikel?.judul.toLowerCase().includes(query.toLowerCase())
+    artikel?.judul.toLowerCase().includes(query.toLowerCase()) &&
     (selectedKategori ? artikel.kategori?.id === selectedKategori : true)&&
     (selectedTags.length > 0 ? selectedTags.every((t) => artikel.tags.map((tg) => tg.id).includes(t)) : true)
   );
 
+  const [currentSaya, setCurrentSaya] = useState({result: [], count:0, current_page:1, pages:1});
+  const [currentPublik, setCurrentPublik] = useState({result: [], count:0, current_page:1, pages:1});
+  const [pageSizeSaya, setPageSizeSaya] = useState(10);
+  const [pageSizePublik, setPageSizePublik]= useState(10);
+
+  useEffect(() => {
+    setCurrentSaya(1);
+    setCurrentPublik(1);
+  }, [query, selectedKategori, selectedTags])
+
+  const paginatedSaya = filteredSaya.slice(
+    (currentSaya - 1) * pageSizeSaya,
+    currentSaya * pageSizeSaya
+  );
+
+  const paginatedPublik = filteredPublik.slice(
+    (currentPublik - 1) * pageSizePublik,
+    currentPublik * pageSizePublik
+  );
+
+  // const totalSaya = filteredSaya.length;
+  // const startIndex = (currentSaya -1) * pageSizeSaya;
+  // const endIndex = Math.min (startIndex + pageSizeSaya, totalSaya);
+  // const paginatedSaya = filteredSaya.slice(startIndex, endIndex)
+
+  // const totalPublik = filteredPublik.length;
+  // const startIndexP = (currentSaya -1) * pageSizeSaya;
+  // const endIndexP = Math.min (startIndexP + pageSizeSaya, totalPublik);
+  // const paginatedPublik = filteredPublik.slice(startIndexP, endIndexP)
+  
+  const onChangeSaya = (page, size) => {
+    setCurrentSaya(page);
+    setPageSizeSaya(size);
+  };
+  const onChangePublik = (page, size) => {
+    console.log(page);
+    setCurrentPublik(page)
+    setPageSizePublik(size);
+  };
 
   const artikelSaya = (
                   <Card className="bg-gray-800 p-6 border border-gray-300 rounded shadow-sm">
                     <h3 className="mb-4 text-lg text-gray-900 font-medium">Artikel Saya</h3>
-                    {filteredSaya.length === 0 ? (
+                    {paginatedSaya.length === 0 ? (
                         <p className="text-gray-500">Belum ada artikel</p>
                     ) : (
                         <ul className="space-y-3">
-                            {filteredSaya.map((artikel) => (
+                            {paginatedSaya.map((artikel) => (
                                 <li key={artikel.id} className="flex justify-between items-center p-3 border border-gray-200 rounded">
                                     <div>
                                         <p className="font-medium text-gray-900">{artikel.judul}</p>
@@ -86,17 +127,24 @@ export default function ArtikelPage() {
                             ))}
                         </ul>
                     )}
+                    <Pagination
+                      current={currentSaya}
+                      onChange={onChangeSaya}
+                      total={23}
+                      pageSize={pageSizeSaya}
+                      showSizeChanger
+                    />
                 </Card>
   );
 
   const artikelPublik = (
                 <Card className="bg-gray-800 p-6 border border-gray-300 rounded shadow-sm">
                   <h3 className="mb-4 text-lg text-gray-900 font-medium">Artikel Publik</h3>
-                    {filteredPublik.length === 0 ? (
+                    {publikArtikel.length === 0 ? (
                       <p className="text-gray-500">Belum ada artikel publik.</p>
                     ) : (
                       <ul className="space-y-3">
-                        {filteredPublik.map((artikel) => {
+                        {paginatedPublik.map((artikel) => {
                           const user = JSON.parse(localStorage.getItem("user"));
                           const isOwner = user?.id === artikel.penulis?.id;
                           const isAdmin = user?.role === "admin";
@@ -143,6 +191,13 @@ export default function ArtikelPage() {
                       })}
                     </ul>
                   )}
+                  <Pagination
+                    current={currentPublik}
+                    onChange={onChangePublik}
+                    total={filteredPublik.length}
+                    pageSize={pageSizePublik}
+                    showSizeChanger
+                  />
                 </Card>
   );
 
@@ -232,50 +287,55 @@ export default function ArtikelPage() {
           <div className="max-w-3xl mx-auto">
             <div className="flex justify-between items-end mb-8">
               <h1 className="text-xl font-semibold text-white">Selamat datang</h1>
-              <div className="space-x-2">
+              <Button className="space-x-2">
                 <span
                   onClick={() => navigate("/create")}
-                  className="flex gap-2 bg-gray-800 text-blue-700 font-semibold px-3 py-1.5 rounded"
+                  className="flex gap-2 text-blue-700 font-semibold rounded"
                 >
                   <FileText/> Create
                 </span>
-              </div>
+              </Button>
             </div>
             <Card className="bg-gray-800 p-6 border border border-gray-300 rounded shadow-sm">
-              <div>
-                <Search
-                    placeholder="Cari judul artikel"
-                    onChange={(e) => setQuery(e.target.value)}
-                    allowClear
-                    className="w-full max-w-xs"
+              <div className="flex justify-between">
+                <div className="flex flex-col gap-2">
+                  <Search
+                      placeholder="Cari judul artikel"
+                      onChange={(e) => setQuery(e.target.value)}
+                      allowClear
+                      className="w-full max-w-xl"
                   />
-                <Select
-                  placeholder="Filter Kategori"
-                  allowClear
-                  value={selectedKategori}
-                  onChange={(val) => selectedKategori(val)}
-                  className="w-40"
-                >
-                  {kategoriList.map((k) => (
-                    <Option key={k.id} value={k.id}>
-                      {k.nama}
-                    </Option>
-                  ))}
-                </Select>
-                <Select
-                  mode="multiple"
-                  placeholder="Filter Tags"
-                  allowClear
-                  value={selectedTags}
-                  onChange={(val) => selectedTags(val)}
-                  className="w-60"
-                >
-                  {tagList.map((t) => (
-                    <Option key={t.id} value={t.id}>
-                      {t.nama}
-                    </Option>
-                  ))}
-                </Select>
+
+                </div>
+                <div className="flex flex-col items-end gap-2">
+                  <Select
+                    placeholder="Filter Kategori"
+                    allowClear
+                    value={selectedKategori}
+                    onChange={(val) => setSelectedKategori(val)}
+                    className="w-50"
+                  >
+                    {kategoriList.map((k) => (
+                      <Option key={k.id} value={k.id}>
+                        {k.nama}
+                      </Option>
+                    ))}
+                  </Select>
+                  <Select
+                    mode="multiple"
+                    placeholder="Filter Tags"
+                    allowClear
+                    value={selectedTags}
+                    onChange={(val) => setSelectedTags(val)}
+                    className="w-70"
+                  >
+                    {tagList.map((t) => (
+                      <Option key={t.id} value={t.id}>
+                        {t.nama}
+                      </Option>
+                    ))}
+                  </Select>
+                </div>
               </div>
               <Tabs defaultActiveKey="1" items={items}/>
             </Card>
