@@ -51,13 +51,6 @@ export default function ArtikelPage() {
   const columns = [
     { title: "Judul", dataIndex: "judul" },
     { title: "Penulis", render: (a) => a.penulis?.username || "-" },
-    { title: "Kategori", render: (a) => a.kategori?.nama || "-" },
-    {
-      title: "Tag",
-      render: (a) =>
-        a.tags?.length ? a.tags.map((t) => t.nama).join(", ") : "-",
-    },
-    // { title: "Status", dataIndex: "status" },
     {
       title: "Aksi",
       render: (a) => (

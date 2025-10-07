@@ -16,7 +16,7 @@ export const useArtikelStore = create((set, get) => ({
       const res = await axios.get(`${API_BASE}/artikel/`, {
         headers: getAuthHeader(),
       });
-      set({ artikels: res.data, loading: false });
+      set({ artikels: res.data, loading:false})
     } catch (err) {
       console.error("Gagal fetch artikel:", err);
       set({ error: err.message, loading: false });
@@ -29,7 +29,7 @@ export const useArtikelStore = create((set, get) => ({
         headers: getAuthHeader(),
       });
       await get().fetchArtikel();
-      return res.data; // ✅ return promise
+      return res.data; 
     } catch (err) {
       console.error("Gagal membuat artikel:", err);
       set({ error: err.message });
@@ -43,7 +43,7 @@ export const useArtikelStore = create((set, get) => ({
         headers: getAuthHeader(),
       });
       await get().fetchArtikel();
-      return res.data; // ✅ return promise
+      return res.data; 
     } catch (err) {
       console.error("Gagal update artikel:", err);
       set({ error: err.message });

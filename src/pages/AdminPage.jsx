@@ -1,34 +1,13 @@
-import React from "react";
-import {
-  useKategoriList,
-  useCreateKategori,
-  useUpdateKategori,
-  useDeleteKategori,
-} from "../hooks/useKategoriQuery";
-import {
-  useTagsList,
-  useCreateTag,
-  useUpdateTag,
-  useDeleteTag,
-} from "../hooks/useTagsQuery";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { Card, Table, Button, Form, Input, Popconfirm, message, Row, Col, Space} from "antd";
 import useAdminStore from "../store/adminStore";
+import { useKategoriStore } from "../store/kategoriStore";
+import { useTagStore } from "../store/tagStore";
+import '@ant-design/v5-patch-for-react-19';
+import Title from "antd/es/skeleton/Title";
 
-export default function AdminPage() {
-  const navigate = useNavigate();
-
-  const { data: kategoriList = [], isLoading: loadingKategori } =
-    useKategoriList();
-  const { data: tagList = [], isLoading: loadingTag } = useTagsList();
-
-  const { mutate: createKategori } = useCreateKategori();
-  const { mutate: updateKategori } = useUpdateKategori();
-  const { mutate: deleteKategori } = useDeleteKategori();
-
-  const { mutate: createTag } = useCreateTag();
-  const { mutate: updateTag } = useUpdateTag();
-  const { mutate: deleteTag } = useDeleteTag();
-
+const AdminPage = () => {
   const {
     selectedKategori,
     kategoriForm,
@@ -42,182 +21,224 @@ export default function AdminPage() {
     resetTag,
   } = useAdminStore();
 
-  const handleSubmitKategori = (e) => {
-    e.preventDefault();
-    if (!kategoriForm.nama.trim()) return;
+  const {
+    kategori,
+    fetchKategori,
+    createKategori,
+    updateKategori,
+    deleteKategori,
+    loading: loadingKategori,
+  } = useKategoriStore();
 
-    if (selectedKategori) {
-      updateKategori({ id: selectedKategori.id, nama: kategoriForm.nama.trim() });
-    } else {
-      createKategori(kategoriForm.nama.trim());
+  const {
+    tags,
+    fetchTags,
+    createTag,
+    updateTag,
+    deleteTag,
+    loading: loadingTag,
+  } = useTagStore();
+
+  const [formKategori] = Form.useForm();
+  const [formTag] = Form.useForm();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    fetchKategori();
+    fetchTags();
+  }, []);
+
+  const handleSubmitKategori = async (values) => {
+    try {
+      if (selectedKategori) {
+        await updateKategori(selectedKategori.id,values);
+        message.success("Kategori berhasil diperbarui");
+      } else {
+        await createKategori(values);message.success("Kategori berhasil dibuat");
+      }
+      resetKategori();
+      formKategori.resetFields();
+    } catch {
+      message.error("Terjadi kesalahan saat menyimpan kategori");
     }
-
-    resetKategori();
   };
 
-  const handleSubmitTag = (e) => {
-    e.preventDefault();
-    if (!tagForm.nama.trim()) return;
-
-    if (selectedTag) {
-      updateTag({ id: selectedTag.id, nama: tagForm.nama.trim() });
-    } else {
-      createTag(tagForm.nama.trim());
+  const handleSubmitTag = async (values) => {
+    try {
+      if (selectedTag) {
+        await updateTag(selectedTag.id,values);
+        message.success("Tag berhasil diperbarui");
+      } else {
+        await createTag(values);message.success("Tag berhasil dibuat");
+      }
+      resetTag();
+      formTag.resetFields();
+    } catch {
+      message.error("Terjadi kesalahan saat menyimpan tag");
     }
-
-    resetTag();
   };
+
+  const kategoriColumns = [
+    { title: "Nama", dataIndex: "nama", key: "nama"},
+    { title: "Aksi", key: "aksi",
+      render: (_, record) => (
+        <>
+          <Button
+          size="small"
+          onClick={() => {
+            setSelectedKategori(record);setKategoriForm({ nama:record.nama });
+            formKategori.setFieldsValue({ nama: record.nama });
+          }}
+          >Edit
+          </Button>
+          <Popconfirm 
+          title="Hapus kategori ini?"
+          onConfirm={() => deleteKategori(record.id)}>
+            <Button size="small" danger style={{ marginLeft : 8 }}>
+              Hapus
+          </Button>
+          </Popconfirm>
+        </>
+      ),
+    },
+  ];
+
+  const tagColumns = [
+    { title: "Nama", dataIndex: "nama", key: "nama"},
+    { title: "Aksi", key: "aksi",
+      render: (_, record) => (
+        <>
+          <Button
+          size="small"
+          onClick={() => {
+            setSelectedTag(record);setTAgForm({ nama:record.nama });
+            formTag.setFieldsValue({ nama: record.nama });
+          }}
+          >Edit
+          </Button>
+          <Popconfirm 
+          title="Hapus tag ini?"
+          onConfirm={() => deleteTag(record.id)}>
+            <Button size="small" danger style={{ marginLeft : 8 }}>
+              Hapus
+          </Button>
+          </Popconfirm>
+        </>
+      ),
+    },
+  ];
 
   return (
-    <div className="min-h-screen bg-white p-8 font-sans text-black">
-      <div className="max-w-5xl mx-auto space-y-8">
-        {/* Header */}
-        <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold">Dashboard Admin</h1>
-          <div className="space-x-2">
-            <button
-              onClick={() => navigate("/artikel")}
-              className="bg-black text-white px-4 py-2 rounded-lg border"
-            >
-              Kembali
-            </button>
+    <div className="min-h-screen p-8 text-white">
+        <div className="max-w-5xl mx-auto space-y-8">
+          {/* { Headers } */}
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-2xl font-bold">Kelola Kategori dan Tag</h1>
+            <Button
+            type="primary"
+            onClick={() =>
+              navigate("/artikel/")}>
+                Kembali ke Dashboard Artikel
+              </Button>
           </div>
-        </div>
-
-        {/* Form Kategori */}
-        <div className="bg-white p-6 rounded-xl shadow border mt-6">
-          <h2 className="text-lg font-semibold mb-4">
-            {selectedKategori ? "Edit Kategori" : "Tambah Kategori"}
-          </h2>
-          <form onSubmit={handleSubmitKategori} className="flex space-x-2">
-            <input
-              type="text"
-              value={kategoriForm.nama}
-              onChange={(e) => setKategoriForm({ nama: e.target.value })}
+          
+      {/* {kategori} */}
+      <Row gutter={[24, 24]}>
+        <Col xs={24} md={12}>
+        <Card title="Kelola kategori">
+          <Form
+          form={formKategori}
+          layout="inline"
+          onFinish={handleSubmitKategori}
+          initialValues={kategoriForm}>
+            <Form.Item
+            name="nama"
+            rules={[{ required:true,message:"nama kategori wajib isi"}]}>
+              <Input 
               placeholder="Nama kategori"
-              className="w-full border px-3 py-2 rounded text-black"
-              required
-            />
-            <button
-              type="submit"
-              className="bg-black text-white px-4 py-2 rounded-lg border"
-            >
-              {selectedKategori ? "Update" : "Simpan"}
-            </button>
-            {selectedKategori && (
-              <button
-                type="button"
-                onClick={resetKategori}
-                className="bg-gray-500 text-white px-4 py-2 rounded-lg border"
-              >
-                Batal
-              </button>
-            )}
-          </form>
-        </div>
+              value={kategoriForm.nama}
+              onChange={(e) => 
+                setKategoriForm({ nama:e.target.value })}/>
+            </Form.Item>
+            <Form.Item>
+              <Button type="primary"
+              htmlType="submit"
+              loading={loadingKategori}>
+                {selectedKategori ? "Update" : "Tambah" }
+              </Button>
+              {selectedKategori && (
+                <Button
+                style={{ marginLeft: 8 }}
+                onClick={() => {
+                  resetKategori();
+                  formKategori.resetFields();
+                }}>
+                  Batal
+                </Button>
+              )}
+            </Form.Item>
+          </Form>
+          <Table
+          dataSource={kategori || []}
+          columns={kategoriColumns}
+          rowKey="id"
+          style={{ marginLeft: 20 }}
+          loading={loadingKategori}
+          pagination={false}
+          />
+        </Card>
+        </Col> 
 
-        {/* Tabel Kategori */}
-        <div className="bg-white p-6 rounded-xl shadow border text-black mt-6">
-          <h2 className="text-lg font-semibold mb-4">Daftar Kategori</h2>
-          {loadingKategori ? (
-            <p>Loading...</p>
-          ) : (kategoriList || []).length === 0 ? (
-            <p className="text-gray-500">Belum ada kategori</p>
-          ) : (
-            <ul className="space-y-2">
-              {kategoriList.map((k) => (
-                <li key={k.id} className="flex justify-between items-center">
-                  <span>{k.nama}</span>
-                  <div className="space-x-2">
-                    <button
-                      onClick={() => {
-                        setSelectedKategori(k);
-                        setKategoriForm({ nama: k.nama });
-                      }}
-                      className="px-3 py-1 text-sm bg-black text-white rounded"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => deleteKategori(k.id)}
-                      className="px-3 py-1 text-sm bg-red-600 text-white rounded"
-                    >
-                      Hapus
-                    </button>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-
-        {/* Form Tag */}
-        <div className="bg-white p-6 rounded-xl shadow border mt-6">
-          <h2 className="text-lg font-semibold mb-4">
-            {selectedTag ? "Edit Tag" : "Tambah Tag"}
-          </h2>
-          <form onSubmit={handleSubmitTag} className="flex space-x-2">
-            <input
-              type="text"
-              value={tagForm.nama}
-              onChange={(e) => setTagForm({ nama: e.target.value })}
+      {/* {TAG} */}
+        <Col xs={24} md={12} p={20}>
+        <Card 
+        title="Kelola tag">
+          <Form
+          form={formTag}
+          layout="inline"
+          onFinish={handleSubmitTag}
+          initialValues={tagForm}>
+            <Form.Item
+            name="nama"
+            rules={[{ required:true,message:"nama tag wajib isi"}]}>
+              <Input 
               placeholder="Nama tag"
-              className="w-full border px-3 py-2 rounded text-black"
-              required
-            />
-            <button
-              type="submit"
-              className="bg-black text-white px-4 py-2 rounded-lg border"
-            >
-              {selectedTag ? "Update" : "Simpan"}
-            </button>
-            {selectedTag && (
-              <button
-                type="button"
-                onClick={resetTag}
-                className="bg-gray-500 text-white px-4 py-2 rounded-lg border"
-              >
-                Batal
-              </button>
-            )}
-          </form>
-        </div>
-
-        {/* Tabel Tag */}
-        <div className="bg-white p-6 rounded-xl shadow border text-black mt-6">
-          <h2 className="text-lg font-semibold mb-4">Daftar Tag</h2>
-          {loadingTag ? (
-            <p>Loading...</p>
-          ) : (tagList || []).length === 0 ? (
-            <p className="text-gray-500">Belum ada tag</p>
-          ) : (
-            <ul className="space-y-2">
-              {tagList.map((t) => (
-                <li key={t.id} className="flex justify-between items-center">
-                  <span>{t.nama}</span>
-                  <div className="space-x-2">
-                    <button
-                      onClick={() => {
-                        setSelectedTag(t);
-                        setTagForm({ nama: t.nama });
-                      }}
-                      className="px-3 py-1 text-sm bg-black text-white rounded"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => deleteTag(t.id)}
-                      className="px-3 py-1 text-sm bg-red-600 text-white rounded"
-                    >
-                      Hapus
-                    </button>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+              value={tagForm.nama}
+              onChange={(e) => 
+                setTagForm({ nama:e.target.value })}/>
+            </Form.Item>
+            <Form.Item>
+              <Button type="primary"
+              htmlType="submit"
+              loading={loadingTag}>
+                {selectedTag ? "Update" : "Tambah" }
+              </Button>
+              {selectedTag && (
+                <Button
+                style={{ marginLeft: 8 }}
+                onClick={() => {
+                  resetTag();
+                  formTag.resetFields();
+                }}>
+                  Batal
+                </Button>
+              )}
+            </Form.Item>
+          </Form>
+          <Table
+            dataSource={tags || []}
+            columns={tagColumns}
+            rowKey="id"
+            style={{ marginLeft: 20 }}
+            loading={loadingTag}
+            pagination={false}
+          />
+          </Card>
+          </Col> 
+        </Row>
       </div>
     </div>
   );
-}
+};
+
+export default AdminPage;

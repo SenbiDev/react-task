@@ -12,6 +12,7 @@ import {
   message,
   Card,
 } from "antd";
+import '@ant-design/v5-patch-for-react-19';
 import { useArtikelStore } from "../store/artikelStore";
 import { useTagStore } from "../store/tagStore";
 import { useKategoriStore } from "../store/kategoriStore";
@@ -23,13 +24,12 @@ export default function CreateArtikel() {
   const [form] = Form.useForm();
   const [submitting, setSubmitting] = useState(false);
 
-  // ambil fungsi/state dari artikelStore (gunakan hook store, bukan named export)
   const {
     selected,
     setSelected,
     resetForm,
-    createArtikel, // function from store
-    updateArtikel, // function from store
+    createArtikel, 
+    updateArtikel, 
   } = useArtikelStore();
 
   // ambil tag & kategori dari store
