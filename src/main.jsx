@@ -11,6 +11,7 @@ import LoginPage from './pages/Login';
 import RegisterPage from './pages/Register';
 import ArtikelPage from './pages/Artikel';
 import CreateArtikel from './pages/CreateArtikel';
+import Profile from './pages/Profile';
 import AdminPage from './pages/AdminPage';
 import ArtikelView from './pages/ArtikelView';
 import PrivateRoute from './components/PrivateRoute';
@@ -49,6 +50,10 @@ const router = createBrowserRouter([
       {
         path: "admin",
         element: <AdminPage />
+      },
+      {
+        path: "profile",
+        element: <Profile />
       },
       {
         path: "create",

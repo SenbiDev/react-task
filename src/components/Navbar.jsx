@@ -1,6 +1,6 @@
 import React from 'react';
 import { Avatar, Dropdown } from 'antd';
-import { UserOutlined, LogoutOutlined, MailOutlined, CrownOutlined, EditOutlined } from '@ant-design/icons';
+import { UserOutlined, LogoutOutlined, MailOutlined, CrownOutlined, EditOutlined, IdcardOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/authContext';
 import { Crown } from 'lucide-react';
@@ -24,6 +24,12 @@ export default function Navbar() {
   }
 
   const items = [
+    {
+      key: "profile",
+      label: <span className='text-black'>Profile</span>,
+      icon: <IdcardOutlined/>,
+      onClick: () => navigate("profile")
+    },
     {
       key: "email",
       label: <span className="text-black">{user?.email}</span>,
