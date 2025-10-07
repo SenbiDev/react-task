@@ -21,26 +21,6 @@ export const useArtikelStore = create((set, get) => ({
             tags: state.tags.includes(id) ? state.tags.filter((t) => t !== id) : [...state.tags, id],
         })),
 
-    fetchArtikel: async ({params ={}}) => {
-        set({loading: true, error: null})
-        try{
-            const {page = 1, search= "", kategori= null, tags= []} = params
-            const data = await getArtikelList({page, search, kategori, tags})
-            set({
-                artikel: data.results||[],
-                pagination:{
-                    count: data.count,
-                    page: data.page,
-                    current_page: data.current_page,
-                },
-                loading: false,
-            })
-        }catch(err){
-            console.error("Gagal fetch data:", err)
-            set({error: err.message, loading: true})
-        }
-    },
-
     createArt: async () => {
         const state = get();
         const payload = {
@@ -54,16 +34,13 @@ export const useArtikelStore = create((set, get) => ({
         try {
             const res = await api.post("/artikel/", payload);
 
-            const detail = await api.get(`/artikel/${res.data.id}`);
-
-            set ((state) => ({
-                arts: [ ...state.arts, res.data],
+            set({
                 judul: "",
                 konten: "",
                 kategori: "",
                 tags: [],
                 status: "draft",
-            }));
+            });
 
             return res.data;
         } catch (err) {

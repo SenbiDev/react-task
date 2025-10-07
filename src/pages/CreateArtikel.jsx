@@ -81,11 +81,9 @@ export default function CreateArtikel () {
 
             if (artikelData?.id) {
                 await updateArtikel.mutateAsync({id: artikelData.id, payload});
-                updateArt();
                 infoUpdate();
             } else {
                 await createArtikel.mutateAsync(payload);
-                createArt();
                 infoCreate();
             }
             

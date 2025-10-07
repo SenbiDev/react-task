@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import * as artikel from "../axiosApi/artikel";
 
 export function useMyArtikels() {
@@ -8,12 +8,28 @@ export function useMyArtikels() {
     });
 }
 
-export function usePublikArtikels(enabled = false) {
+export function useAllMyArtikels(pageSize=10){
     return useQuery({
-        queryKey: ["publik-artikels"],
-        queryFn: artikel.getPublikArtikels,
+        queryKey: ["all-my-artikels", pageSize],
+        queryFn: () => artikel.getAllMyArtikels(pageSize),
     });
 }
+
+export function usePublikArtikels(isAdmin, page=1, page_size=10) {
+    return useQuery({
+        queryKey: ["publik-artikels", isAdmin, page, page_size],
+        queryFn: () => artikel.getPublikArtikels({isAdmin, page, page_size}),
+        keepPreviousData: true,
+    });
+}
+
+export function useAllPublikArtikels(pageSize=10, isAdmin=false){
+    return useQuery({
+        queryKey: ["all-publik-artikels", pageSize, isAdmin],
+        queryFn: () => artikel.getAllPublikArtikels(pageSize, isAdmin),
+    });
+}
+
 export function useArtikelById(id) {
     return useQuery({
         queryKey: ["artikel", id],

@@ -18,10 +18,20 @@ export default function ArtikelPage() {
   const role = user?.role || "";
   const navigate = useNavigate();
 
-  const { data: kategoriList = [], isLoading: kategoriLoading } = admin.useKategori();
-  const { data: tagList = [], isLoading: tagLoading } = admin.useTags();
-  const { data: myArtikel = [], refetch : refetchMyArtikel, isFetching : isFetchingMyArtikel,} = artikel.useMyArtikels();
-  const { data: publikArtikel = [], refetch : refetchPublikArtikel, isFetching : isFetchingPublikArtikel } = artikel.usePublikArtikels(role === "admin");
+  const { data: kategoriList = [] } = admin.useKategori();
+  const { data: tagList = [] } = admin.useTags();
+  const { data: myArtikelData, refetch: refetchMyArtikel, isFetching : isFetchingMyArtikel } = artikel.useAllMyArtikels(10);
+  const { data: publikArtikelData, refetch: refetchPublikArtikel, isFetching : isFetchingPublikArtikel } = artikel.useAllPublikArtikels(10, role === "admin");
+  const myArtikelRaw = Array.isArray(myArtikelData)
+  ? myArtikelData
+  : myArtikelData?.results||[];
+  const publikArtikelRaw = Array.isArray(publikArtikelData)
+  ? publikArtikelData
+  : publikArtikelData?.results||[];
+  
+  const myArtikel = Array.from (new Map(myArtikelRaw.map(a=>[a.id, a])).values());
+  const publikArtikel = Array.from (new Map(publikArtikelRaw.map(a=>[a.id, a])).values());
+  
   const deleteArtikel = artikel.useDeleteArtikel();
 
   const [query, setQuery] = useState("");
@@ -29,20 +39,24 @@ export default function ArtikelPage() {
   const [selectedTags, setSelectedTags] = useState([]);
   const [messageApi, contextHolder] = message.useMessage();
 
-  const filteredSaya = myArtikel.filter((artikel) =>
-    artikel?.judul.toLowerCase().includes(query.toLowerCase()) &&
-    (selectedKategori ? artikel.kategori?.id === selectedKategori : true)&&
-    (selectedTags.length > 0 ? selectedTags.every((t) => artikel.tags.map((tg) => tg.id).includes(t)) : true)
-  );
+  const filteredSaya = myArtikel.filter((artikel) =>{
+    const matchSearch = query
+      ?artikel.judul.toLowerCase().includes(query.toLowerCase()) : true;
+      const matchKategori = selectedKategori?artikel.kategori?.id === selectedKategori: true;
+      const matchTags = selectedTags.length > 0 ? selectedTags.every((tag) => artikel.tags.map((t) => t.id).includes(tag)) : true;
+    return matchSearch && matchKategori && matchTags;
+  });
 
-  const filteredPublik = publikArtikel.filter((artikel) =>
-    artikel?.judul.toLowerCase().includes(query.toLowerCase()) &&
-    (selectedKategori ? artikel.kategori?.id === selectedKategori : true)&&
-    (selectedTags.length > 0 ? selectedTags.every((t) => artikel.tags.map((tg) => tg.id).includes(t)) : true)
-  );
-
-  const [currentSaya, setCurrentSaya] = useState({result: [], count:0, current_page:1, pages:1});
-  const [currentPublik, setCurrentPublik] = useState({result: [], count:0, current_page:1, pages:1});
+  const filteredPublik = publikArtikel.filter((artikel) => {
+    const matchSearch = query
+      ?artikel.judul.toLowerCase().includes(query.toLowerCase()) : true;
+      const matchKategori = selectedKategori?artikel.kategori?.id === selectedKategori: true;
+      const matchTags = selectedTags.length > 0 ? selectedTags.every((tag) => artikel.tags.map((t) => t.id).includes(tag)) : true;
+    return matchSearch && matchKategori && matchTags;
+  });
+    
+  const [currentSaya, setCurrentSaya] = useState(1);
+  const [currentPublik, setCurrentPublik] = useState(1);
   const [pageSizeSaya, setPageSizeSaya] = useState(10);
   const [pageSizePublik, setPageSizePublik]= useState(10);
 
@@ -60,16 +74,6 @@ export default function ArtikelPage() {
     (currentPublik - 1) * pageSizePublik,
     currentPublik * pageSizePublik
   );
-
-  // const totalSaya = filteredSaya.length;
-  // const startIndex = (currentSaya -1) * pageSizeSaya;
-  // const endIndex = Math.min (startIndex + pageSizeSaya, totalSaya);
-  // const paginatedSaya = filteredSaya.slice(startIndex, endIndex)
-
-  // const totalPublik = filteredPublik.length;
-  // const startIndexP = (currentSaya -1) * pageSizeSaya;
-  // const endIndexP = Math.min (startIndexP + pageSizeSaya, totalPublik);
-  // const paginatedPublik = filteredPublik.slice(startIndexP, endIndexP)
   
   const onChangeSaya = (page, size) => {
     setCurrentSaya(page);
@@ -88,8 +92,8 @@ export default function ArtikelPage() {
                         <p className="text-gray-500">Belum ada artikel</p>
                     ) : (
                         <ul className="space-y-3">
-                            {paginatedSaya.map((artikel) => (
-                                <li key={artikel.id} className="flex justify-between items-center p-3 border border-gray-200 rounded">
+                            {paginatedSaya.map((artikel, index) => (
+                                <li key={`saya-${artikel.id}-${index}`} className="flex justify-between items-center p-3 border border-gray-200 rounded">
                                     <div>
                                         <p className="font-medium text-gray-900">{artikel.judul}</p>
                                         <p className="text-sm text-gray-900">{artikel.status}</p>
@@ -127,29 +131,30 @@ export default function ArtikelPage() {
                             ))}
                         </ul>
                     )}
-                    <Pagination
-                      current={currentSaya}
-                      onChange={onChangeSaya}
-                      total={23}
-                      pageSize={pageSizeSaya}
-                      showSizeChanger
-                    />
+                    <div className="flex justify-center mt-4">
+                      <Pagination
+                        current={currentSaya}
+                        onChange={onChangeSaya}
+                        total={filteredSaya.length}
+                        pageSize={pageSizeSaya}
+                      />
+                    </div>
                 </Card>
   );
 
   const artikelPublik = (
                 <Card className="bg-gray-800 p-6 border border-gray-300 rounded shadow-sm">
                   <h3 className="mb-4 text-lg text-gray-900 font-medium">Artikel Publik</h3>
-                    {publikArtikel.length === 0 ? (
+                    {paginatedPublik.length === 0 ? (
                       <p className="text-gray-500">Belum ada artikel publik.</p>
                     ) : (
                       <ul className="space-y-3">
-                        {paginatedPublik.map((artikel) => {
+                        {paginatedPublik.map((artikel, index) => {
                           const user = JSON.parse(localStorage.getItem("user"));
                           const isOwner = user?.id === artikel.penulis?.id;
                           const isAdmin = user?.role === "admin";
                           return (
-                            <li key={artikel.id} className="flex justify-between items-center p-3 border border-gray-200 rounded">
+                            <li key={`publik-${artikel.id}-${index}`} className="flex justify-between items-center p-3 border border-gray-200 rounded">
                           <div>
                             <p className="font-medium text-gray-900">{artikel.judul}</p>
                             <p className="text-sm text-gray-900 mt-1">
@@ -191,13 +196,14 @@ export default function ArtikelPage() {
                       })}
                     </ul>
                   )}
-                  <Pagination
-                    current={currentPublik}
-                    onChange={onChangePublik}
-                    total={filteredPublik.length}
-                    pageSize={pageSizePublik}
-                    showSizeChanger
-                  />
+                  <div className="flex justify-center mt-4">
+                    <Pagination
+                      current={currentPublik}
+                      total={filteredPublik.length}
+                      pageSize={pageSizePublik}
+                      onChange={onChangePublik}
+                    />
+                  </div>
                 </Card>
   );
 
@@ -218,7 +224,7 @@ export default function ArtikelPage() {
       key: "2",
       label: (
         <span className="flex items-center gap-2">
-          <User size={16}/> Artikel
+          <User size={16}/> Artikel Publik
         </span>
       ),
       children: artikelPublik
