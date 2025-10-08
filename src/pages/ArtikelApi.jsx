@@ -1,41 +1,37 @@
-import { useEffect, useState, useMemo } from "react";
-import { useAuthStore } from "../store/useAuthStore";
-import { useArtikelStore } from "../store/useArtikelStore";
-import { useKategoriStore } from "../store/useKategoriStore";
-import { useTagStore } from "../store/useTagStore";
-import ArtikelList from "../components/ArtikelList";
-import ArtikelContainer from "../components/ArtikelContainer";
-import { Button, message, Tabs, Input, Select, Space, Pagination } from "antd";
-import { Link } from "react-router-dom";
+import { useEffect, useState, useMemo } from "react"
+import { useAuthStore } from "../store/useAuthStore"
+import { useArtikelStore } from "../store/useArtikelStore"
+import { useKategoriStore } from "../store/useKategoriStore"
+import { useTagStore } from "../store/useTagStore"
+import ArtikelList from "../components/ArtikelList"
+import ArtikelContainer from "../components/ArtikelContainer"
+import { Button, message, Tabs, Input, Select, Space, Pagination } from "antd"
+import { Link } from "react-router-dom"
 
-const { Search } = Input;
+const { Search } = Input
 
 export default function ArtikelApi() {
-  const { user } = useAuthStore();
-  const role = user?.role || "user";
+  const { user } = useAuthStore()
+  const role = user?.role || "user"
+  const { fetchArtikel, artikel = [], deleteArtikel, pagination } = useArtikelStore()
+  const { fetchKategori, kategori = [] } = useKategoriStore()
+  const { fetchTags, tags = [] } = useTagStore()
 
-  const { fetchArtikel, artikel = [], deleteArtikel, pagination } = useArtikelStore();
-  const { fetchKategori, kategori = [] } = useKategoriStore();
-  const { fetchTags, tags = [] } = useTagStore();
-
-  const [search, setSearch] = useState("");
-  const [filterKategori, setFilterKategori] = useState(null);
-  const [filterTags, setFilterTags] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-
-  useEffect(() => {
-    fetchArtikel({
-      page: currentPage,
-      search,
-      kategori: filterKategori,
-      tags: filterTags,
-    });
-  }, [currentPage, search, filterKategori, filterTags]);
+  const [search, setSearch] = useState("")
+  const [filterKategori, setFilterKategori] = useState(null)
+  const [filterTags, setFilterTags] = useState([])
+  const [currentPage, setCurrentPage] = useState(1)
+  const [myPage, setMyPage] = useState(1)
+  const pageSize = 10
 
   useEffect(() => {
-    fetchKategori();
-    fetchTags();
-  }, []);
+    fetchArtikel({ page: currentPage, search, kategori: filterKategori, tags: filterTags })
+  }, [currentPage, search, filterKategori, filterTags])
+
+  useEffect(() => {
+    fetchKategori()
+    fetchTags()
+  }, [])
 
   const myArtikel = useMemo(
     () =>
@@ -43,22 +39,48 @@ export default function ArtikelApi() {
         (a) => a.is_owner || a.penulis_id === user?.id || a.penulis?.id === user?.id
       ),
     [artikel, user]
-  );
+  )
+
+  const [allMyArtikel, setAllMyArtikel] = useState([])
+
+  useEffect(() => {
+    const loadAllMyArtikel = async () => {
+      const res = await fetchArtikel({ page: 1 })
+      if (res?.results) {
+        const all = [...res.results]
+        for (let i = 2; i <= (res.pages || 1); i++) {
+          const next = await fetchArtikel({ page: i })
+          if (next?.results) all.push(...next.results)
+        }
+        const mine = all.filter(
+          (a) => a.is_owner || a.penulis_id === user?.id || a.penulis?.id === user?.id
+        )
+        setAllMyArtikel(mine)
+      }
+    }
+    loadAllMyArtikel()
+  }, [user])
+
+  const paginatedMyArtikel = useMemo(() => {
+    const start = (myPage - 1) * pageSize
+    return allMyArtikel.slice(start, start + pageSize)
+  }, [allMyArtikel, myPage])
 
   const publicArtikel = useMemo(
     () => artikel.filter((a) => a.status === "published"),
     [artikel]
-  );
+  )
 
   const handleDelete = async (id) => {
     try {
-      await deleteArtikel(id);
-      message.success("Artikel berhasil dihapus");
-      fetchArtikel({ page: currentPage });
+      await deleteArtikel(id)
+      message.success("Artikel berhasil dihapus")
+      fetchArtikel({ page: currentPage })
+      setAllMyArtikel((prev) => prev.filter((a) => a.id !== id))
     } catch {
-      message.error("Gagal menghapus artikel");
+      message.error("Gagal menghapus artikel")
     }
-  };
+  }
 
   const userTabs = [
     {
@@ -66,19 +88,22 @@ export default function ArtikelApi() {
       label: "Artikel Saya",
       children: (
         <ArtikelContainer title="Artikel Saya">
-          <ArtikelList artikel={myArtikel} onDelete={handleDelete} isMyList />
-          <Pagination
-            current={pagination.current_page || currentPage}
-            total={pagination.count || 0}
-            pageSize={10}
-            onChange={setCurrentPage}
-            style={{ marginTop: 16, textAlign: "center" }}
-            showSizeChanger={false}
-          />
+          <ArtikelList artikel={paginatedMyArtikel} onDelete={handleDelete} isMyList />
+          {allMyArtikel.length > pageSize && (
+            <Pagination
+              current={myPage}
+              total={allMyArtikel.length}
+              pageSize={pageSize}
+              onChange={setMyPage}
+              style={{ marginTop: 16, textAlign: "center" }}
+              showSizeChanger={false}
+              showLessItems
+            />
+          )}
         </ArtikelContainer>
       ),
     },
-  ];
+  ]
 
   const adminTabs = [
     ...userTabs,
@@ -95,11 +120,12 @@ export default function ArtikelApi() {
             onChange={setCurrentPage}
             style={{ marginTop: 16, textAlign: "center" }}
             showSizeChanger={false}
+            showLessItems
           />
         </ArtikelContainer>
       ),
     },
-  ];
+  ]
 
   return (
     <div className="p-4 max-w-4xl mx-auto text-white">
@@ -110,7 +136,6 @@ export default function ArtikelApi() {
         </Link>
       </div>
 
-      {/* 🔹 Search & Filter */}
       <Space className="mb-4" wrap>
         <Search
           placeholder="Cari artikel..."
@@ -119,7 +144,6 @@ export default function ArtikelApi() {
           onChange={(e) => setSearch(e.target.value)}
           style={{ width: 200 }}
         />
-
         <Select
           placeholder="Filter Kategori"
           allowClear
@@ -127,7 +151,6 @@ export default function ArtikelApi() {
           style={{ width: 180 }}
           options={kategori.map((k) => ({ value: k.id, label: k.nama }))}
         />
-
         <Select
           mode="multiple"
           placeholder="Filter Tags"
@@ -138,10 +161,7 @@ export default function ArtikelApi() {
         />
       </Space>
 
-      <Tabs
-        defaultActiveKey="my"
-        items={role === "admin" ? adminTabs : userTabs}
-      />
+      <Tabs defaultActiveKey="my" items={role === "admin" ? adminTabs : userTabs} />
     </div>
-  );
+  )
 }

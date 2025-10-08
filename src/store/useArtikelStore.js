@@ -11,7 +11,6 @@ export const useArtikelStore = create((set) => ({
   artikelEdit: null,
   loading: false,
   error: null,
-
   pagination: {
     count: 0,
     pages: 0,
@@ -21,25 +20,24 @@ export const useArtikelStore = create((set) => ({
   fetchArtikel: async (params = {}) => {
     set({ loading: true, error: null })
     try {
-      const { page = 1, search= "", kategori = null, tags = [] } = params
-      const data = await getArtikelList({
-        page,
-        search,
-        kategori,
-        tags,
-      })
-      set({ 
+      const { page = 1, search = "", kategori = null, tags = [] } = params
+      const data = await getArtikelList({ page, search, kategori, tags })
+
+      set({
         artikel: data.results || [],
         pagination: {
-          count: data.count,
-          pages: data.pages,
-          current_page: data.current_page,
+          count: data.count || 0,
+          pages: data.pages || 0,
+          current_page: data.current_page || 1,
         },
         loading: false,
       })
+
+      return data
     } catch (err) {
       console.error("Gagal fetch artikel:", err)
       set({ error: err.message, loading: false })
+      return null
     }
   },
 
@@ -51,9 +49,11 @@ export const useArtikelStore = create((set) => ({
         artikel: [newArtikel, ...state.artikel],
         loading: false,
       }))
+      return newArtikel
     } catch (err) {
       console.error("Gagal tambah artikel:", err)
       set({ error: err.message, loading: false })
+      return null
     }
   },
 
@@ -62,15 +62,15 @@ export const useArtikelStore = create((set) => ({
     try {
       const updated = await updateArticle(id, payload)
       set((state) => ({
-        artikel: state.artikel.map((a) =>
-          a.id === id ? updated : a
-        ),
+        artikel: state.artikel.map((a) => (a.id === id ? updated : a)),
         loading: false,
         artikelEdit: null,
       }))
+      return updated
     } catch (err) {
       console.error("Gagal update artikel:", err)
       set({ error: err.message, loading: false })
+      return null
     }
   },
 
@@ -82,13 +82,14 @@ export const useArtikelStore = create((set) => ({
         artikel: state.artikel.filter((a) => a.id !== id),
         loading: false,
       }))
+      return true
     } catch (err) {
       console.error("Gagal hapus artikel:", err)
       set({ error: err.message, loading: false })
+      return false
     }
   },
 
   setArtikelEdit: (artikel) => set({ artikelEdit: artikel }),
-
   clearArtikelEdit: () => set({ artikelEdit: null }),
 }))

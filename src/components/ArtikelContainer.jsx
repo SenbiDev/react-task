@@ -1,4 +1,4 @@
-import { Card, Pagination, Spin } from "antd"
+import { Card, Pagination, Spin } from "antd";
 
 export default function ArtikelContainer({
   title,
@@ -12,21 +12,22 @@ export default function ArtikelContainer({
   return (
     <Card
       title={<span className="font-semibold text-lg">{title}</span>}
-      bordered={false}
+      variant="borderless"
       className="mb-4 bg-gray-900 text-white"
-      headStyle={{
-        background: "#1f2937",
-        color: "#fff",
-        borderBottom: "1px solid #374151",
-      }}
-      bodyStyle={{
-        background: "#111827",
+      styles={{
+        header: {
+          background: "#1f2937",
+          color: "#fff",
+          borderBottom: "1px solid #374151",
+        },
+        body: {
+          background: "#111827",
+        },
       }}
     >
-      {/* Loader */}
       {loading ? (
         <div className="flex justify-center items-center py-10">
-          <Spin tip="Memuat artikel..." />
+          <Spin spinning tip="Memuat artikel..." />
         </div>
       ) : (
         <>
@@ -40,13 +41,11 @@ export default function ArtikelContainer({
               total={total}
               onChange={onPageChange}
               showSizeChanger={false}
-              style={{
-                color: "white",
-              }}
+              style={{ color: "white" }}
             /> */}
           </div>
         </>
       )}
     </Card>
-  )
+  );
 }

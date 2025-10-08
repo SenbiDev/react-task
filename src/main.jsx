@@ -3,7 +3,7 @@ import ReactDOM from "react-dom/client"
 import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import "@ant-design/v5-patch-for-react-19"
-import { unstableSetRender, ConfigProvider, theme } from "antd"
+import { unstableSetRender, ConfigProvider, theme, App as AntdApp } from "antd"
 import { createRoot } from "react-dom/client"
 
 import App from "./App"
@@ -14,7 +14,9 @@ import Login from "./pages/Login"
 import CreateArtikel from "./pages/CreateArtikel"
 import KategoriTagsPage from "./pages/KategoriTagsPage"
 import ProtectedRoute from "./components/ProtectedRoute"
+import Profile from "./pages/Profile"
 import "./index.css"
+import "antd/dist/reset.css"
 
 const router = createBrowserRouter([
   {
@@ -25,10 +27,7 @@ const router = createBrowserRouter([
     path: "/",
     element: <App />,
     children: [
-      {
-        index: true,
-        element: <Navigate to="/login" replace />,
-      },
+      { index: true, element: <Navigate to="/login" replace /> },
       {
         path: "home",
         element: (
@@ -62,7 +61,7 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "create-artikel/:id",   
+        path: "create-artikel/:id",
         element: (
           <ProtectedRoute>
             <CreateArtikel />
@@ -74,6 +73,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <KategoriTagsPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "profiles",
+        element: (
+          <ProtectedRoute>
+            <Profile />
           </ProtectedRoute>
         ),
       },
@@ -113,9 +120,11 @@ function Root() {
             : theme.defaultAlgorithm,
       }}
     >
-      <QueryClientProvider client={queryClient}>
-        <RouterProvider router={router} />
-      </QueryClientProvider>
+      <AntdApp> 
+        <QueryClientProvider client={queryClient}>
+          <RouterProvider router={router} />
+        </QueryClientProvider>
+      </AntdApp>
     </ConfigProvider>
   )
 }

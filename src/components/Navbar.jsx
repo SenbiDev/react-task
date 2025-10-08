@@ -1,43 +1,45 @@
-import { Avatar, Dropdown, Switch } from "antd"
+import { Avatar, Dropdown, Switch } from "antd";
 import {
   UserOutlined,
   LogoutOutlined,
   MailOutlined,
   CrownOutlined,
   EditOutlined,
-} from "@ant-design/icons"
-import { useNavigate, Link } from "react-router-dom"
-import { useAuthStore } from "../store/useAuthStore"
-import { useState, useEffect } from "react"
+  IdcardOutlined,
+} from "@ant-design/icons";
+import { useNavigate, Link } from "react-router-dom";
+import { useAuthStore } from "../store/useAuthStore";
+import { useState, useEffect } from "react";
 
 export default function Navbar() {
-  const { user, logout } = useAuthStore()
-  const navigate = useNavigate()
+  const { user, logout } = useAuthStore();
+  const navigate = useNavigate();
 
   const [themeMode, setThemeMode] = useState(
     localStorage.getItem("theme") || "light"
-  )
+  );
 
   useEffect(() => {
-    window.dispatchEvent(new CustomEvent("theme-change", { detail: themeMode }))
-  }, [themeMode])
+    window.dispatchEvent(new CustomEvent("theme-change", { detail: themeMode }));
+  }, [themeMode]);
 
   const handleLogout = () => {
-    logout()
-    navigate("/login")
-  }
+    logout();
+    navigate("/login");
+  };
 
   const toggleTheme = (checked) => {
-    const newTheme = checked ? "dark" : "light"
-    setThemeMode(newTheme)
-    localStorage.setItem("theme", newTheme)
-  }
+    const newTheme = checked ? "dark" : "light";
+    setThemeMode(newTheme);
+    localStorage.setItem("theme", newTheme);
+  };
 
   const items = [
     {
       key: "email",
       label: <span>{user?.email}</span>,
       icon: <MailOutlined />,
+      disabled: true,
     },
     {
       key: "role",
@@ -50,9 +52,18 @@ export default function Navbar() {
         user?.role === "admin" ? (
           <CrownOutlined style={{ color: "gold" }} />
         ) : (
-          <UserOutlined style={{ color: "blue" }} />
+          <UserOutlined style={{ color: "#1677ff" }} />
         ),
+      disabled: true,
     },
+
+    {
+      key: "profile",
+      label: "Profil Saya",
+      icon: <IdcardOutlined style={{ color: "#1677ff" }} />,
+      onClick: () => navigate("/profiles"),
+    },
+
     ...(user?.role === "admin"
       ? [
           {
@@ -63,16 +74,15 @@ export default function Navbar() {
           },
         ]
       : []),
-    {
-      type: "divider",
-    },
+
+    { type: "divider" },
     {
       key: "logout",
       label: <span style={{ color: "red" }}>Logout</span>,
       icon: <LogoutOutlined style={{ color: "red" }} />,
       onClick: handleLogout,
     },
-  ]
+  ];
 
   return (
     <nav className="flex justify-between bg-gray-800 p-4 items-center">
@@ -110,21 +120,24 @@ export default function Navbar() {
             menu={{ items }}
             placement="bottomRight"
             trigger={["click"]}
-            overlayClassName="min-w-[200px]"
+            overlayClassName="min-w-[220px]"
           >
-            <div className="flex items-center gap-2 cursor-pointer">
+            <div className="flex items-center gap-2 cursor-pointer select-none">
               <Avatar
                 src={user?.avatar}
                 icon={!user?.avatar && <UserOutlined />}
-                style={{ backgroundColor: "#f0f0f0", color: "#333" }}
+                style={{
+                  backgroundColor: user?.avatar ? "transparent" : "#f0f0f0",
+                  color: "#333",
+                }}
               />
-              <span className="text-white text-sm font-medium truncate max-w-[100px]">
-                {user.username}
+              <span className="text-white text-sm font-medium truncate max-w-[120px]">
+                {user?.username || "User"}
               </span>
             </div>
           </Dropdown>
         )}
       </div>
     </nav>
-  )
+  );
 }
