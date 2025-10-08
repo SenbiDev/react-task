@@ -11,7 +11,8 @@ export default function App() {
   }, [initAuth]);
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col min-h-screen transition-all duration-300"
+    style={{ backgroundColor: "var(--bg-color)", color: "var(--text-color)" }}>
       <Navbar />
       <main className="flex-grow">
         <Outlet />

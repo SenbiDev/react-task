@@ -3,10 +3,21 @@ import * as authApi from "../axiosApi/auth";
 
 export const useAuthStore = create((set) => ({
   user: JSON.parse(localStorage.getItem("user")) || null,
-  avatarUrl: null, 
+  avatarUrl: null,
   isLoading: false,
   error: null,
 
+  // 🌗 Theme global state
+  theme: localStorage.getItem("theme") || "light",
+
+  // Setter theme global (update localStorage + <html data-theme>)
+  setTheme: (mode) => {
+    localStorage.setItem("theme", mode);
+    document.documentElement.setAttribute("data-theme", mode);
+    set({ theme: mode });
+  },
+
+  // 🔄 Inisialisasi user dari localStorage
   init: () => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
@@ -16,6 +27,7 @@ export const useAuthStore = create((set) => ({
     }
   },
 
+  // 🔐 Login API
   login: async (username, password) => {
     set({ isLoading: true, error: null });
     try {
@@ -33,6 +45,7 @@ export const useAuthStore = create((set) => ({
     }
   },
 
+  // 📝 Register API
   register: async (username, email, password, password2) => {
     set({ isLoading: true, error: null });
     try {
@@ -50,11 +63,13 @@ export const useAuthStore = create((set) => ({
     }
   },
 
+  // 🚪 Logout
   logout: () => {
     localStorage.clear();
-    set({ user: null, avatarUrl: null }); 
+    set({ user: null, avatarUrl: null });
   },
 
+  // 🖼️ Set avatar URL user
   setAvatarUrl: (url) => {
     set({ avatarUrl: url });
   },

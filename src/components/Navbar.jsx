@@ -9,14 +9,12 @@ import {
 } from "@ant-design/icons";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuthStore } from "../store/useAuthStore";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import api from "../axiosApi/apiConfig";
 
 export default function Navbar() {
-  const { user, logout, avatarUrl, setAvatarUrl } = useAuthStore();
+  const { user, logout, avatarUrl, setAvatarUrl, theme, setTheme } = useAuthStore();
   const navigate = useNavigate();
-
-  const [themeMode, setThemeMode] = useState(localStorage.getItem("theme") || "light");
 
   useEffect(() => {
     const fetchProfileAvatar = async () => {
@@ -39,25 +37,22 @@ export default function Navbar() {
         console.warn("Gagal memuat foto profil navbar:", err);
       }
     };
-
     fetchProfileAvatar();
   }, [user?.id, setAvatarUrl]);
 
   useEffect(() => {
-    const handleAvatarUpdate = (e) => {
-      setAvatarUrl(e.detail || null);
-    };
+    const handleAvatarUpdate = (e) => setAvatarUrl(e.detail || null);
     window.addEventListener("avatar-updated", handleAvatarUpdate);
     return () => window.removeEventListener("avatar-updated", handleAvatarUpdate);
   }, [setAvatarUrl]);
 
   useEffect(() => {
-    window.dispatchEvent(new CustomEvent("theme-change", { detail: themeMode }));
-  }, [themeMode]);
+    window.dispatchEvent(new CustomEvent("theme-change", { detail: theme }));
+  }, [theme]);
 
   const toggleTheme = (checked) => {
     const newTheme = checked ? "dark" : "light";
-    setThemeMode(newTheme);
+    setTheme(newTheme);
     localStorage.setItem("theme", newTheme);
   };
 
@@ -70,7 +65,7 @@ export default function Navbar() {
     {
       key: "profile",
       label: "Profil Saya",
-      icon: <IdcardOutlined style={{ color: "#1677ff" }} />,
+      icon: <IdcardOutlined style={{ color: "var(--primary-color)" }} />,
       onClick: () => navigate("/profiles"),
     },
     {
@@ -82,7 +77,7 @@ export default function Navbar() {
     {
       key: "role",
       label: (
-        <span className="capitalize">
+        <span style={{ textTransform: "capitalize" }}>
           {user?.role === "admin" ? "Administrator" : "User"}
         </span>
       ),
@@ -90,7 +85,7 @@ export default function Navbar() {
         user?.role === "admin" ? (
           <CrownOutlined style={{ color: "gold" }} />
         ) : (
-          <UserOutlined style={{ color: "#1677ff" }} />
+          <UserOutlined style={{ color: "var(--primary-color)" }} />
         ),
       disabled: true,
     },
@@ -114,7 +109,15 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className="flex justify-between bg-gray-800 p-4 items-center">
+    <nav
+      style={{
+        backgroundColor: "var(--card-bg)",
+        color: "var(--text-color)",
+        borderBottom: "1px solid var(--border-color)",
+        transition: "background-color 0.3s ease, color 0.3s ease",
+      }}
+      className="flex justify-between items-center p-4"
+    >
       <div className="flex space-x-4">
         {[
           { to: "/home", label: "Home" },
@@ -124,15 +127,20 @@ export default function Navbar() {
           <Link
             key={link.to}
             to={link.to}
-            className="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium"
+            style={{
+              color: "var(--text-color)",
+              transition: "color 0.3s",
+            }}
+            className="px-3 py-2 rounded-md text-sm font-medium hover:opacity-80"
           >
             {link.label}
           </Link>
         ))}
       </div>
+
       <div className="flex items-center gap-4">
         <Switch
-          checked={themeMode === "dark"}
+          checked={theme === "dark"}
           onChange={toggleTheme}
           checkedChildren="🌙"
           unCheckedChildren="☀️"
@@ -145,11 +153,17 @@ export default function Navbar() {
                 src={avatarUrl}
                 icon={!avatarUrl && <UserOutlined />}
                 style={{
-                  backgroundColor: avatarUrl ? "transparent" : "#f0f0f0",
-                  color: "#333",
+                  backgroundColor: avatarUrl ? "transparent" : "var(--hover-bg)",
+                  color: "var(--text-color)",
                 }}
               />
-              <span className="text-white text-sm font-medium truncate max-w-[120px]">
+              <span
+                style={{
+                  color: "var(--text-color)",
+                  transition: "color 0.3s",
+                }}
+                className="text-sm font-medium truncate max-w-[120px]"
+              >
                 {user?.username || "User"}
               </span>
             </div>

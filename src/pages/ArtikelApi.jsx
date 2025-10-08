@@ -1,12 +1,12 @@
 import { useEffect, useState, useMemo } from "react"
+import { ConfigProvider, Button, message, Tabs, Input, Select, Space, Pagination, theme } from "antd"
+import { Link } from "react-router-dom"
 import { useAuthStore } from "../store/useAuthStore"
 import { useArtikelStore } from "../store/useArtikelStore"
 import { useKategoriStore } from "../store/useKategoriStore"
 import { useTagStore } from "../store/useTagStore"
 import ArtikelList from "../components/ArtikelList"
 import ArtikelContainer from "../components/ArtikelContainer"
-import { Button, message, Tabs, Input, Select, Space, Pagination } from "antd"
-import { Link } from "react-router-dom"
 
 const { Search } = Input
 
@@ -22,7 +22,10 @@ export default function ArtikelApi() {
   const [filterTags, setFilterTags] = useState([])
   const [currentPage, setCurrentPage] = useState(1)
   const [myPage, setMyPage] = useState(1)
+  const [allMyArtikel, setAllMyArtikel] = useState([])
   const pageSize = 10
+
+  const { token } = theme.useToken()
 
   useEffect(() => {
     fetchArtikel({ page: currentPage, search, kategori: filterKategori, tags: filterTags })
@@ -34,14 +37,9 @@ export default function ArtikelApi() {
   }, [])
 
   const myArtikel = useMemo(
-    () =>
-      artikel.filter(
-        (a) => a.is_owner || a.penulis_id === user?.id || a.penulis?.id === user?.id
-      ),
+    () => artikel.filter((a) => a.is_owner || a.penulis_id === user?.id || a.penulis?.id === user?.id),
     [artikel, user]
   )
-
-  const [allMyArtikel, setAllMyArtikel] = useState([])
 
   useEffect(() => {
     const loadAllMyArtikel = async () => {
@@ -52,9 +50,7 @@ export default function ArtikelApi() {
           const next = await fetchArtikel({ page: i })
           if (next?.results) all.push(...next.results)
         }
-        const mine = all.filter(
-          (a) => a.is_owner || a.penulis_id === user?.id || a.penulis?.id === user?.id
-        )
+        const mine = all.filter((a) => a.is_owner || a.penulis_id === user?.id || a.penulis?.id === user?.id)
         setAllMyArtikel(mine)
       }
     }
@@ -66,10 +62,7 @@ export default function ArtikelApi() {
     return allMyArtikel.slice(start, start + pageSize)
   }, [allMyArtikel, myPage])
 
-  const publicArtikel = useMemo(
-    () => artikel.filter((a) => a.status === "published"),
-    [artikel]
-  )
+  const publicArtikel = useMemo(() => artikel.filter((a) => a.status === "published"), [artikel])
 
   const handleDelete = async (id) => {
     try {
@@ -128,40 +121,60 @@ export default function ArtikelApi() {
   ]
 
   return (
-    <div className="p-4 max-w-4xl mx-auto text-white">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-2xl font-bold">Dashboard Artikel ({role})</h2>
-        <Link to="/create-artikel">
-          <Button type="primary">Create Artikel</Button>
-        </Link>
+    <ConfigProvider
+      theme={{
+        algorithm: document.documentElement.getAttribute("data-theme") === "dark"
+          ? theme.darkAlgorithm
+          : theme.defaultAlgorithm,
+      }}
+    >
+      <div
+        style={{
+          backgroundColor: token.colorBgContainer,
+          color: token.colorText,
+          minHeight: "100vh",
+          padding: "1.5rem",
+          maxWidth: 960,
+          margin: "0 auto",
+          borderRadius: 12,
+        }}
+      >
+        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 16 }}>
+          <h2 style={{ fontSize: 24, fontWeight: 700, color: token.colorText }}>
+            Dashboard Artikel ({role})
+          </h2>
+          <Link to="/create-artikel">
+            <Button type="primary">Create Artikel</Button>
+          </Link>
+        </div>
+
+        <Space style={{ marginBottom: 16 }} wrap>
+          <Search
+            placeholder="Cari artikel..."
+            allowClear
+            onSearch={setSearch}
+            onChange={(e) => setSearch(e.target.value)}
+            style={{ width: 200 }}
+          />
+          <Select
+            placeholder="Filter Kategori"
+            allowClear
+            onChange={setFilterKategori}
+            style={{ width: 180 }}
+            options={kategori.map((k) => ({ value: k.id, label: k.nama }))}
+          />
+          <Select
+            mode="multiple"
+            placeholder="Filter Tags"
+            allowClear
+            onChange={setFilterTags}
+            style={{ width: 240 }}
+            options={tags.map((t) => ({ value: t.id, label: t.nama }))}
+          />
+        </Space>
+
+        <Tabs defaultActiveKey="my" items={role === "admin" ? adminTabs : userTabs} />
       </div>
-
-      <Space className="mb-4" wrap>
-        <Search
-          placeholder="Cari artikel..."
-          allowClear
-          onSearch={setSearch}
-          onChange={(e) => setSearch(e.target.value)}
-          style={{ width: 200 }}
-        />
-        <Select
-          placeholder="Filter Kategori"
-          allowClear
-          onChange={setFilterKategori}
-          style={{ width: 180 }}
-          options={kategori.map((k) => ({ value: k.id, label: k.nama }))}
-        />
-        <Select
-          mode="multiple"
-          placeholder="Filter Tags"
-          allowClear
-          onChange={setFilterTags}
-          style={{ width: 240 }}
-          options={tags.map((t) => ({ value: t.id, label: t.nama }))}
-        />
-      </Space>
-
-      <Tabs defaultActiveKey="my" items={role === "admin" ? adminTabs : userTabs} />
-    </div>
+    </ConfigProvider>
   )
 }

@@ -1,13 +1,28 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "@ant-design/v5-patch-for-react-19";
-import { ArrowLeftOutlined, DeleteOutlined, LoadingOutlined, PlusOutlined, LinkOutlined } from "@ant-design/icons";
-import { Card, Typography, Spin, message, Upload, Input, Button, Popconfirm } from "antd";
+import {
+  ArrowLeftOutlined,
+  DeleteOutlined,
+  LoadingOutlined,
+  PlusOutlined,
+  LinkOutlined,
+} from "@ant-design/icons";
+import {
+  Card,
+  Typography,
+  Spin,
+  message,
+  Upload,
+  Input,
+  Button,
+  Popconfirm,
+} from "antd";
 import api from "../axiosApi/apiConfig";
 import { useAuthStore } from "../store/useAuthStore";
 
 const { Title, Text } = Typography;
-const BASE_URL = "http://127.0.0.1:8000"; 
+const BASE_URL = "http://127.0.0.1:8000";
 
 export default function Profile() {
   const [profile, setProfile] = useState(null);
@@ -17,7 +32,7 @@ export default function Profile() {
   const [imageUrl, setImageUrl] = useState(null);
 
   const navigate = useNavigate();
-  const { user, setAvatarUrl } = useAuthStore(); 
+  const { user, setAvatarUrl } = useAuthStore();
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -77,13 +92,11 @@ export default function Profile() {
 
       message.success("Foto profil berhasil diperbarui!");
       const data = res.data;
-
       const newUrl = data.avatar.startsWith("http")
         ? data.avatar
         : `${BASE_URL}${data.avatar}`;
-
       setImageUrl(newUrl);
-      setAvatarUrl(newUrl); 
+      setAvatarUrl(newUrl);
     } catch {
       message.error("Gagal memperbarui foto profil");
     } finally {
@@ -96,9 +109,8 @@ export default function Profile() {
     try {
       setUploading(true);
       await api.put(`profiles/${profile.id}/`, { avatar: null });
-
       setImageUrl(null);
-      setAvatarUrl(null); 
+      setAvatarUrl(null);
       message.success("Foto profil berhasil dihapus!");
     } catch {
       message.error("Gagal menghapus foto profil");
@@ -118,7 +130,7 @@ export default function Profile() {
   };
 
   const uploadButton = (
-    <div>
+    <div style={{ color: "var(--text-color)" }}>
       {uploading ? <LoadingOutlined /> : <PlusOutlined />}
       <div style={{ marginTop: 8 }}>Upload</div>
     </div>
@@ -126,7 +138,14 @@ export default function Profile() {
 
   if (loading) {
     return (
-      <div className="flex justify-center mt-20">
+      <div
+        className="flex justify-center mt-20"
+        style={{
+          backgroundColor: "var(--bg-color)",
+          color: "var(--text-color)",
+          minHeight: "100vh",
+        }}
+      >
         <Spin tip="Memuat profil..." />
       </div>
     );
@@ -134,19 +153,39 @@ export default function Profile() {
 
   if (!profile) {
     return (
-      <div className="flex justify-center mt-20">
-        <Text>Tidak ada data profil ditemukan.</Text>
+      <div
+        className="flex justify-center mt-20"
+        style={{
+          backgroundColor: "var(--bg-color)",
+          color: "var(--text-color)",
+          minHeight: "100vh",
+        }}
+      >
+        <Text style={{ color: "var(--text-color)" }}>
+          Tidak ada data profil ditemukan.
+        </Text>
       </div>
     );
   }
 
   return (
-    <div className="flex justify-center mt-10">
+    <div
+      className="flex justify-center mt-10"
+      style={{
+        backgroundColor: "var(--bg-color)",
+        color: "var(--text-color)",
+        transition: "background-color 0.3s, color 0.3s",
+      }}
+    >
       <Card
         style={{
           width: 400,
           textAlign: "center",
-          boxShadow: "0 4px 10px rgba(0,0,0,0.2)",
+          backgroundColor: "var(--card-bg)",
+          color: "var(--text-color)",
+          border: "1px solid var(--border-color)",
+          boxShadow: "0 4px 10px rgba(0,0,0,0.15)",
+          transition: "background-color 0.3s, color 0.3s",
         }}
         loading={uploading}
       >
@@ -191,28 +230,46 @@ export default function Profile() {
                   position: "absolute",
                   top: 5,
                   right: 10,
-                  background: "rgba(255,255,255,0.9)",
+                  background: "var(--card-bg)",
+                  color: "var(--text-color)",
+                  border: "1px solid var(--border-color)",
                 }}
               />
             </Popconfirm>
           )}
         </div>
 
-        <Title level={4} style={{ marginTop: 10 }}>
+        <Title level={4} style={{ marginTop: 10, color: "var(--text-color)" }}>
           {user?.username}
         </Title>
-        <Text type="secondary" style={{ display: "block", marginBottom: 20 }}>
+        <Text
+          style={{
+            display: "block",
+            marginBottom: 20,
+            color: "var(--text-color)",
+            opacity: 0.7,
+          }}
+        >
           {user?.role?.toUpperCase()}
         </Text>
 
         <Input
-          prefix={<LinkOutlined />}
+          prefix={<LinkOutlined style={{ color: "var(--text-color)" }} />}
           value={website}
           onChange={(e) => setWebsite(e.target.value)}
           placeholder="Tambahkan link sosial (contoh: https://instagram.com/...)"
           onPressEnter={handleUpdateWebsite}
+          style={{
+            backgroundColor: "var(--card-bg)",
+            color: "var(--text-color)",
+            borderColor: "var(--border-color)",
+          }}
           addonAfter={
-            <Button type="link" onClick={handleUpdateWebsite}>
+            <Button
+              type="link"
+              onClick={handleUpdateWebsite}
+              style={{ color: "var(--primary-color)" }}
+            >
               Simpan
             </Button>
           }
@@ -223,14 +280,28 @@ export default function Profile() {
             href={website}
             target="_blank"
             rel="noopener noreferrer"
-            className="block mt-3 text-blue-500 hover:underline"
+            style={{
+              display: "block",
+              marginTop: "1rem",
+              color: "var(--primary-color)",
+              textDecoration: "none",
+            }}
           >
             {website}
           </a>
         )}
 
-        <br />
-        <Button icon={<ArrowLeftOutlined />} onClick={() => navigate("/artikel-api")}>
+        <Button
+          icon={<ArrowLeftOutlined />}
+          onClick={() => navigate("/artikel-api")}
+          style={{
+            marginTop: "1.5rem",
+            backgroundColor: "var(--primary-color)",
+            color: "#fff",
+            border: "none",
+            borderRadius: "6px",
+          }}
+        >
           Kembali
         </Button>
       </Card>

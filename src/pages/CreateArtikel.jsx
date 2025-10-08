@@ -1,28 +1,51 @@
-import { useState, useEffect } from "react";
-import { Form, Input, Button, Checkbox, Select, Card, Spin, message } from "antd";
+import { useState, useEffect, useCallback } from "react";
+import {
+  Form,
+  Input,
+  Button,
+  Checkbox,
+  Select,
+  Card,
+  Spin,
+  message,
+  Typography,
+  Space,
+  theme,
+} from "antd";
 import "@ant-design/v5-patch-for-react-19";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeftOutlined } from "@ant-design/icons";
-import { createArticle, getArticleById, updateArticle } from "../axiosApi/artikel";
+import {
+  createArticle,
+  getArticleById,
+  updateArticle,
+} from "../axiosApi/artikel";
 import { useTagList } from "../hooks/tags";
 import { useKategoriList } from "../hooks/kategori";
+import { useAuthStore } from "../store/useAuthStore";
 
 const { TextArea } = Input;
+const { Title } = Typography;
 
 export default function CreateArtikel() {
   const [form] = Form.useForm();
-  const [loading, setLoading] = useState(false);
-  const [initialLoading, setInitialLoading] = useState(false);
+  const navigate = useNavigate();
+  const { id } = useParams();
+  const { user } = useAuthStore();
+  const { token } = theme.useToken();
+
+  const [saving, setSaving] = useState(false);
+  const [loadingArtikel, setLoadingArtikel] = useState(false);
 
   const { tags = [], isLoading: loadingTags } = useTagList();
   const { kategori = [], isLoading: loadingKategori } = useKategoriList();
-  const navigate = useNavigate();
-  const { id } = useParams();
 
+  // === Fetch Artikel Saat Edit ===
   useEffect(() => {
-    const fetchArtikel = async () => {
-      if (!id) return;
-      setInitialLoading(true);
+    if (!id) return;
+
+    const loadArtikel = async () => {
+      setLoadingArtikel(true);
       try {
         const artikel = await getArticleById(id);
         if (artikel) {
@@ -37,80 +60,120 @@ export default function CreateArtikel() {
       } catch {
         message.error("Gagal memuat artikel");
       } finally {
-        setInitialLoading(false);
+        setLoadingArtikel(false);
       }
     };
-    fetchArtikel();
+
+    loadArtikel();
   }, [id, form]);
 
-  const onFinish = async (values) => {
-    setLoading(true);
-    try {
-      const user = JSON.parse(localStorage.getItem("user"));
-      const payload = {
-        judul: values.judul,
-        konten: values.konten,
-        status: values.status,
-        penulis_id: user?.id,
-        kategori_id: values.kategori_id,
-        tag_ids: values.tags || [],
-      };
+  // === Simpan / Update Artikel ===
+  const handleSubmit = useCallback(
+    async (values) => {
+      setSaving(true);
+      try {
+        const payload = {
+          judul: values.judul,
+          konten: values.konten,
+          status: values.status,
+          kategori_id: values.kategori_id,
+          tag_ids: values.tags || [],
+          penulis_id: user?.id,
+        };
 
-      if (id) {
-        await updateArticle(id, payload);
-        message.success("Artikel berhasil diperbarui");
-      } else {
-        await createArticle(payload);
-        message.success("Artikel berhasil dibuat");
+        if (id) {
+          await updateArticle(id, payload);
+          message.success("Artikel berhasil diperbarui");
+        } else {
+          await createArticle(payload);
+          message.success("Artikel berhasil dibuat");
+        }
+
+        navigate("/artikel-api");
+      } catch (err) {
+        message.error(err.message || "Terjadi kesalahan saat menyimpan artikel");
+      } finally {
+        setSaving(false);
       }
-      navigate("/artikel-api");
-    } catch (err) {
-      message.error(err.message || "Terjadi kesalahan saat menyimpan artikel");
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+    [id, navigate, user]
+  );
 
-  if (loadingTags || loadingKategori || initialLoading) {
+  const isLoading = loadingTags || loadingKategori || loadingArtikel;
+
+  if (isLoading) {
     return (
-      <div className="flex justify-center mt-20">
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          marginTop: "6rem",
+          color: token.colorTextBase,
+        }}
+      >
         <Spin spinning tip="Memuat data artikel..." />
       </div>
     );
   }
 
   return (
-    <div className="flex justify-center mt-10">
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        padding: "2rem",
+        backgroundColor: token.colorBgBase,
+        color: token.colorTextBase,
+        minHeight: "100vh",
+      }}
+    >
       <Card
         title={
-          <div className="flex items-center justify-between">
-            <span className="font-semibold">
+          <Space
+            align="center"
+            style={{
+              width: "100%",
+              justifyContent: "space-between",
+            }}
+          >
+            <Title
+              level={4}
+              style={{
+                margin: 0,
+                color: token.colorTextHeading,
+              }}
+            >
               {id ? "Edit Artikel" : "Buat Artikel Baru"}
-            </span>
-            <Button icon={<ArrowLeftOutlined />} onClick={() => navigate("/artikel-api")}>
+            </Title>
+            <Button
+              icon={<ArrowLeftOutlined />}
+              onClick={() => navigate("/artikel-api")}
+            >
               Kembali
             </Button>
-          </div>
+          </Space>
         }
-        variant="borderless"
-        styles={{
-          header: {
-            background: "#1f2937",
-            color: "#fff",
-            borderBottom: "1px solid #374151",
-          },
-          body: {
-            background: "#111827",
-            color: "#fff",
-          },
+        style={{
+          width: 600,
+          backgroundColor: token.colorBgContainer,
+          color: token.colorTextBase,
+          border: `1px solid ${token.colorBorder}`,
+          borderRadius: token.borderRadius,
+          boxShadow: token.boxShadowTertiary,
         }}
-        className="w-[600px]"
+        bodyStyle={{ padding: "1.5rem" }}
+        headStyle={{
+          borderBottom: `1px solid ${token.colorBorder}`,
+          padding: "1rem 1.5rem",
+          backgroundColor: token.colorBgContainer,
+        }}
       >
         <Form
           form={form}
           layout="vertical"
-          onFinish={onFinish}
+          onFinish={handleSubmit}
           initialValues={{ status: "draft" }}
+          style={{ marginTop: "1rem" }}
         >
           <Form.Item
             label="Judul"
@@ -165,7 +228,13 @@ export default function CreateArtikel() {
           </Form.Item>
 
           <Form.Item>
-            <Button type="primary" htmlType="submit" loading={loading} block>
+            <Button
+              type="primary"
+              htmlType="submit"
+              loading={saving}
+              block
+              size="large"
+            >
               {id ? "Update Artikel" : "Simpan Artikel"}
             </Button>
           </Form.Item>

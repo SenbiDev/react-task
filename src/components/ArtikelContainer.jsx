@@ -1,51 +1,35 @@
-import { Card, Pagination, Spin } from "antd";
+import { Card, Spin, theme } from "antd"
 
 export default function ArtikelContainer({
   title,
   children,
   loading = false,
-  total = 0,
-  currentPage = 1,
-  pageSize = 10,
-  onPageChange,
 }) {
+  const { token } = theme.useToken()
+
   return (
     <Card
-      title={<span className="font-semibold text-lg">{title}</span>}
-      variant="borderless"
-      className="mb-4 bg-gray-900 text-white"
-      styles={{
-        header: {
-          background: "#1f2937",
-          color: "#fff",
-          borderBottom: "1px solid #374151",
-        },
-        body: {
-          background: "#111827",
-        },
+      title={<span style={{ fontWeight: 600, fontSize: 16, color: token.colorText }}>{title}</span>}
+      bordered={false}
+      style={{
+        background: token.colorBgContainer,
+        color: token.colorText,
+        borderRadius: 12,
+        marginBottom: 24,
+        boxShadow: token.boxShadowTertiary,
+      }}
+      headStyle={{
+        borderBottom: `1px solid ${token.colorBorderSecondary}`,
+        background: token.colorBgElevated,
       }}
     >
       {loading ? (
-        <div className="flex justify-center items-center py-10">
-          <Spin spinning tip="Memuat artikel..." />
+        <div style={{ textAlign: "center", padding: "4rem 0" }}>
+          <Spin tip="Memuat artikel..." />
         </div>
       ) : (
-        <>
-          {children}
-
-          {/* Pagination */}
-          <div className="flex justify-center mt-6">
-            {/* <Pagination
-              current={currentPage}
-              pageSize={pageSize}
-              total={total}
-              onChange={onPageChange}
-              showSizeChanger={false}
-              style={{ color: "white" }}
-            /> */}
-          </div>
-        </>
+        children
       )}
     </Card>
-  );
+  )
 }
