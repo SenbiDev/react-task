@@ -13,6 +13,7 @@ import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import AdminPage from "./pages/AdminPage";
 import CreateArtikel from "./pages/CreateArtikel";
+import ProfilePage from "./pages/ProfilePage";
 import "./index.css";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { AuthProvider } from "./auth/AuthContext";
@@ -60,7 +61,11 @@ const router = createBrowserRouter([
       {
         path: "artikel/create",
         element: <CreateArtikel />
-      }
+      },
+      {
+        path: "profile",
+        element: <ProfilePage />,
+      },
     ],
   },
   {

@@ -111,7 +111,7 @@ const AdminPage = () => {
           <Button
           size="small"
           onClick={() => {
-            setSelectedTag(record);setTAgForm({ nama:record.nama });
+            setSelectedTag(record);setTagForm({ nama:record.nama });
             formTag.setFieldsValue({ nama: record.nama });
           }}
           >Edit

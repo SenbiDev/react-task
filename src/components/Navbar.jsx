@@ -27,6 +27,12 @@ export default function Navbar() {
         <UserOutlined style={{ color: "blue" }}/>
       ),
     },
+    {
+      key: "profile",
+      label: "Profile",
+      icon: <UserOutlined style={{ color: "green" }} />,
+      onClick: () => navigate("/profile"), // ✅ Tambah navigasi ke profil
+    },
     ...(user?.role === "admin" ? [
       {
         key: "manage",

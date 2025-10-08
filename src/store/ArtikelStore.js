@@ -5,7 +5,13 @@ import { API_BASE, getAuthHeader } from "../axiosApi/apiConfig";
 
 export const useArtikelStore = create((set, get) => ({
   artikels: [],
-  form: { judul: "", konten: "", kategori_id: "", tag_ids: [], status: "draft" },
+  form: {
+    judul: "",
+    konten: "",
+    kategori_id: "",
+    tag_ids: [],
+    status: "draft",
+  },
   selected: null,
   loading: false,
   error: null,
@@ -16,7 +22,11 @@ export const useArtikelStore = create((set, get) => ({
       const res = await axios.get(`${API_BASE}/artikel/`, {
         headers: getAuthHeader(),
       });
-      set({ artikels: res.data, loading:false})
+      set({
+        artikels: res.data.results || res.data,
+        loading: false,
+        error: null,
+      });
     } catch (err) {
       console.error("Gagal fetch artikel:", err);
       set({ error: err.message, loading: false });
@@ -29,7 +39,7 @@ export const useArtikelStore = create((set, get) => ({
         headers: getAuthHeader(),
       });
       await get().fetchArtikel();
-      return res.data; 
+      return res.data;
     } catch (err) {
       console.error("Gagal membuat artikel:", err);
       set({ error: err.message });
@@ -43,7 +53,7 @@ export const useArtikelStore = create((set, get) => ({
         headers: getAuthHeader(),
       });
       await get().fetchArtikel();
-      return res.data; 
+      return res.data;
     } catch (err) {
       console.error("Gagal update artikel:", err);
       set({ error: err.message });
@@ -66,7 +76,13 @@ export const useArtikelStore = create((set, get) => ({
   setForm: (form) => set({ form }),
   resetForm: () =>
     set({
-      form: { judul: "", konten: "", kategori_id: "", tag_ids: [], status: "draft" },
+      form: {
+        judul: "",
+        konten: "",
+        kategori_id: "",
+        tag_ids: [],
+        status: "draft",
+      },
       selected: null,
     }),
   setSelected: (artikel) => set({ selected: artikel }),

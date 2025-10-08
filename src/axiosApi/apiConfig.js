@@ -70,7 +70,7 @@ api.interceptors.response.use(
     }
 
     try {
-      const res = await axios.post(API_BASE + "token/refresh/", { refresh });
+      const res = await axios.post(API_BASE + "/token/refresh/", { refresh });
       const newToken = res.data.access;
 
       localStorage.setItem("access", newToken);
