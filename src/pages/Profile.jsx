@@ -1,14 +1,18 @@
 import { useEffect, useState } from "react";
 import {
   Card,
-  Avatar,
   Typography,
   Spin,
   message,
   Upload,
   Input,
+  Button,
 } from "antd";
-import { UserOutlined, UploadOutlined, LinkOutlined } from "@ant-design/icons";
+import {
+  LoadingOutlined,
+  PlusOutlined,
+  LinkOutlined,
+} from "@ant-design/icons";
 import api from "../axiosApi/apiConfig";
 
 const { Title, Text } = Typography;
@@ -16,8 +20,9 @@ const { Title, Text } = Typography;
 export default function Profile() {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [updating, setUpdating] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [website, setWebsite] = useState("");
+  const [imageUrl, setImageUrl] = useState(null);
 
   const user = JSON.parse(localStorage.getItem("user"));
 
@@ -30,7 +35,8 @@ export default function Profile() {
           : res.data;
         setProfile(data);
         setWebsite(data?.website || "");
-      } catch (err) {
+        setImageUrl(data?.avatar ? data.avatar : null);
+      } catch {
         message.error("Gagal memuat profil pengguna");
       } finally {
         setLoading(false);
@@ -40,14 +46,28 @@ export default function Profile() {
     fetchProfile();
   }, [user.id]);
 
+  const beforeUpload = (file) => {
+    const isImage = file.type.startsWith("image/");
+    if (!isImage) {
+      message.error("File harus berupa gambar!");
+      return Upload.LIST_IGNORE;
+    }
+    const isLt2M = file.size / 1024 / 1024 < 2;
+    if (!isLt2M) {
+      message.error("Ukuran gambar harus kurang dari 2MB!");
+      return Upload.LIST_IGNORE;
+    }
+    return true;
+  };
+
   const handleUpload = async ({ file }) => {
     if (!profile?.id) return message.error("Data profil belum siap.");
 
     const formData = new FormData();
-    formData.append("avatar", file); 
+    formData.append("avatar", file);
 
     try {
-      setUpdating(true);
+      setUploading(true);
       await api.patch(`profiles/${profile.id}/`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
@@ -58,25 +78,30 @@ export default function Profile() {
         ? res.data.find((p) => p.user.id === user.id)
         : res.data;
       setProfile(data);
-    } catch (err) {
+      setImageUrl(data.avatar);
+    } catch {
       message.error("Gagal memperbarui foto profil");
     } finally {
-      setUpdating(false);
+      setUploading(false);
     }
   };
 
   const handleUpdateWebsite = async () => {
     if (!profile?.id) return;
     try {
-      setUpdating(true);
       await api.patch(`profiles/${profile.id}/`, { website });
       message.success("Link sosial berhasil diperbarui!");
-    } catch (err) {
+    } catch {
       message.error("Gagal memperbarui link sosial");
-    } finally {
-      setUpdating(false);
     }
   };
+
+  const uploadButton = (
+    <div>
+      {uploading ? <LoadingOutlined /> : <PlusOutlined />}
+      <div style={{ marginTop: 8 }}>Upload</div>
+    </div>
+  );
 
   if (loading) {
     return (
@@ -102,28 +127,31 @@ export default function Profile() {
           textAlign: "center",
           boxShadow: "0 4px 10px rgba(0,0,0,0.2)",
         }}
-        loading={updating}
+        loading={uploading}
       >
-        <Avatar
-          size={100}
-          src={profile.avatar}
-          icon={<UserOutlined />}
-          style={{ marginBottom: 16 }}
-        />
-        <div style={{ marginBottom: 20 }}>
-          <Upload
-            showUploadList={false}
-            customRequest={handleUpload}
-            accept="image/*"
-          >
-            <button className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition">
-              <UploadOutlined /> Ganti Foto
-            </button>
-          </Upload>
-        </div>
+        <Upload
+          name="avatar"
+          listType="picture-circle"
+          className="avatar-uploader"
+          showUploadList={false}
+          customRequest={handleUpload}
+          beforeUpload={beforeUpload}
+        >
+          {imageUrl ? (
+            <img
+              src={imageUrl}
+              alt="avatar"
+              style={{ width: "100%", borderRadius: "50%" }}
+            />
+          ) : (
+            uploadButton
+          )}
+        </Upload>
 
-        <Title level={4}>{user?.username}</Title>
-        <Text type="secondary" style={{ display: "block", marginBottom: 10 }}>
+        <Title level={4} style={{ marginTop: 10 }}>
+          {user?.username}
+        </Title>
+        <Text type="secondary" style={{ display: "block", marginBottom: 20 }}>
           {user?.role?.toUpperCase()}
         </Text>
 
@@ -131,8 +159,13 @@ export default function Profile() {
           prefix={<LinkOutlined />}
           value={website}
           onChange={(e) => setWebsite(e.target.value)}
-          placeholder="Masukkan link sosial (contoh: https://instagram.com/...)"
-          onBlur={handleUpdateWebsite}
+          placeholder="Tambahkan link sosial (contoh: https://instagram.com/...)"
+          onPressEnter={handleUpdateWebsite}
+          addonAfter={
+            <Button type="link" onClick={handleUpdateWebsite}>
+              Simpan
+            </Button>
+          }
         />
 
         {website && (
@@ -140,7 +173,7 @@ export default function Profile() {
             href={website}
             target="_blank"
             rel="noopener noreferrer"
-            className="block mt-2 text-blue-500 hover:underline"
+            className="block mt-3 text-blue-500 hover:underline"
           >
             {website}
           </a>
