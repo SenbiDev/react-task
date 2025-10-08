@@ -3,7 +3,8 @@ import * as authApi from "../axiosApi/auth";
 
 export const useAuthStore = create((set) => ({
   user: JSON.parse(localStorage.getItem("user")) || null,
-  isLoading: false, 
+  avatarUrl: null, 
+  isLoading: false,
   error: null,
 
   init: () => {
@@ -51,6 +52,10 @@ export const useAuthStore = create((set) => ({
 
   logout: () => {
     localStorage.clear();
-    set({ user: null });
+    set({ user: null, avatarUrl: null }); 
+  },
+
+  setAvatarUrl: (url) => {
+    set({ avatarUrl: url });
   },
 }));
