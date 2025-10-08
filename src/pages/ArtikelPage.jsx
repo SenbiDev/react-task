@@ -1,7 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useArticles, useDeleteArticle } from "../hooks/useArtikelQuery";
-import { useArtikelStore } from "../store/artikelStore";
+import { useState, useMemo } from "react";
+import { Navigate, useNavigate } from "react-router-dom";
 import {
   Card,
   Tabs,
@@ -12,165 +10,247 @@ import {
   message,
   Modal,
   Descriptions,
+  Input,
+  Row,
+  Col,
 } from "antd";
+import { useArtikelStore } from "../store/ArtikelStore";
 
-export default function ArtikelPage() {
-  const navigate = useNavigate();
-  const { setSelected } = useArtikelStore();
+const { Search } = Input;
+
+export default function ArtikelPage() 
+{
+  const {
+    artikels,
+    kategoriList,
+    tagList,
+    deleteArikel,
+    fetchArtikel,
+  } = useArtikelStore();
+
   const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
   const role = currentUser?.role || "user";
+  const navigate = useNavigate();
 
-  // Query data artikel
-  const { data: artikels = [], isLoading } = useArticles();
-  const { mutate: deleteArticle } = useDeleteArticle();
+  const [ openView, setOpenView ] = useState(false);
+  const [ selectedArtikel, setSelectedArtikel ] = useState(null);
+  const [ searchText, setSearchText ] = useState("");
+  const [ selectedKategori, setSelectedKategori ] = useState([]);
+  const [ selectedTag, setSelectedTag ] = useState([]);
 
-  // Pisahkan artikel berdasarkan penulis & status
-  const myArtikel = artikels.filter((a) => a.penulis?.id === currentUser?.id);
-  const publicArtikel = artikels.filter((a) => a.status === "published");
+  const [ modal, contextHolder ] = Modal.useModal();
 
-  const canManage = (artikel) =>
-    role === "admin" || artikel.penulis?.id === currentUser?.id;
+  const canManage = (artikel) => role === "admin" || artikel.penulis?.id === currentUser?.id;
 
-  // Fungsi hapus artikel
   const handleDelete = (id) => {
-    deleteArticle(id, {
-      onSuccess: () => message.success("Artikel berhasil dihapus"),
+    modal.confirm({
+      title: "Hapus Artikel",
+      content: "Apakah kamu yakin ingin menghapus artikel ini?",
+      okText: "Hapus",
+      okType: "danger",
+      cancelText: "Batal",
+      onOk: async () => {
+        await deleteArikel(id);
+        message.success("Artikel berhasil di hapus");
+        fetchArtikel();
+      },
     });
   };
 
-  // === Modal View ===
-  const [openView, setOpenView] = useState(false);
-  const [selectedArtikel, setSelectedArtikel] = useState(null);
+    const handleView = (artikel) => {
+      setSelectedArtikel(artikel);
+      setOpenView(true);
+    };
 
-  const handleView = (artikel) => {
-    setSelectedArtikel(artikel);
-    setOpenView(true);
-  };
+    const filteredData = useMemo(() => {
+       const list = Array.isArray(artikels) ? artikels : Array.isArray(artikels?.data) ? artikels.data : [];
+       const s = (searchText || "").toLowerCase();
+       return list.filter((a) => {
+        const matchesSearch = (a.judul || "").toLowerCase().includes(s);
+        const matchesKategori = !selectedKategori || selectedKategori.length === 0 || selectedKategori.includes(a.kategori?.nama);
+        const matchesTags = !selectedTag || selectedTag.length === 0 || (Array.isArray(a.tags) && a.tags.some((t) => selectedTag.includes(t.nama)));
+        return matchesSearch && matchesKategori && matchesTags
+       });
+    }, [artikels, searchText, selectedKategori, selectedTag]);
 
-  // === Kolom Table ===
-  const columns = [
-    { title: "Judul", dataIndex: "judul" },
-    { title: "Penulis", render: (a) => a.penulis?.username || "-" },
-    {
-      title: "Aksi",
-      render: (a) => (
-        <Space>
-          <Button size="small" onClick={() => handleView(a)}>
-            View
-          </Button>
-          {canManage(a) && (
-            <>
+    const myArtikel = (filteredData ?? []).filter((a) => a.penulis?.id === currentUser?.id)
+    const publicArtikel = ( filteredData ?? []).filter((a) => a.status === "publihed")
+
+    const columns = [
+      { 
+        title: "Judul", 
+        dataIndex: "judul", 
+        width: "30%" 
+      },
+      { 
+        title: "Penulis", 
+        dataIndex: ["penulis","username"], 
+        width: "20%",
+        render: (text) => text || "-",
+      },
+      {
+        title: "Aksi",
+        width: "30%",
+        render: (a) => (
+          <Space>
+            <Button size="small" onClick={() => handleView(a)}>
+              View
+            </Button>
+            {canManage(a) && (
+              <>
               <Button
-                type="primary"
-                size="small"
-                onClick={() => {
-                  setSelected(a);
-                  navigate("/artikel/create");
-                }}
-              >
+              type="primary"
+              size="samll"
+              onClick={() => {Navigate("/artikel/create");
+                useArtikelStore.getState().setSelectd(a);
+              }}>
                 Edit
               </Button>
-              <Popconfirm
-                title="Hapus artikel ini?"
-                onConfirm={() => handleDelete(a.id)}
-              >
+              <Popconfirm 
+              title="Hapus artikel ini?"
+              onConfirm={() => handleDelete(a.id)}>
                 <Button danger size="small">
                   Hapus
                 </Button>
-              </Popconfirm>
-            </>
-          )}
-        </Space>
-      ),
-    },
-  ];
+                </Popconfirm> 
+              </>
+            )}
+          </Space>
+        ),
+      },
+    ];
 
-  return (
-    <div style={{ padding: 24 }}>
-      <Card
+    return (
+      <div style={{ padding: 24 }}>
+        {contextHolder}
+        <Card
         title="Dashboard Artikel"
         extra={
-          <Button type="primary" onClick={() => navigate("/artikel/create")}>
+          <Button
+          type="primary"
+          onClick={() => navigate("/artikel/create")}>
             + Buat Artikel
           </Button>
         }
-      >
-        <Tabs
+        >
+          {/* === SEARCH & FILTER BAR === */}
+          <Row gutter={[12, 12]}
+          style={{ marginBottom: 16 }}>
+            <Col xs={24} md={8}>
+            <Search
+            placeholder="Search...."
+            allowClear
+            onChange={(e) => setSearchText(e.target.value)}/>
+            </Col>
+            <Col xs={24} md={8}>
+            <Search
+            mode="multiple"
+            allowClear
+            style={{width:"100%"}}
+            placeholder="Filter kategori"
+            value={selectedKategori}
+            onChange={setSelectedKategori}
+            options={(kategoriList ?? []).map((k) => ({
+              label: k.nama,
+              value: k.nama,
+            }))}
+            />
+            </Col>
+            <Col xs={24} md={8}>
+            <Search
+            mode="multiple"
+            allowClear
+            style={{width:"100%"}}
+            placeholder="Filter tag"
+            value={selectedTag}
+            onChange={setSelectedTag}
+            options={(tagList ?? []).map((t) => ({
+              label: t.nama,
+              value: t.nama,
+            }))}
+            />
+            </Col>
+          </Row>
+
+          <Tabs
           defaultActiveKey="1"
           items={[
             {
               key: "1",
               label: "My Artikel",
               children: (
-                <Table
-                  dataSource={myArtikel}
-                  columns={columns}
-                  rowKey="id"
-                  loading={isLoading}
+                <Table 
+                dataSource={myArtikel}
+                columns={columns}
+                rowKey="id"
+                pagination={{ pageSize: 6 }}
+                style={{ borderRadius: 8, overflow:"hidden" }}
                 />
               ),
             },
-            role === "admin"
-              ? {
-                  key: "2",
-                  label: "Artikel Publik",
-                  children: (
-                    <Table
-                      dataSource={publicArtikel}
-                      columns={columns}
-                      rowKey="id"
-                      loading={isLoading}
-                    />
-                  ),
-                }
-              : null,
-          ].filter(Boolean)}
-        />
-      </Card>
+            role === "admin" ? {
+              key:"2",
+              label: "Artikel Publik",
+              children: (
+                <Table
+                dataSource={publicArtikel}
+                columns={columns}
+                rowKey="id"
+                pagination={{ pageSize: 6 }}
+                style={{ borderRadius: 8 ,overflow: "hidden" }}
+                />
+              ),
+            }
+            :null,
+          ] .filter(Boolean)}
+          />
+        </Card>
 
-      {/* === Modal View Detail Artikel === */}
-      <Modal
+        {/* === MODAL DETAIL ARTIKEL === */}
+        <Modal
         title="Detail Artikel"
         open={openView}
         onCancel={() => setOpenView(false)}
         footer={[
-          <Button key="close" onClick={() => setOpenView(false)}>
+          <Button key="close"
+          onClick={() => setOpenView(false)}>
             Tutup
           </Button>,
         ]}
-        width={700}
-      >
-        {selectedArtikel && (
-          <Descriptions column={1} bordered size="middle">
-            <Descriptions.Item label="Judul">
-              {selectedArtikel.judul}
-            </Descriptions.Item>
-            <Descriptions.Item label="Konten">
-              <div
+        width={ 700 }
+        >
+          {selectedArtikel && (
+            <Descriptions columns={1}
+            border size="middle">
+              <Descriptions.Item label="Judul">
+                {selectedArtikel.judul}
+              </Descriptions.Item>
+              <Descriptions.Item label="Konten">
+                <div 
                 style={{
-                  whiteSpace: "pre-line",
-                  maxHeight: 200,
+                  whiteSpace:"pre-line",
+                  maxHeight: 250,
                   overflowY: "auto",
                 }}
-              >
-                {selectedArtikel.konten}
-              </div>
-            </Descriptions.Item>
-            <Descriptions.Item label="Penulis">
-              {selectedArtikel.penulis?.username}
-            </Descriptions.Item>
-            <Descriptions.Item label="Kategori">
-              {selectedArtikel.kategori?.nama}
-            </Descriptions.Item>
-            <Descriptions.Item label="Tag">
-              {selectedArtikel.tags?.map((t) => t.nama).join(", ")}
-            </Descriptions.Item>
-            <Descriptions.Item label="Status">
-              {selectedArtikel.status}
-            </Descriptions.Item>
-          </Descriptions>
-        )}
-      </Modal>
-    </div>
-  );
-}
+                >
+                  {selectedArtikel.konten}
+                </div>
+              </Descriptions.Item>
+              <Descriptions.Item label= "Penulis">
+                {selectedArtikel.penulis?.username}
+              </Descriptions.Item>
+              <Descriptions.Item label= "Kategori">
+                {selectedArtikel.kategori?.nama}
+              </Descriptions.Item>
+              <Descriptions.Item label= "Tag">
+                {selectedArtikel.tags?.map((t) => t.nama).join(", ")}
+              </Descriptions.Item>
+              <Descriptions.Item label= "Status">
+                {selectedArtikel.status}
+              </Descriptions.Item>
+            </Descriptions>
+          )}
+        </Modal>
+      </div>
+    );
+  }
