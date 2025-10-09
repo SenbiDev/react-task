@@ -16,14 +16,20 @@ export const useArtikelStore = create((set, get) => ({
   loading: false,
   error: null,
 
-  fetchArtikel: async () => {
+  fetchArtikel: async (page= 1, pageSize = 10, search="") => {
     set({ loading: true });
     try {
-      const res = await axios.get(`${API_BASE}/artikel/`, {
+      const res = await axios.get(`${API_BASE}/artikel/?page=${page}&page_size=${pageSize}`, {
         headers: getAuthHeader(),
+        params: {
+          page,
+          page_size: pageSize,
+          search, 
+        }
       });
+      const data = Array.isArray(res.data) ? res.data : res.data.results || [];
       set({
-        artikels: res.data.results || res.data,
+        artikels: res.data,
         loading: false,
         error: null,
       });

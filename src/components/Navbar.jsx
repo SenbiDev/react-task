@@ -1,7 +1,8 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
-import { Avatar, Dropdown } from 'antd';
-import { UserOutlined, LogoutOutlined, MailOutlined, CrownOutlined, EditOutlined } from '@ant-design/icons';
+import { Avatar, Dropdown, Switch, ConfigProvider, theme as antdTheme } from 'antd';
+import { UserOutlined, LogoutOutlined, MailOutlined, CrownOutlined, EditOutlined, BuildOutlined } from '@ant-design/icons';
+import { useEffect, useState } from 'react';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
@@ -11,6 +12,17 @@ export default function Navbar() {
     logout();
     navigate('/signin');
   };
+
+  const [isDarkMode, setDarkMode ] = useState(() => {
+    return localStorage.getItem('theme') === 'dark';
+  });
+
+ useEffect(() => {
+  if (isDarkMode) {
+     document.documentElement.classList.remove('dark');
+     localStorage.setItem('theme', 'light');
+  }
+ }, [isDarkMode]);
 
   const items = [
     {
@@ -31,7 +43,7 @@ export default function Navbar() {
       key: "profile",
       label: "Profile",
       icon: <UserOutlined style={{ color: "green" }} />,
-      onClick: () => navigate("/profile"), // ✅ Tambah navigasi ke profil
+      onClick: () => navigate("/profile"), 
     },
     ...(user?.role === "admin" ? [
       {
@@ -55,6 +67,11 @@ export default function Navbar() {
   ] 
 
   return (
+    <ConfigProvider
+    theme={{
+      algorithm: isDarkMode ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm,
+    }}
+    >
     <nav className="bg-gray-800 p-4 flex justify-between">
       {/* Menu Kiri */}
       <div className="container mx-auto flex space-x-4">
@@ -77,6 +94,16 @@ export default function Navbar() {
           Artikel
         </Link>
       </div>
+      < div className="flex items-center gap-2">
+      <div className="flex items-center">
+        <BuildOutlined className="mr-2 text-yellow-400"/>
+        <Switch checked={isDarkMode}
+        onChange={setDarkMode}
+        checkedChildren="🌙"
+        unCheckedChildren="🌞"
+        />
+      </div>
+      </div>
       <div>
         {user && (
           <Dropdown menu={{items}} placement="bottomRight" trigger={["click"]} overlayClassName="min-w-[200px]">
@@ -93,5 +120,6 @@ export default function Navbar() {
           )}
       </div>
     </nav>
+    </ConfigProvider>
   );
 }

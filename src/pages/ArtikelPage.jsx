@@ -1,3 +1,4 @@
+// uselint-disable-next-line
 import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -12,7 +13,7 @@ import {
   Input,
   Row,
   Col,
-  Descriptions,
+  Select,
 } from "antd";
 import { useArtikelStore } from "../store/ArtikelStore";
 
@@ -31,13 +32,20 @@ export default function ArtikelPage() {
   const [selectedKategori, setSelectedKategori] = useState([]);
   const [selectedTag, setSelectedTag] = useState([]);
   const [modal, contextHolder] = Modal.useModal();
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   const canManage = (artikel) =>
     role === "admin" || artikel.penulis?.id === currentUser?.id;
 
   useEffect(() => {
-    fetchArtikel();
-  }, [fetchArtikel]);
+    if(Array.isArray(artikels) &&
+    artikels.length === 0 && page > 1
+  ) {
+    setPage(page - 1)
+  }
+    fetchArtikel(page, pageSize);
+  }, [fetchArtikel, page, pageSize]);
 
   const handleDelete = (id) => {
     modal.confirm({
@@ -61,22 +69,22 @@ export default function ArtikelPage() {
 
   const filteredData = useMemo(() => {
     const list = Array.isArray(artikels)
-      ? artikels
-      : Array.isArray(artikels?.data)
-      ? artikels.data
-      : [];
+    ? artikels
+    : artikels?.results || [];
+
     const s = (searchText || "").toLowerCase();
+
     return list.filter((a) => {
-      const matchesSearch = (a.judul || "").toLowerCase().includes(s);
-      const matchesKategori =
-        !selectedKategori ||
-        selectedKategori.length === 0 ||
-        selectedKategori.includes(a.kategori?.nama);
-      const matchesTags =
-        !selectedTag ||
-        selectedTag.length === 0 ||
-        (Array.isArray(a.tags) &&
-          a.tags.some((t) => selectedTag.includes(t.nama)));
+      const kategoriNama = a.kategori?.nama || "";
+      const tagNamaList =  Array.isArray(a.tags) 
+      ? a.tags.map((t) => t.nama)
+      : [];
+      const matchesSearch = s === "" || judul.incLudes(s);
+
+      const matchesKategori = selectedKategori.length === 0 ||
+      selectedKategori.includes(kategoriNama);
+      const matchesTags = selectedTag.length === 0 || tagNamaList.some((t) => selectedTag.includes(t));
+
       return matchesSearch && matchesKategori && matchesTags;
     });
   }, [artikels, searchText, selectedKategori, selectedTag]);
@@ -155,7 +163,7 @@ export default function ArtikelPage() {
             />
           </Col>
           <Col xs={24} md={8}>
-            <Search
+            <Select
               mode="multiple"
               allowClear
               style={{ width: "100%" }}
@@ -169,7 +177,7 @@ export default function ArtikelPage() {
             />
           </Col>
           <Col xs={24} md={8}>
-            <Search
+            <Select
               mode="multiple"
               allowClear
               style={{ width: "100%" }}
@@ -195,7 +203,11 @@ export default function ArtikelPage() {
                   dataSource={myArtikel}
                   columns={columns}
                   rowKey="id"
-                  pagination={{ pageSize: 6 }}
+                  pagination= {{
+                    pageSize: 10,
+                    current: page,
+                    total: artikels?.count || myArtikel.length, onChange: (p) => setPage(p),
+                  }}
                   style={{ borderRadius: 8, overflow: "hidden" }}
                 />
               ),
@@ -209,7 +221,11 @@ export default function ArtikelPage() {
                       dataSource={publicArtikel}
                       columns={columns}
                       rowKey="id"
-                      pagination={{ pageSize: 6 }}
+                      pagination={{
+                        pageSize: 10,
+                        current: page,
+                        total: artikels?.count || publicArtikel.length, onChange: (p) => setPage(p),
+                      }}
                       style={{ borderRadius: 8, overflow: "hidden" }}
                     />
                   ),
@@ -229,7 +245,7 @@ export default function ArtikelPage() {
           </Button>,
         ]}
         width={700}
-        bodyStyle={{
+        Style={{
           maxHeight: "70vh",
           overflowY: "auto",
         }}

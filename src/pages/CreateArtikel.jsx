@@ -13,7 +13,7 @@ import {
   Card,
 } from "antd";
 import '@ant-design/v5-patch-for-react-19';
-import { useArtikelStore } from "../store/artikelStore";
+import { useArtikelStore } from "../store/ArtikelStore";
 import { useTagStore } from "../store/tagStore";
 import { useKategoriStore } from "../store/kategoriStore";
 

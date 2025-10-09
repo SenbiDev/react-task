@@ -1,4 +1,5 @@
 // apiConfig.js
+import { theme } from "antd";
 import axios from "axios";
 
 export const API_BASE = "http://127.0.0.1:8000/api";
@@ -11,7 +12,6 @@ export function forceLogout() {
   window.location.reload();
 }
 
-// 🔹 Tambahin ini
 export function getAuthHeader() {
   const token = localStorage.getItem("access");
   return token ? { Authorization: `Bearer ${token}` } : {};
@@ -87,5 +87,12 @@ api.interceptors.response.use(
     }
   }
 );
+
+// module.exports = {
+//   darkMode: 'class',
+//   content: ['./index.html','./src/**/*.{js,jsx,ts,tsx}'],
+//   theme: {extends:{} },
+//   Plugins: [],
+// };
 
 export default api;
