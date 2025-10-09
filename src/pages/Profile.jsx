@@ -12,12 +12,10 @@ export default function Profile () {
 
     useEffect(() => {
         const storedProfile = JSON.parse(localStorage.getItem("profile")) || {};
-        if (storedProfile.avatar) setAvatarUrl(storedProfile.avatar);
-        form.setFieldsValue({
-            name: storedProfile.name || "",
-            email: storedProfile.email || "",
-        });
-    }, []);
+        if (storedProfile.avatar){
+            setAvatarUrl(storedProfile.avatar);
+        }
+    },[]);
 
     const getBase = (file, callback) => {
         const reader = new FileReader();
@@ -25,19 +23,21 @@ export default function Profile () {
         reader.readAsDataURL(file);
     };
     
-    const handleUpload = (info) => {
-        if(info.file.status === "done" || info.file.status === "uploading"){
-            getBase(info.file.originFileObj, (url) => {
-                setAvatarUrl(url);
+    const handleUpload = (file) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const base64 = e.target.result;
 
-                const storedProfile = JSON.parse(localStorage.getItem("profile"))||{};
-                localStorage.setItem(
-                    "profile",
-                    JSON.stringify({ ...storedProfile, avatar: url })
-                );
-            });
-            message.success("Avatar berhasil diubah");
-        }
+            setAvatarUrl(base64);
+
+            const storedProfile = JSON.parse(localStorage.getItem("profile"))||{};
+            localStorage.setItem(
+                "profile",
+                JSON.stringify({ ...storedProfile, avatar: url })
+            );
+        };
+        reader.readAsDataURL(file.originFileObj||file);
+        return false;
     };
 
     const onFinish = (values) => {
@@ -72,11 +72,11 @@ export default function Profile () {
                 >
                     <Form.Item style={{flex: Column}}>
                         <Space direction="vertical" align="center">
-                            {avatarUrl ? (
-                                <Avatar size={200} src={avatarUrl}/>
-                            ) : (
-                                <Avatar size={200} icon={<UserOutlined/>}/>
-                            )}
+                            <Avatar
+                                size={200}
+                                src={avatarUrl||null}
+                                icon={!avatarUrl&&<UserOutlined/>}
+                            />
                             <Upload
                                 name="avatar"
                                 showUploadList={false}
