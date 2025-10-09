@@ -4,7 +4,7 @@ import { useArtikelStore } from "../store/useArtikelStore";
 import * as admin from "../hooks/admin";
 import { Card, Button, Form, Input, Space, Select, Checkbox, Radio, message } from "antd";
 import * as artikel from "../hooks/artikel";
-import { ArrowBigLeft, ArrowLeftCircle, ArrowLeftCircleIcon, ArrowLeftIcon } from "lucide-react";
+import { ArrowLeftIcon } from "lucide-react";
 
 
 export default function CreateArtikel () {

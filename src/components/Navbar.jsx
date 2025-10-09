@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Avatar, Dropdown } from 'antd';
 import { UserOutlined, LogoutOutlined, MailOutlined, CrownOutlined, EditOutlined, IdcardOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
@@ -8,6 +8,14 @@ import { Crown } from 'lucide-react';
 export default function Navbar() {
   const {user, logout} = useAuth();
   const navigate = useNavigate();
+  const [avatarUrl, setAvatarUrl] = useState(null);
+
+  useEffect(() => {
+    const storedProfile = JSON.parse(localStorage.getItem("profile"))||{};
+    if(storedProfile.avatar){
+      setAvatarUrl(storedProfile.avatar);
+    }
+  }, []);
 
   const getRoleIcon = (role) => {
     switch (role) {
@@ -78,7 +86,11 @@ export default function Navbar() {
         {user && (
           <Dropdown menu={{items}} placement='bottomRight' trigger={["click"]}>
             <div className="flex flex-column gap-2">
-              <Avatar style={{ backgroundColor: 'white', color: 'black' }} icon={<UserOutlined/>}
+              <Avatar 
+                size={40}
+                src={avatarUrl||null}
+                icon={!avatarUrl&&<UserOutlined/>}
+                style={{ backgroundColor: 'white', color: 'black' }}
               />
               <p className="flex items-center text-white text-sm font-medium">{user.username}</p>
             </div>
