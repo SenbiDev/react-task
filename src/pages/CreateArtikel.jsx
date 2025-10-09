@@ -42,11 +42,11 @@ export default function CreateArtikel() {
   const [saving, setSaving] = useState(false)
   const [loadingArtikel, setLoadingArtikel] = useState(false)
 
-  // === Load kategori dan tag ===
+  // === Load kategori dan tag (hanya jika belum ada) ===
   useEffect(() => {
-    fetchKategori()
-    fetchTags()
-  }, [fetchKategori, fetchTags])
+    if (!kategori.length) fetchKategori()
+    if (!tags.length) fetchTags()
+  }, [fetchKategori, fetchTags, kategori.length, tags.length])
 
   // === Load artikel jika sedang edit ===
   useEffect(() => {
@@ -57,16 +57,18 @@ export default function CreateArtikel() {
         const artikel = await getArticleById(id)
         if (artikel) {
           form.setFieldsValue({
-            judul: artikel.judul,
-            konten: artikel.konten,
-            status: artikel.status,
-            kategori_id: artikel.kategori?.id || artikel.kategori_id,
+            judul: artikel.judul || "",
+            konten: artikel.konten || "",
+            status: artikel.status || "draft",
+            kategori_id: artikel.kategori?.id ?? artikel.kategori_id ?? "",
             tags: Array.isArray(artikel.tags)
               ? artikel.tags.map((t) => t.id)
               : [],
           })
+        } else {
+          message.warning("Artikel tidak ditemukan")
         }
-      } catch {
+      } catch (err) {
         message.error("Gagal memuat artikel")
       } finally {
         setLoadingArtikel(false)
@@ -78,6 +80,11 @@ export default function CreateArtikel() {
   // === Submit handler ===
   const handleSubmit = useCallback(
     async (values) => {
+      if (!user?.id) {
+        message.error("Anda harus login untuk membuat artikel")
+        return
+      }
+
       setSaving(true)
       try {
         const payload = {
@@ -86,7 +93,7 @@ export default function CreateArtikel() {
           status: values.status,
           kategori_id: values.kategori_id,
           tag_ids: values.tags || [],
-          penulis_id: user?.id,
+          penulis_id: user.id,
         }
 
         if (id) {
@@ -99,12 +106,16 @@ export default function CreateArtikel() {
 
         navigate("/artikel-api")
       } catch (err) {
-        message.error(err.message || "Terjadi kesalahan saat menyimpan artikel")
+        const errorMsg =
+          err.response?.data?.detail ||
+          err.message ||
+          "Terjadi kesalahan saat menyimpan artikel"
+        message.error(errorMsg)
       } finally {
         setSaving(false)
       }
     },
-    [id, navigate, user]
+    [id, navigate, user, form, message]
   )
 
   // === Loading state gabungan ===

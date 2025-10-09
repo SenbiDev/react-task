@@ -1,13 +1,11 @@
-import { Card, Spin, theme, Typography } from "antd"
+import React, { memo } from "react";
+import { Card, Spin, theme, Typography } from "antd";
+import PropTypes from "prop-types";
 
-const { Text } = Typography
+const { Text } = Typography;
 
-export default function ArtikelContainer({
-  title,
-  children,
-  loading = false,
-}) {
-  const { token } = theme.useToken()
+const ArtikelContainer = ({ title = "Daftar Artikel", children, loading = false }) => {
+  const { token } = theme.useToken();
 
   return (
     <Card
@@ -16,10 +14,10 @@ export default function ArtikelContainer({
           strong
           style={{
             fontSize: 16,
-            color: token.colorTextHeading,
+            color: token.colorTextHeading || token.colorText,
           }}
         >
-          {title || "Daftar Artikel"}
+          {title}
         </Text>
       }
       bordered={false}
@@ -47,15 +45,19 @@ export default function ArtikelContainer({
             color: token.colorTextSecondary,
           }}
         >
-          <Spin
-            tip="Memuat artikel..."
-            size="large"
-            style={{ color: token.colorPrimary }}
-          />
+          <Spin tip="Memuat artikel..." size="large" />
         </div>
       ) : (
         children
       )}
     </Card>
-  )
-}
+  );
+};
+
+ArtikelContainer.propTypes = {
+  title: PropTypes.string,
+  children: PropTypes.node,
+  loading: PropTypes.bool,
+};
+
+export default memo(ArtikelContainer);

@@ -2,19 +2,24 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import * as artikelApi from "../axiosApi/artikel"
 import { useArtikelStore } from "../store/useArtikelStore"
 
+const QUERY_KEYS = {
+  PUBLIC: ["publicArticles"],
+  MY: ["myArticles"],
+}
+
 export const usePublicArticles = () => {
-  const setState = useArtikelStore.setState
+  const setState = useArtikelStore((state) => state.setState)
   return useQuery({
-    queryKey: ["publicArticles"],
+    queryKey: QUERY_KEYS.PUBLIC,
     queryFn: artikelApi.getPublicArticles,
     onSuccess: (data) => setState({ artikel: data }),
   })
 }
 
 export const useMyArticles = () => {
-  const setState = useArtikelStore.setState
+  const setState = useArtikelStore((state) => state.setState)
   return useQuery({
-    queryKey: ["myArticles"],
+    queryKey: QUERY_KEYS.MY,
     queryFn: artikelApi.getMyArticles,
     onSuccess: (data) => setState({ artikel: data }),
   })
@@ -25,9 +30,12 @@ export const useCreateArticle = () => {
   return useMutation({
     mutationFn: artikelApi.createArticle,
     onSuccess: () => {
-      qc.invalidateQueries(["publicArticles"])
-      qc.invalidateQueries(["myArticles"])
+      Promise.all([
+        qc.invalidateQueries(QUERY_KEYS.PUBLIC),
+        qc.invalidateQueries(QUERY_KEYS.MY),
+      ])
     },
+    onError: (err) => console.error("Gagal membuat artikel:", err),
   })
 }
 
@@ -36,9 +44,12 @@ export const useUpdateArticle = () => {
   return useMutation({
     mutationFn: ({ id, data }) => artikelApi.updateArticle(id, data),
     onSuccess: () => {
-      qc.invalidateQueries(["publicArticles"])
-      qc.invalidateQueries(["myArticles"])
+      Promise.all([
+        qc.invalidateQueries(QUERY_KEYS.PUBLIC),
+        qc.invalidateQueries(QUERY_KEYS.MY),
+      ])
     },
+    onError: (err) => console.error("Gagal memperbarui artikel:", err),
   })
 }
 
@@ -47,8 +58,11 @@ export const useDeleteArticle = () => {
   return useMutation({
     mutationFn: artikelApi.deleteArticle,
     onSuccess: () => {
-      qc.invalidateQueries(["publicArticles"])
-      qc.invalidateQueries(["myArticles"])
+      Promise.all([
+        qc.invalidateQueries(QUERY_KEYS.PUBLIC),
+        qc.invalidateQueries(QUERY_KEYS.MY),
+      ])
     },
+    onError: (err) => console.error("Gagal menghapus artikel:", err),
   })
 }
