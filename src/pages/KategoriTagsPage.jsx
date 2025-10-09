@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react"
-import { Card, Input, Button, List, Space, theme, message } from "antd"
+import { Card, Input, Button, List, Space, theme, message, Modal, Spin } from "antd"
 import { useKategoriStore } from "../store/useKategoriStore"
 import { useTagStore } from "../store/useTagStore"
 import { useAuthStore } from "../store/useAuthStore"
-import "@ant-design/v5-patch-for-react-19";
-import { useNavigate } from "react-router-dom";
-import { ArrowLeftOutlined } from "@ant-design/icons";
+import "@ant-design/v5-patch-for-react-19"
+import { useNavigate } from "react-router-dom"
+import { ArrowLeftOutlined } from "@ant-design/icons"
 
 export default function KategoriTagsPage() {
   const { user } = useAuthStore()
@@ -15,21 +15,39 @@ export default function KategoriTagsPage() {
     addKategori,
     updateKategori,
     deleteKategori,
+    loading: loadingKategori,
+    error: errorKategori,
   } = useKategoriStore()
-  const { tags, fetchTags, addTag, updateTag, deleteTag } = useTagStore()
+
+  const {
+    tags,
+    fetchTags,
+    addTag,
+    updateTag,
+    deleteTag,
+    loading: loadingTag,
+    error: errorTag,
+  } = useTagStore()
+
   const { token } = theme.useToken()
+  const navigate = useNavigate()
 
   const [newKategori, setNewKategori] = useState("")
   const [editKategoriId, setEditKategoriId] = useState(null)
   const [newTag, setNewTag] = useState("")
   const [editTagId, setEditTagId] = useState(null)
 
-  const navigate = useNavigate();
+  useEffect(() => {
+    const loadData = async () => {
+      await Promise.all([fetchKategori(), fetchTags()])
+    }
+    loadData()
+  }, [])
 
   useEffect(() => {
-    fetchKategori()
-    fetchTags()
-  }, [fetchKategori, fetchTags])
+    if (errorKategori) message.error(errorKategori)
+    if (errorTag) message.error(errorTag)
+  }, [errorKategori, errorTag])
 
   if (!user || user.role !== "admin") {
     return (
@@ -44,15 +62,15 @@ export default function KategoriTagsPage() {
     try {
       if (editKategoriId) {
         await updateKategori(editKategoriId, { nama: newKategori })
-        message.success("Kategori berhasil diupdate!");
+        message.success("Kategori berhasil diupdate!")
         setEditKategoriId(null)
       } else {
         await addKategori({ nama: newKategori })
-        message.success("Kategori berhasil dibuat!");
+        message.success("Kategori berhasil dibuat!")
       }
       setNewKategori("")
-    } catch (err) {
-      message.error("Gagal simpan kategori:", err)
+    } catch {
+      message.error("Gagal menyimpan kategori")
     }
   }
 
@@ -61,10 +79,23 @@ export default function KategoriTagsPage() {
     setNewKategori(k.nama)
   }
 
-  const handleDeleteKategori = async (id) => {
-    if (!window.confirm("Yakin hapus kategori ini?")) return
-    await deleteKategori(id)
-    message.success("Kategori berhasil dihapus!");
+  const handleDeleteKategori = (id) => {
+    Modal.confirm({
+      title: "Konfirmasi Hapus",
+      content: "Apakah Anda yakin ingin menghapus kategori ini?",
+      okText: "Ya, Hapus",
+      cancelText: "Batal",
+      okButtonProps: { danger: true },
+      centered: true,
+      async onOk() {
+        try {
+          await deleteKategori(id)
+          message.success("Kategori berhasil dihapus!")
+        } catch {
+          message.error("Gagal menghapus kategori")
+        }
+      },
+    })
   }
 
   const handleSaveTag = async () => {
@@ -72,15 +103,15 @@ export default function KategoriTagsPage() {
     try {
       if (editTagId) {
         await updateTag(editTagId, { nama: newTag })
-        message.success("Tag berhasil diupdate!");
+        message.success("Tag berhasil diupdate!")
         setEditTagId(null)
       } else {
         await addTag({ nama: newTag })
-        message.success("Tag berhasil dibuat!");
+        message.success("Tag berhasil dibuat!")
       }
       setNewTag("")
-    } catch (err) {
-      message.error("Gagal simpan tag:", err)
+    } catch {
+      message.error("Gagal menyimpan tag")
     }
   }
 
@@ -89,129 +120,149 @@ export default function KategoriTagsPage() {
     setNewTag(t.nama)
   }
 
-  const handleDeleteTag = async (id) => {
-    if (!window.confirm("Yakin hapus tag ini?")) return
-    await deleteTag(id)
-    message.success("Kategori berhasil dihapus!");
+  const handleDeleteTag = (id) => {
+    Modal.confirm({
+      title: "Konfirmasi Hapus",
+      content: "Apakah Anda yakin ingin menghapus tag ini?",
+      okText: "Ya, Hapus",
+      cancelText: "Batal",
+      okButtonProps: { danger: true },
+      centered: true,
+      async onOk() {
+        try {
+          await deleteTag(id)
+          message.success("Tag berhasil dihapus!")
+        } catch {
+          message.error("Gagal menghapus tag")
+        }
+      },
+    })
   }
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 max-w-3xl mx-auto gap-6 mt-4">
-        {/* Kategori */}
-        <Card
-            title="Kelola Kategori"
-            variant="outlined"
-            styles={{
-            header: {
+      <Card
+        title="Kelola Kategori"
+        loading={loadingKategori}
+        variant="outlined"
+        styles={{
+          header: {
+            background: token.colorBgElevated,
+            color: token.colorText,
+            fontWeight: 600,
+          },
+          body: {
+            background: token.colorBgContainer,
+            color: token.colorText,
+          },
+        }}
+      >
+        <Space.Compact style={{ width: "100%", marginBottom: 12 }}>
+          <Input
+            placeholder="Nama kategori"
+            value={newKategori}
+            onChange={(e) => setNewKategori(e.target.value)}
+          />
+          <Button
+            type="primary"
+            onClick={handleSaveKategori}
+            loading={loadingKategori}
+          >
+            {editKategoriId ? "Update" : "Tambah"}
+          </Button>
+        </Space.Compact>
+
+        <List
+          dataSource={kategori}
+          loading={loadingKategori}
+          renderItem={(k) => (
+            <List.Item
+              style={{
                 background: token.colorBgElevated,
-                color: token.colorText,
-                fontWeight: 600,
-            },
-            body: {
-                background: token.colorBgContainer,
-                color: token.colorText,
-            },
-            }}
-        >
-            <Space.Compact style={{ width: "100%", marginBottom: 12 }}>
-            <Input
-                placeholder="Nama kategori"
-                value={newKategori}
-                onChange={(e) => setNewKategori(e.target.value)}
-            />
-            <Button type="primary" onClick={handleSaveKategori}>
-                {editKategoriId ? "Update" : "Tambah"}
-            </Button>
-            </Space.Compact>
-
-            <List
-            dataSource={kategori}
-            renderItem={(k) => (
-                <List.Item
-                style={{
-                    background: token.colorBgElevated,
-                    borderColor: token.colorBorderSecondary,
-                }}
-                actions={[
-                    <Button size="small" onClick={() => handleEditKategori(k)}>
-                    Edit
-                    </Button>,
-                    <Button
-                    size="small"
-                    danger
-                    onClick={() => handleDeleteKategori(k.id)}
-                    >
-                    Hapus
-                    </Button>,
-                ]}
+                borderColor: token.colorBorderSecondary,
+              }}
+              actions={[
+                <Button size="small" onClick={() => handleEditKategori(k)}>
+                  Edit
+                </Button>,
+                <Button
+                  size="small"
+                  danger
+                  onClick={() => handleDeleteKategori(k.id)}
                 >
-                {k.nama}
-                </List.Item>
-            )}
-            />
-        </Card>
-
-        {/* Tags */}
-        <Card
-            title="Kelola Tags"
-            variant="outlined"
-            styles={{
-            header: {
-                background: token.colorBgElevated,
-                color: token.colorText,
-                fontWeight: 600,
-            },
-            body: {
-                background: token.colorBgContainer,
-                color: token.colorText,
-            },
-            }}
-        >
-            <Space.Compact style={{ width: "100%", marginBottom: 12 }}>
-            <Input
-                placeholder="Nama tag"
-                value={newTag}
-                onChange={(e) => setNewTag(e.target.value)}
-            />
-            <Button type="primary" onClick={handleSaveTag}>
-                {editTagId ? "Update" : "Tambah"}
-            </Button>
-            </Space.Compact>
-
-            <List
-            dataSource={tags}
-            renderItem={(t) => (
-                <List.Item
-                style={{
-                    background: token.colorBgElevated,
-                    borderColor: token.colorBorderSecondary,
-                }}
-                actions={[
-                    <Button size="small" onClick={() => handleEditTag(t)}>
-                    Edit
-                    </Button>,
-                    <Button
-                    size="small"
-                    danger
-                    onClick={() => handleDeleteTag(t.id)}
-                    >
-                    Hapus
-                    </Button>,
-                ]}
-                >
-                {t.nama}
-                </List.Item>
-            )}
-            />
-        </Card>
-        <div className="">
-            <Button
-                icon={<ArrowLeftOutlined />}
-                onClick={() => navigate("/artikel-api")}
+                  Hapus
+                </Button>,
+              ]}
             >
-                Kembali
-            </Button>
-        </div>
+              {k.nama}
+            </List.Item>
+          )}
+        />
+      </Card>
+
+      <Card
+        title="Kelola Tags"
+        loading={loadingTag}
+        variant="outlined"
+        styles={{
+          header: {
+            background: token.colorBgElevated,
+            color: token.colorText,
+            fontWeight: 600,
+          },
+          body: {
+            background: token.colorBgContainer,
+            color: token.colorText,
+          },
+        }}
+      >
+        <Space.Compact style={{ width: "100%", marginBottom: 12 }}>
+          <Input
+            placeholder="Nama tag"
+            value={newTag}
+            onChange={(e) => setNewTag(e.target.value)}
+          />
+          <Button type="primary" onClick={handleSaveTag} loading={loadingTag}>
+            {editTagId ? "Update" : "Tambah"}
+          </Button>
+        </Space.Compact>
+
+        <List
+          dataSource={tags}
+          loading={loadingTag}
+          renderItem={(t) => (
+            <List.Item
+              style={{
+                background: token.colorBgElevated,
+                borderColor: token.colorBorderSecondary,
+              }}
+              actions={[
+                <Button size="small" onClick={() => handleEditTag(t)}>
+                  Edit
+                </Button>,
+                <Button
+                  size="small"
+                  danger
+                  onClick={() => handleDeleteTag(t.id)}
+                >
+                  Hapus
+                </Button>,
+              ]}
+            >
+              {t.nama}
+            </List.Item>
+          )}
+        />
+      </Card>
+
+      <div>
+        <Button
+          icon={<ArrowLeftOutlined />}
+          onClick={() => navigate("/artikel-api")}
+        >
+          Kembali
+        </Button>
+      </div>
     </div>
   )
 }

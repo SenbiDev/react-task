@@ -1,10 +1,13 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
+import {
+  createBrowserRouter,
+  RouterProvider,
+  Navigate,
+} from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import "@ant-design/v5-patch-for-react-19";
 import { ConfigProvider, theme, App as AntdApp } from "antd";
-import { createRoot } from "react-dom/client";
+import { useAuthStore } from "./store/useAuthStore";
 
 import App from "./App";
 import Home from "./pages/Home";
@@ -15,12 +18,10 @@ import CreateArtikel from "./pages/CreateArtikel";
 import KategoriTagsPage from "./pages/KategoriTagsPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Profile from "./pages/Profile";
-import { useAuthStore } from "./store/useAuthStore";
 
 import "./index.css";
 import "antd/dist/reset.css";
 
-// ========== ROUTER SETUP ==========
 const router = createBrowserRouter([
   { path: "login", element: <Login /> },
   {
@@ -41,12 +42,10 @@ const router = createBrowserRouter([
 
 const queryClient = new QueryClient();
 
-// ========== ROOT COMPONENT WITH GLOBAL THEME ==========
 function Root() {
-  const { theme: themeMode } = useAuthStore(); // Ambil dari Zustand global
+  const { theme: themeMode } = useAuthStore();
 
   React.useEffect(() => {
-    // Sinkronisasi ke HTML & localStorage
     document.documentElement.setAttribute("data-theme", themeMode);
     localStorage.setItem("theme", themeMode);
   }, [themeMode]);
@@ -55,9 +54,7 @@ function Root() {
     <ConfigProvider
       theme={{
         algorithm:
-          themeMode === "dark"
-            ? theme.darkAlgorithm
-            : theme.defaultAlgorithm,
+          themeMode === "dark" ? theme.darkAlgorithm : theme.defaultAlgorithm,
         token: {
           colorPrimary: themeMode === "dark" ? "#177ddc" : "#1677ff",
           colorBgBase: themeMode === "dark" ? "#141414" : "#ffffff",
@@ -76,7 +73,6 @@ function Root() {
   );
 }
 
-// ========== RENDER ==========
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <Root />

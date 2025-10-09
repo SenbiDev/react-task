@@ -1,66 +1,94 @@
-import { useState } from "react"
-import { useNavigate } from "react-router-dom"
-import { useAuthStore } from "../store/useAuthStore"
-import AuthForm from "../components/AuthForm"
-import { message } from "antd"
+import { useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+import { message } from "antd";
+import { useAuthStore } from "../store/useAuthStore";
+import AuthForm from "../components/AuthForm";
 
 export default function Login() {
-  const { login, register, isLoading } = useAuthStore()
-  const navigate = useNavigate()
+  const { login, register, isLoading } = useAuthStore();
+  const navigate = useNavigate();
 
-  const [isRegister, setIsRegister] = useState(false)
-  const [error, setError] = useState("")
+  const [isRegister, setIsRegister] = useState(false);
+  const [error, setError] = useState("");
   const [form, setForm] = useState({
     username: "",
     email: "",
     password: "",
     password2: "",
-  })
+  });
 
-  const handleChange = (field, value) => {
-    setForm((prev) => ({ ...prev, [field]: value }))
-  }
+  // 🧠 Handler untuk ubah value form
+  const handleChange = useCallback((field, value) => {
+    setForm((prev) => ({ ...prev, [field]: value }));
+  }, []);
 
-  const resetForm = () => {
-    setForm({ username: "", email: "", password: "", password2: "" })
-  }
+  // 🔄 Reset form agar tidak ada sisa input
+  const resetForm = useCallback(() => {
+    setForm({
+      username: "",
+      email: "",
+      password: "",
+      password2: "",
+    });
+    setError("");
+  }, []);
 
-  const handleLogin = async () => {
-    setError("")
+  // 🔐 Proses Login
+  const handleLogin = useCallback(async () => {
+    setError("");
+    if (!form.username || !form.password) {
+      setError("Username dan password wajib diisi");
+      return;
+    }
+
     try {
-      const loggedInUser = await login(form.username, form.password)
+      const loggedInUser = await login(form.username, form.password);
+
       if (loggedInUser) {
-        resetForm()
-        message.success(`Selamat datang, ${loggedInUser.username}! 🎉`)
-        navigate("/artikel-api")
+        message.success(`Selamat datang, ${loggedInUser.username}! 🎉`);
+        resetForm();
+        navigate("/artikel-api");
       }
     } catch (err) {
-      setError(err.message || "Login gagal")
+      console.error("Login error:", err);
+      setError(err?.message || "Login gagal. Periksa kembali data Anda.");
+      message.error("Login gagal. Coba lagi.");
     }
-  }
+  }, [form, login, navigate, resetForm]);
 
-  const handleRegister = async () => {
-    setError("")
-    if (form.password !== form.password2) {
-      setError("Password tidak sama")
-      return
+  // 🧾 Proses Registrasi
+  const handleRegister = useCallback(async () => {
+    setError("");
+
+    if (!form.username || !form.email || !form.password || !form.password2) {
+      setError("Semua field wajib diisi");
+      return;
     }
+
+    if (form.password !== form.password2) {
+      setError("Konfirmasi password tidak sama");
+      return;
+    }
+
     try {
       const newUser = await register(
         form.username,
         form.email,
         form.password,
         form.password2
-      )
+      );
+
       if (newUser) {
-        resetForm()
-        message.success("Registrasi berhasil, silakan login")
-        setIsRegister(false)
+        message.success("Registrasi berhasil! Silakan login.");
+        resetForm();
+        setIsRegister(false);
       }
     } catch (err) {
-      setError(err.message || "Register gagal")
+      console.error("Register error:", err);
+      setError(err?.message || "Registrasi gagal. Coba lagi.");
+      message.error("Registrasi gagal. Silakan coba lagi.");
     }
-  }
+  }, [form, register, resetForm]);
 
   return (
     <AuthForm
@@ -79,5 +107,5 @@ export default function Login() {
       error={error}
       isLoading={isLoading}
     />
-  )
+  );
 }

@@ -1,49 +1,90 @@
 import { create } from "zustand"
-import * as tagApi from "../axiosApi/tags"
+import {
+  getTags,
+  createTag,
+  updateTag,
+  deleteTag,
+} from "../axiosApi/tags"
 
 export const useTagStore = create((set, get) => ({
   tags: [],
-  isLoading: false,
+  loading: false,
   error: null,
 
+  // 🔹 Ambil daftar tag
   fetchTags: async () => {
-    set({ isLoading: true, error: null })
+    set({ loading: true, error: null })
     try {
-      const data = await tagApi.getTags()
-      set({ tags: data, isLoading: false })
+      const data = await getTags()
+      set({
+        tags: Array.isArray(data) ? data : [],
+        loading: false,
+      })
+      return data
     } catch (err) {
-      set({ error: err.message, isLoading: false })
+      console.error("❌ fetchTags:", err)
+      set({
+        error: err.message || "Gagal memuat tags",
+        loading: false,
+      })
+      return []
     }
   },
 
+  // 🔹 Tambah tag baru
   addTag: async (payload) => {
+    set({ loading: true, error: null })
     try {
-      const data = await tagApi.createTag(payload)
-      set({ tags: [...get().tags, data] })
+      const newTag = await createTag(payload)
+      if (!newTag) throw new Error("Tag gagal dibuat")
+
+      set((state) => ({
+        tags: [...state.tags, newTag],
+        loading: false,
+      }))
+      return newTag
     } catch (err) {
-      set({ error: err.message })
+      console.error("❌ addTag:", err)
+      set({ error: err.message, loading: false })
+      return null
     }
   },
 
+  // 🔹 Update tag
   updateTag: async (id, payload) => {
+    set({ loading: true, error: null })
     try {
-      const data = await tagApi.updateTag(id, payload)
-      set({
-        tags: get().tags.map((t) => (t.id === id ? data : t)),
-      })
+      const updated = await updateTag(id, payload)
+      if (!updated) throw new Error("Tag gagal diperbarui")
+
+      set((state) => ({
+        tags: state.tags.map((t) => (t.id === id ? updated : t)),
+        loading: false,
+      }))
+      return updated
     } catch (err) {
-      set({ error: err.message })
+      console.error("❌ updateTag:", err)
+      set({ error: err.message, loading: false })
+      return null
     }
   },
 
+  // 🔹 Hapus tag
   deleteTag: async (id) => {
+    set({ loading: true, error: null })
     try {
-      await tagApi.deleteTag(id)
-      set({
-        tags: get().tags.filter((t) => t.id !== id),
-      })
+      const success = await deleteTag(id)
+      if (!success) throw new Error("Tag gagal dihapus")
+
+      set((state) => ({
+        tags: state.tags.filter((t) => t.id !== id),
+        loading: false,
+      }))
+      return true
     } catch (err) {
-      set({ error: err.message })
+      console.error("❌ deleteTag:", err)
+      set({ error: err.message, loading: false })
+      return false
     }
   },
 }))

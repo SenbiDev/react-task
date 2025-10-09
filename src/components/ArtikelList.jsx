@@ -1,30 +1,53 @@
 import { useCallback } from "react"
 import { useNavigate } from "react-router-dom"
 import { useAuthStore } from "../store/useAuthStore"
-import { Button, Modal, Popconfirm, List, Typography, Tag, Space, theme, Empty } from "antd"
+import {
+  Button,
+  Modal,
+  Popconfirm,
+  List,
+  Typography,
+  Tag,
+  Space,
+  theme,
+  Empty,
+} from "antd"
 
 const { Paragraph, Text } = Typography
 
 export default function ArtikelList({ artikel = [], onDelete, isMyList = false }) {
   const { user } = useAuthStore()
-  const [modal, contextHolder] = Modal.useModal()
   const navigate = useNavigate()
+  const [modal, contextHolder] = Modal.useModal()
   const { token } = theme.useToken()
 
+  // ✅ konsisten: pastikan validasi role dan owner
   const canModify = useCallback(
-    (a) => user?.role === "admin" || a.penulis?.id === user?.id,
+    (a) =>
+      user?.role === "admin" ||
+      a?.penulis?.id === user?.id ||
+      a?.penulis_id === user?.id ||
+      a?.is_owner,
     [user]
   )
 
+  // ✅ tampilan detail artikel
   const showDetail = useCallback(
     (a) => {
       modal.info({
-        title: a.judul,
+        title: a?.judul || "Tanpa Judul",
         width: 600,
         centered: true,
+        okText: "Tutup",
         content: (
-          <div style={{ maxHeight: "70vh", overflowY: "auto", color: token.colorText }}>
-            <Paragraph>{a.konten}</Paragraph>
+          <div
+            style={{
+              maxHeight: "70vh",
+              overflowY: "auto",
+              color: token.colorText,
+            }}
+          >
+            <Paragraph>{a?.konten || "Tidak ada konten."}</Paragraph>
 
             <div
               style={{
@@ -36,30 +59,40 @@ export default function ArtikelList({ artikel = [], onDelete, isMyList = false }
               }}
             >
               <p>
-                <Text strong>Penulis:</Text> {a.penulis?.username || "-"}
+                <Text strong>Penulis:</Text> {a?.penulis?.username || "-"}
               </p>
               <p>
-                <Text strong>Kategori:</Text> {a.kategori?.nama || "-"}
+                <Text strong>Kategori:</Text> {a?.kategori?.nama || "-"}
               </p>
               <p>
                 <Text strong>Tags:</Text>{" "}
-                {a.tags?.length
-                  ? a.tags.map((t) => <Tag key={t.id}>{t.nama}</Tag>)
+                {Array.isArray(a?.tags) && a.tags.length > 0
+                  ? a.tags.map((t) => (
+                      <Tag key={t.id} color="blue">
+                        {t.nama}
+                      </Tag>
+                    ))
                   : "-"}
               </p>
               <p>
-                <Text strong>Status:</Text> {a.status}
+                <Text strong>Status:</Text>{" "}
+                <Tag
+                  color={a?.status === "published" ? "green" : "default"}
+                  style={{ marginLeft: 4 }}
+                >
+                  {a?.status || "-"}
+                </Tag>
               </p>
             </div>
           </div>
         ),
-        okText: "Tutup",
       })
     },
     [modal, token]
   )
 
-  if (!artikel?.length) {
+  // ✅ tampilkan state kosong dengan gaya seragam
+  if (!Array.isArray(artikel) || artikel.length === 0) {
     return (
       <div
         style={{
@@ -73,12 +106,15 @@ export default function ArtikelList({ artikel = [], onDelete, isMyList = false }
       >
         {contextHolder}
         <Empty
-          description={isMyList ? "Belum ada artikel Anda." : "Belum ada artikel publik."}
+          description={
+            isMyList ? "Belum ada artikel Anda." : "Belum ada artikel publik."
+          }
         />
       </div>
     )
   }
 
+  // ✅ daftar artikel
   return (
     <div
       style={{
@@ -91,13 +127,12 @@ export default function ArtikelList({ artikel = [], onDelete, isMyList = false }
       <List
         itemLayout="horizontal"
         dataSource={artikel}
-        pagination={false}
         renderItem={(a) => (
           <List.Item
-            key={a.id}
+            key={a?.id}
             style={{
               borderBottom: `1px solid ${token.colorBorderSecondary}`,
-              transition: "background-color 0.3s",
+              transition: "background-color 0.3s ease",
             }}
             onMouseEnter={(e) =>
               (e.currentTarget.style.backgroundColor = token.colorFillTertiary)
@@ -106,11 +141,14 @@ export default function ArtikelList({ artikel = [], onDelete, isMyList = false }
               (e.currentTarget.style.backgroundColor = "transparent")
             }
             actions={[
-              <Button type="primary" onClick={() => showDetail(a)} key="view">
+              <Button key="view" type="primary" onClick={() => showDetail(a)}>
                 View
               </Button>,
               canModify(a) && (
-                <Button key="edit" onClick={() => navigate(`/create-artikel/${a.id}`)}>
+                <Button
+                  key="edit"
+                  onClick={() => navigate(`/create-artikel/${a.id}`)}
+                >
                   Edit
                 </Button>
               ),
@@ -122,7 +160,17 @@ export default function ArtikelList({ artikel = [], onDelete, isMyList = false }
                   cancelText="Batal"
                   onConfirm={() => onDelete?.(a.id)}
                 >
-                  <Button danger>Hapus</Button>
+                  <Button
+                    danger
+                    type="primary"
+                    style={{
+                      background: token.colorError,
+                      borderColor: token.colorError,
+                      color: token.colorTextLightSolid,
+                    }}
+                  >
+                    Hapus
+                  </Button>
                 </Popconfirm>
               ),
             ].filter(Boolean)}
@@ -130,11 +178,13 @@ export default function ArtikelList({ artikel = [], onDelete, isMyList = false }
             <List.Item.Meta
               title={
                 <Space direction="vertical" size={0}>
-                  <Text strong style={{ color: token.colorText }}>{a.judul}</Text>
+                  <Text strong style={{ color: token.colorText }}>
+                    {a?.judul || "Tanpa Judul"}
+                  </Text>
                   <Text type="secondary" style={{ fontSize: 13 }}>
                     {isMyList
-                      ? `Status: ${a.status}`
-                      : `Penulis: ${a.penulis?.username || "-"}`}
+                      ? `Status: ${a?.status || "-"}`
+                      : `Penulis: ${a?.penulis?.username || "-"}`}
                   </Text>
                 </Space>
               }

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react"
 import {
   Form,
   Input,
@@ -11,66 +11,74 @@ import {
   Typography,
   Space,
   theme,
-} from "antd";
-import "@ant-design/v5-patch-for-react-19";
-import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeftOutlined } from "@ant-design/icons";
+} from "antd"
+import "@ant-design/v5-patch-for-react-19"
+import { useNavigate, useParams } from "react-router-dom"
+import { ArrowLeftOutlined } from "@ant-design/icons"
 import {
   createArticle,
   getArticleById,
   updateArticle,
-} from "../axiosApi/artikel";
-import { useTagList } from "../hooks/tags";
-import { useKategoriList } from "../hooks/kategori";
-import { useAuthStore } from "../store/useAuthStore";
+} from "../axiosApi/artikel"
+import { useKategoriStore } from "../store/useKategoriStore"
+import { useTagStore } from "../store/useTagStore"
+import { useAuthStore } from "../store/useAuthStore"
 
-const { TextArea } = Input;
-const { Title } = Typography;
+const { TextArea } = Input
+const { Title } = Typography
 
 export default function CreateArtikel() {
-  const [form] = Form.useForm();
-  const navigate = useNavigate();
-  const { id } = useParams();
-  const { user } = useAuthStore();
-  const { token } = theme.useToken();
+  const [form] = Form.useForm()
+  const navigate = useNavigate()
+  const { id } = useParams()
+  const { user } = useAuthStore()
+  const { token } = theme.useToken()
 
-  const [saving, setSaving] = useState(false);
-  const [loadingArtikel, setLoadingArtikel] = useState(false);
+  // === store state ===
+  const { kategori, fetchKategori, loading: loadingKategori } = useKategoriStore()
+  const { tags, fetchTags, loading: loadingTags } = useTagStore()
 
-  const { tags = [], isLoading: loadingTags } = useTagList();
-  const { kategori = [], isLoading: loadingKategori } = useKategoriList();
+  // === local state ===
+  const [saving, setSaving] = useState(false)
+  const [loadingArtikel, setLoadingArtikel] = useState(false)
 
-  // === Fetch Artikel Saat Edit ===
+  // === Load kategori dan tag ===
   useEffect(() => {
-    if (!id) return;
+    fetchKategori()
+    fetchTags()
+  }, [fetchKategori, fetchTags])
 
+  // === Load artikel jika sedang edit ===
+  useEffect(() => {
+    if (!id) return
     const loadArtikel = async () => {
-      setLoadingArtikel(true);
+      setLoadingArtikel(true)
       try {
-        const artikel = await getArticleById(id);
+        const artikel = await getArticleById(id)
         if (artikel) {
           form.setFieldsValue({
             judul: artikel.judul,
             konten: artikel.konten,
             status: artikel.status,
-            kategori_id: artikel.kategori_id || artikel.kategori?.id,
-            tags: artikel.tags?.map((t) => t.id) || [],
-          });
+            kategori_id: artikel.kategori?.id || artikel.kategori_id,
+            tags: Array.isArray(artikel.tags)
+              ? artikel.tags.map((t) => t.id)
+              : [],
+          })
         }
       } catch {
-        message.error("Gagal memuat artikel");
+        message.error("Gagal memuat artikel")
       } finally {
-        setLoadingArtikel(false);
+        setLoadingArtikel(false)
       }
-    };
+    }
+    loadArtikel()
+  }, [id, form])
 
-    loadArtikel();
-  }, [id, form]);
-
-  // === Simpan / Update Artikel ===
+  // === Submit handler ===
   const handleSubmit = useCallback(
     async (values) => {
-      setSaving(true);
+      setSaving(true)
       try {
         const payload = {
           judul: values.judul,
@@ -79,27 +87,28 @@ export default function CreateArtikel() {
           kategori_id: values.kategori_id,
           tag_ids: values.tags || [],
           penulis_id: user?.id,
-        };
-
-        if (id) {
-          await updateArticle(id, payload);
-          message.success("Artikel berhasil diperbarui");
-        } else {
-          await createArticle(payload);
-          message.success("Artikel berhasil dibuat");
         }
 
-        navigate("/artikel-api");
+        if (id) {
+          await updateArticle(id, payload)
+          message.success("Artikel berhasil diperbarui")
+        } else {
+          await createArticle(payload)
+          message.success("Artikel berhasil dibuat")
+        }
+
+        navigate("/artikel-api")
       } catch (err) {
-        message.error(err.message || "Terjadi kesalahan saat menyimpan artikel");
+        message.error(err.message || "Terjadi kesalahan saat menyimpan artikel")
       } finally {
-        setSaving(false);
+        setSaving(false)
       }
     },
     [id, navigate, user]
-  );
+  )
 
-  const isLoading = loadingTags || loadingKategori || loadingArtikel;
+  // === Loading state gabungan ===
+  const isLoading = loadingTags || loadingKategori || loadingArtikel
 
   if (isLoading) {
     return (
@@ -113,9 +122,10 @@ export default function CreateArtikel() {
       >
         <Spin spinning tip="Memuat data artikel..." />
       </div>
-    );
+    )
   }
 
+  // === UI utama ===
   return (
     <div
       style={{
@@ -211,6 +221,7 @@ export default function CreateArtikel() {
           >
             <Select
               placeholder="Pilih kategori"
+              loading={loadingKategori}
               options={kategori.map((k) => ({
                 label: k.nama,
                 value: k.id,
@@ -241,5 +252,5 @@ export default function CreateArtikel() {
         </Form>
       </Card>
     </div>
-  );
+  )
 }

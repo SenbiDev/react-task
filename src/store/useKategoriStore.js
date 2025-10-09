@@ -1,49 +1,90 @@
 import { create } from "zustand"
-import * as kategoriApi from "../axiosApi/kategori"
+import {
+  getKategori,
+  createKategori,
+  updateKategori,
+  deleteKategori,
+} from "../axiosApi/kategori"
 
 export const useKategoriStore = create((set, get) => ({
   kategori: [],
-  isLoading: false,
+  loading: false,
   error: null,
 
+  // 🔹 Ambil daftar kategori
   fetchKategori: async () => {
-    set({ isLoading: true, error: null })
+    set({ loading: true, error: null })
     try {
-      const data = await kategoriApi.getKategori()
-      set({ kategori: data, isLoading: false })
+      const data = await getKategori()
+      set({
+        kategori: Array.isArray(data) ? data : [],
+        loading: false,
+      })
+      return data
     } catch (err) {
-      set({ error: err.message, isLoading: false })
+      console.error("❌ fetchKategori:", err)
+      set({
+        error: err.message || "Gagal memuat kategori",
+        loading: false,
+      })
+      return []
     }
   },
 
+  // 🔹 Tambah kategori baru
   addKategori: async (payload) => {
+    set({ loading: true, error: null })
     try {
-      const data = await kategoriApi.createKategori(payload)
-      set({ kategori: [...get().kategori, data] })
+      const newKategori = await createKategori(payload)
+      if (!newKategori) throw new Error("Kategori gagal dibuat")
+
+      set((state) => ({
+        kategori: [...state.kategori, newKategori],
+        loading: false,
+      }))
+      return newKategori
     } catch (err) {
-      set({ error: err.message })
+      console.error("❌ addKategori:", err)
+      set({ error: err.message, loading: false })
+      return null
     }
   },
 
+  // 🔹 Update kategori
   updateKategori: async (id, payload) => {
+    set({ loading: true, error: null })
     try {
-      const data = await kategoriApi.updateKategori(id, payload)
-      set({
-        kategori: get().kategori.map((k) => (k.id === id ? data : k)),
-      })
+      const updated = await updateKategori(id, payload)
+      if (!updated) throw new Error("Kategori gagal diperbarui")
+
+      set((state) => ({
+        kategori: state.kategori.map((k) => (k.id === id ? updated : k)),
+        loading: false,
+      }))
+      return updated
     } catch (err) {
-      set({ error: err.message })
+      console.error("❌ updateKategori:", err)
+      set({ error: err.message, loading: false })
+      return null
     }
   },
 
+  // 🔹 Hapus kategori
   deleteKategori: async (id) => {
+    set({ loading: true, error: null })
     try {
-      await kategoriApi.deleteKategori(id)
-      set({
-        kategori: get().kategori.filter((k) => k.id !== id),
-      })
+      const success = await deleteKategori(id)
+      if (!success) throw new Error("Kategori gagal dihapus")
+
+      set((state) => ({
+        kategori: state.kategori.filter((k) => k.id !== id),
+        loading: false,
+      }))
+      return true
     } catch (err) {
-      set({ error: err.message })
+      console.error("❌ deleteKategori:", err)
+      set({ error: err.message, loading: false })
+      return false
     }
   },
 }))

@@ -156,3 +156,60 @@ input::placeholder {
   transition: background-color var(--transition-speed),
               color var(--transition-speed);
 }
+
+:root,
+[data-theme="light"],
+[data-theme="dark"] {
+  color-scheme: light dark;
+}
+
+/* -----------------------
+   Auth Form overrides
+   ----------------------- */
+
+/* Tombol utama (Sign In / Sign Up) tetap gradien biru-ungu */
+.auth-btn {
+  background: linear-gradient(to right, var(--primary-color), #9254de) !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: 8px;
+  transition: opacity var(--transition-speed);
+}
+.auth-btn:hover {
+  opacity: 0.95;
+}
+
+/* Tombol link kecil ("Register sekarang" / "Login di sini") */
+.link-button {
+  background: transparent !important;
+  color: var(--primary-color) !important;
+  border: none !important;
+  padding: 0 !important;
+  display: inline !important;
+  line-height: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  box-shadow: none !important;
+}
+.link-button:hover {
+  text-decoration: underline;
+  opacity: 0.9;
+}
+
+/* Pastikan tombol kecil tidak kena style global dari button, ant-btn, dsb */
+button.link-button,
+.ant-btn.link-button {
+  all: unset;
+  cursor: pointer;
+  color: var(--primary-color) !important;
+  font-weight: 600;
+  display: inline;
+  padding: 0 !important;
+  text-decoration: none;
+}
+button.link-button:hover,
+.ant-btn.link-button:hover {
+  text-decoration: underline;
+  opacity: 0.9;
+}
