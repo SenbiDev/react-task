@@ -87,7 +87,7 @@ export default function ArtikelPage() {
 
   const artikelSaya = (
                   <Card className="bg-gray-800 p-6 border border-gray-300 rounded shadow-sm">
-                    <h3 className="mb-4 text-lg text-gray-900 font-medium">Artikel Saya</h3>
+                    <h3 className="mb-4 text-lg font-medium">Artikel Saya</h3>
                     {paginatedSaya.length === 0 ? (
                         <p className="text-gray-500">Belum ada artikel</p>
                     ) : (
@@ -95,8 +95,8 @@ export default function ArtikelPage() {
                             {paginatedSaya.map((artikel, index) => (
                                 <li key={`saya-${artikel.id}-${index}`} className="flex justify-between items-center p-3 border border-gray-200 rounded">
                                     <div>
-                                        <p className="font-medium text-gray-900">{artikel.judul}</p>
-                                        <p className="text-sm text-gray-900">{artikel.status}</p>
+                                        <p className="font-medium">{artikel.judul}</p>
+                                        <p className="text-sm">{artikel.status}</p>
                                     </div>
                                     <div className="flex justify-around space-x-2">
                                       <Button
@@ -156,8 +156,8 @@ export default function ArtikelPage() {
                           return (
                             <li key={`publik-${artikel.id}-${index}`} className="flex justify-between items-center p-3 border border-gray-200 rounded">
                           <div>
-                            <p className="font-medium text-gray-900">{artikel.judul}</p>
-                            <p className="text-sm text-gray-900 mt-1">
+                            <p className="font-medium">{artikel.judul}</p>
+                            <p className="text-sm mt-1">
                               Penulis: {artikel.penulis?.username || "-"} | Kategori:{" "}
                               {artikel.kategori?.nama || "-"} | Tags:{" "}
                               {artikel.tags?.map((t) => t.nama).join(", ") || "-"}
@@ -240,7 +240,7 @@ export default function ArtikelPage() {
           <br/>
             <div className="flex gap-5 mb-3">
               <div className="flex justify-around gap-2">
-                <p className="font-semibold text-gray-400">
+                <p className="font-semibold">
                   Kategori :
                 </p>
                 <p className="font-bold text-gray-900">
@@ -248,10 +248,10 @@ export default function ArtikelPage() {
                 </p>
               </div>
               <div className="flex justify-around gap-2">
-                <p className="font-semibold text-gray-400">
+                <p className="font-semibold">
                   Tag : 
                 </p>
-                <p className="font-bold text-gray-900 items-center">
+                <p className="font-bold items-center">
                   #{artikel.tags?.map((t) => t.nama).join(" #")||"-"}
                 </p>
               </div>

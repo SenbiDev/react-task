@@ -131,7 +131,7 @@ export default function CreateArtikel () {
                             type="text"
                             icon={<ArrowLeftIcon/>}
                             onClick={() => navigate("/artikel")}
-                            className="flex items-center text-gray-600"
+                            className="flex items-center"
                         >
                             Kembali
                         </Button>

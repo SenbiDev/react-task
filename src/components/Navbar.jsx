@@ -1,21 +1,22 @@
 import React, { useEffect, useState } from 'react';
-import { Avatar, Dropdown } from 'antd';
+import { Avatar, Dropdown, Switch } from 'antd';
 import { UserOutlined, LogoutOutlined, MailOutlined, CrownOutlined, EditOutlined, IdcardOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/authContext';
-import { Crown } from 'lucide-react';
+import { useProfileStore } from '../store/useProfileStore';
 
 export default function Navbar() {
   const {user, logout} = useAuth();
   const navigate = useNavigate();
-  const [avatarUrl, setAvatarUrl] = useState(null);
+  const {avatarUrl, theme, setTheme} = useProfileStore();
 
   useEffect(() => {
-    const storedProfile = JSON.parse(localStorage.getItem("profile"))||{};
-    if(storedProfile.avatar){
-      setAvatarUrl(storedProfile.avatar);
-    }
-  }, []);
+    document.documentElement.setAttribute("data-theme", theme);
+  }, [theme]);
+
+  const handleThemeChange = (checked) => {
+    setTheme(checked ? "dark" : "light");
+  };
 
   const getRoleIcon = (role) => {
     switch (role) {
@@ -25,7 +26,7 @@ export default function Navbar() {
         return <UserOutlined style={{ color: 'blue' }}/>;
     }
   };
-
+  
   const handleLogOut = () => {
     logout();
     navigate("/login")
@@ -34,30 +35,43 @@ export default function Navbar() {
   const items = [
     {
       key: "profile",
-      label: <span className='text-black'>Profile</span>,
+      label: <span>Profile</span>,
       icon: <IdcardOutlined/>,
-      onClick: () => navigate("profile")
+      onClick: () => navigate("/profile")
     },
     {
       key: "email",
-      label: <span className="text-black">{user?.email}</span>,
+      label: <span>{user?.email}</span>,
       icon: <MailOutlined style={{ color: 'blue' }}/>,
     },
     {
       key: "role",
-      label: <span className="text-black capitalze">{user?.role}</span>,
+      label: <span className="capitalze">{user?.role}</span>,
       icon: getRoleIcon(user?.role),
     },
     ...(user?.role === "admin"
       ? [
         {
           key: "adminpage",
-          label: <span className="text-black">Tag & Kategori</span>,
+          label: <span>Tag & Kategori</span>,
           icon: <EditOutlined style={{ color: "green" }}/>,
           onClick: () => navigate("/admin")
         },
       ]
     :[]),
+    {
+      key: "theme", 
+      label: (
+        <div className='flex items-center justify-between'>
+          <Switch
+            checked={theme === "dark"}
+            onChange={handleThemeChange}
+            checkedChildren={"\u{1F319}"}
+            unCheckedChildren={"\u2600"}
+          />
+        </div>
+      ),
+    },
     {
       type:"divider",
     },
@@ -92,7 +106,7 @@ export default function Navbar() {
                 icon={!avatarUrl&&<UserOutlined/>}
                 style={{ backgroundColor: 'white', color: 'black' }}
               />
-              <p className="flex items-center text-white text-sm font-medium">{user.username}</p>
+              <p className="flex items-centertext-sm font-medium">{user.username}</p>
             </div>
           </Dropdown>
         )}

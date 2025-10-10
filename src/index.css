@@ -1,70 +1,161 @@
 @import "tailwindcss";
 
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  --transition-speed: 0.3s;
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
+[data-theme="light"] {
+  --bg-color: #ffffff;
+  --text-color: #1f1f1f;
+  --card-bg: #f9f9f9;
+  --border-color: #e5e7eb;
+  --primary-color: #1677ff;
+  --hover-bg: #f0f0f0;
+  --input-bg: #ffffff;
+  --input-text: #1f1f1f;
+  --placeholder-color: #888888;
+  --label-color: #1f1f1f;
 }
 
-body {
+[data-theme="dark"] {
+  --bg-color: #141414;
+  --text-color: #f5f5f5;
+  --card-bg: #1f1f1f;
+  --border-color: #3f3f3f;
+  --primary-color: #177ddc;
+  --hover-bg: #2a2a2a;
+  --input-bg: #1f1f1f;
+  --input-text: #f5f5f5;
+  --placeholder-color: #aaaaaa;
+  --label-color: #f5f5f5;
+}
+
+.label, switch-label, .dropdown-label{
+  color: var(--label-color);
+  transition: color var(--transition-speed);
+}
+
+html, body {
   margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
+  padding: 0;
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: background-color var(--transition-speed) ease,
+              color var(--transition-speed) ease;
   min-height: 100vh;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+.ant-layout,
+.ant-layout-content,
+.ant-layout-header,
+.ant-layout-footer,
+.ant-card,
+.ant-modal-content,
+.ant-drawer-content {
+  background-color: var(--bg-color) !important;
+  color: var(--text-color) !important;
+  transition: background-color var(--transition-speed), color var(--transition-speed);
 }
 
-button {
+.ant-card {
+  background-color: var(--card-bg) !important;
+  border-color: var(--border-color) !important;
+}
+
+.ant-input,
+.ant-select-selector,
+.ant-input-affix-wrapper,
+.ant-textarea,
+input,
+textarea,
+select {
+  background-color: var(--input-bg) !important;
+  color: var(--input-text) !important;
+  border-color: var(--border-color) !important;
+  transition: background-color var(--transition-speed), color var(--transition-speed);
+}
+
+.ant-input::placeholder,
+.ant-textarea::placeholder,
+input::placeholder,
+textarea::placeholder {
+  color: var(--placeholder-color) !important;
+  opacity: 1;
+}
+
+a {
+  color: var(--primary-color);
+  transition: color var(--transition-speed);
+}
+a:hover {
+  color: #4096ff;
+}
+
+button,
+.ant-btn {
+  background-color: var(--primary-color);
+  color: #fff !important;
+  border: none !important;
   border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
+  transition: background-color var(--transition-speed);
 }
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+button:hover,
+.ant-btn:hover {
+  background-color: #4096ff;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+.card,
+.ant-card,
+.profile-container,
+.article-container,
+.form-container {
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1rem;
+  transition: background-color var(--transition-speed),
+              color var(--transition-speed),
+              border-color var(--transition-speed);
+}
+
+h1, h2, h3, h4, h5 {
+  color: var(--text-color);
+  transition: color var(--transition-speed);
+}
+
+.auth-btn {
+  background: linear-gradient(to right, var(--primary-color), #9254de) !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: 8px;
+  transition: opacity var(--transition-speed);
+}
+.auth-btn:hover {
+  opacity: 0.95;
+}
+
+.link-button,
+button.link-button,
+.ant-btn.link-button {
+  all: unset;
+  cursor: pointer;
+  color: var(--primary-color) !important;
+  font-weight: 600;
+  display: inline;
+  padding: 0 !important;
+  text-decoration: none;
+}
+.link-button:hover,
+button.link-button:hover,
+.ant-btn.link-button:hover {
+  text-decoration: underline;
+  opacity: 0.9;
+}
+
+nav, .container, .menu-item, .dropdown {
+  color: var(--text-color) !important;
+  background-color: var(--bg-color) !important;
+  transition: color var(--transition-speed), background-color var(--transition-speed);
 }
