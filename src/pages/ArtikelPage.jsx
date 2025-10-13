@@ -1,4 +1,4 @@
-// uselint-disable-next-line
+// eslint-disable-next-line
 import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -39,11 +39,9 @@ export default function ArtikelPage() {
     role === "admin" || artikel.penulis?.id === currentUser?.id;
 
   useEffect(() => {
-    if(Array.isArray(artikels) &&
-    artikels.length === 0 && page > 1
-  ) {
-    setPage(page - 1)
-  }
+    if (Array.isArray(artikels) && artikels.length === 0 && page > 1) {
+      setPage(page - 1);
+    }
     fetchArtikel(page, pageSize);
   }, [fetchArtikel, page, pageSize]);
 
@@ -69,21 +67,25 @@ export default function ArtikelPage() {
 
   const filteredData = useMemo(() => {
     const list = Array.isArray(artikels)
-    ? artikels
-    : artikels?.results || [];
+      ? artikels
+      : artikels?.results || [];
 
     const s = (searchText || "").toLowerCase();
 
     return list.filter((a) => {
+      const judul = a.judul?.toLowerCase() || "";
       const kategoriNama = a.kategori?.nama || "";
-      const tagNamaList =  Array.isArray(a.tags) 
-      ? a.tags.map((t) => t.nama)
-      : [];
-      const matchesSearch = s === "" || judul.incLudes(s);
+      const tagNamaList = Array.isArray(a.tags)
+        ? a.tags.map((t) => t.nama)
+        : [];
 
-      const matchesKategori = selectedKategori.length === 0 ||
-      selectedKategori.includes(kategoriNama);
-      const matchesTags = selectedTag.length === 0 || tagNamaList.some((t) => selectedTag.includes(t));
+      const matchesSearch = s === "" || judul.includes(s);
+      const matchesKategori =
+        selectedKategori.length === 0 ||
+        selectedKategori.includes(kategoriNama);
+      const matchesTags =
+        selectedTag.length === 0 ||
+        tagNamaList.some((t) => selectedTag.includes(t));
 
       return matchesSearch && matchesKategori && matchesTags;
     });
@@ -113,7 +115,11 @@ export default function ArtikelPage() {
       width: "30%",
       render: (a) => (
         <Space>
-          <Button size="small" onClick={() => handleView(a)}>
+          <Button
+            type="primary"
+            size="small"
+            onClick={() => handleView(a)}
+          >
             View
           </Button>
           {canManage(a) && (
@@ -157,7 +163,7 @@ export default function ArtikelPage() {
         <Row gutter={[12, 12]} style={{ marginBottom: 16 }}>
           <Col xs={24} md={8}>
             <Search
-              placeholder="Search...."
+              placeholder="Cari judul..."
               allowClear
               onChange={(e) => setSearchText(e.target.value)}
             />
@@ -203,10 +209,11 @@ export default function ArtikelPage() {
                   dataSource={myArtikel}
                   columns={columns}
                   rowKey="id"
-                  pagination= {{
+                  pagination={{
                     pageSize: 10,
                     current: page,
-                    total: artikels?.count || myArtikel.length, onChange: (p) => setPage(p),
+                    total: artikels?.count || myArtikel.length,
+                    onChange: (p) => setPage(p),
                   }}
                   style={{ borderRadius: 8, overflow: "hidden" }}
                 />
@@ -224,7 +231,8 @@ export default function ArtikelPage() {
                       pagination={{
                         pageSize: 10,
                         current: page,
-                        total: artikels?.count || publicArtikel.length, onChange: (p) => setPage(p),
+                        total: artikels?.count || publicArtikel.length,
+                        onChange: (p) => setPage(p),
                       }}
                       style={{ borderRadius: 8, overflow: "hidden" }}
                     />
@@ -245,8 +253,8 @@ export default function ArtikelPage() {
           </Button>,
         ]}
         width={700}
-        Style={{
-          maxHeight: "70vh",
+        style={{
+          maxHeight: "80vh",
           overflowY: "auto",
         }}
       >
