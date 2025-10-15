@@ -21,6 +21,7 @@ import { AuthProvider } from "./auth/AuthContext";
 import "@ant-design/v5-patch-for-react-19";
 import { unstableSetRender, ConfigProvider, theme as antdTheme } from "antd";
 import { createRoot } from "react-dom/client";
+import { ThemeProvider, useTheme } from "./context/ThemeContext";
 
 const router = createBrowserRouter([
   {
@@ -71,35 +72,35 @@ unstableSetRender((node, container) => {
 
 /* eslint-disable react-refresh/only-export-components */
 
-function Root() {
-  const [isDarkMode, setIsDarkMode] = useState(
-    localStorage.getItem("theme") === "dark"
-  );
-
-  useEffect(() => {
-    const handleStorageChange = () => {
-      setIsDarkMode(localStorage.getItem("theme") === "dark");
-    };
-    window.addEventListener("storage", handleStorageChange);
-    return () => window.removeEventListener("storage", handleStorageChange);
-  }, []);
+function RootWrapper() {
+  const { isDarkMode } = useTheme();
 
   return (
     <ConfigProvider
-      theme={{
-        algorithm: isDarkMode
-          ? antdTheme.darkAlgorithm
-          : antdTheme.defaultAlgorithm,
-      }}
+    theme={{
+      algorithm: isDarkMode
+      ? antdTheme.darkAlgorithm
+      :
+      antdTheme.defaultAlgorithm,
+    }}
     >
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <RouterProvider router={router} />
+          <RouterProvider router={router}/>
         </AuthProvider>
       </QueryClientProvider>
     </ConfigProvider>
   );
 }
+
+function Root() {
+  return (
+    <ThemeProvider>
+      <Root/>
+    </ThemeProvider>
+  )
+}
+  
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>

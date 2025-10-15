@@ -1,6 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { useLogin, useRegister, useLogout } from "../hooks/useAuthQuery";
+import { useLogin, useRegister, useLogout, } from "../hooks/useAuthQuery";
 
 const AuthContext = createContext();
 

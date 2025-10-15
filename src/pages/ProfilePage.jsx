@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Card, Button, Upload, Avatar, message, Descriptions } from "antd";
-import { UploadOutlined, UserOutlined, ArrowLeftOutlined } from "@ant-design/icons";
+import { Card, Button, Upload, Avatar, message, Descriptions, Popconfirm } from "antd";
+import { UploadOutlined, UserOutlined, ArrowLeftOutlined, DeleteOutlined } from "@ant-design/icons";
 import axios from "axios";
 import { API_BASE, getAuthHeader } from "../axiosApi/apiConfig";
 import { useNavigate } from "react-router-dom";
@@ -23,7 +23,6 @@ export default function ProfilePage() {
     try {
       setLoading(true);
 
-      // PUT ke endpoint profile (sesuai backend guru)
       const res = await axios.put(`${API_BASE}/profiles/${user.id}/`, formData, {
         headers: {
           ...getAuthHeader(),
@@ -31,13 +30,11 @@ export default function ProfilePage() {
         },
       });
 
-      // Ambil URL avatar dari response backend
       const rawUrl = res.data?.avatar || "";
-      // Kalau path-nya relatif, ubah jadi URL lengkap
       const backendBase = API_BASE.replace("/api", "");
       const fullUrl = rawUrl.startsWith("http") ? rawUrl : `${backendBase}${rawUrl}`;
 
-      // Set avatar di tampilan & simpan ke localStorage
+
       setAvatarUrl(fullUrl);
       const updatedUser = { ...user, avatar: fullUrl };
       localStorage.setItem("user", JSON.stringify(updatedUser));
@@ -46,6 +43,35 @@ export default function ProfilePage() {
     } catch (err) {
       console.error(err);
       message.error("Gagal mengunggah foto profil!");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteAvatar = async () => {
+    if (!user?.id) {
+      message.error("User tidak ditemukan!");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      await axios.put(
+        `${API_BASE}/profiles/${user.id}/`,
+        { avatar: null },
+        { headers: getAuthHeader() }
+      );
+
+      // Update state & localStorage
+      setAvatarUrl(null);
+      const updatedUser = { ...user, avatar: null };
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+
+      message.success("Foto profil berhasil dihapus!");
+    } catch (err) {
+      console.error(err);
+      message.error("Gagal menghapus foto profil!");
     } finally {
       setLoading(false);
     }
@@ -82,12 +108,31 @@ export default function ProfilePage() {
                   backgroundColor: "#1677ff",
                   color: "#fff",
                   borderRadius: 6,
-                  marginBottom: 16,
+                  marginBottom: 8,
                 }}
               >
                 Upload Foto
               </Button>
             </Upload>
+
+            {/* Tombol hapus foto */}
+            {avatarUrl && (
+              <Popconfirm
+                title="Hapus foto profil?"
+                okText="Ya"
+                cancelText="Batal"
+                onConfirm={handleDeleteAvatar}
+              >
+                <Button
+                  danger
+                  icon={<DeleteOutlined />}
+                  loading={loading}
+                  style={{ borderRadius: 6 }}
+                >
+                  Hapus Foto
+                </Button>
+              </Popconfirm>
+            )}
           </div>
         </div>
 

@@ -16,19 +16,17 @@ import {
   BuildOutlined,
 } from "@ant-design/icons";
 import { useEffect, useState } from "react";
+import { useTheme } from "../context/ThemeContext";
 
 export default function Navbar() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { isDarkMode, setDarkMode } = useTheme();
 
   const handleLogout = () => {
     logout();
     navigate("/signin");
   };
-
-  const [isDarkMode, setDarkMode] = useState(() => {
-    return localStorage.getItem("theme") === "dark";
-  });
 
   useEffect(() => {
     if (isDarkMode) {

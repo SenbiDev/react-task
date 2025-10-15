@@ -88,11 +88,4 @@ api.interceptors.response.use(
   }
 );
 
-// module.exports = {
-//   darkMode: 'class',
-//   content: ['./index.html','./src/**/*.{js,jsx,ts,tsx}'],
-//   theme: {extends:{} },
-//   Plugins: [],
-// };
-
 export default api;

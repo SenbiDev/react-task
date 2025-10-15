@@ -271,7 +271,8 @@ export default function ArtikelPage() {
                   whiteSpace: "pre-line",
                   maxHeight: 250,
                   overflowY: "auto",
-                  background: "#fafafa",
+                  background: localStorage.getItem("theme") === "dark" ? "#1f1f1f" : "ffffff",
+                  color : localStorage.getItem("theme") === "dark" ? "#ffffff" : "#000000",
                   padding: "8px",
                   borderRadius: "6px",
                 }}
