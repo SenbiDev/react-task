@@ -29,9 +29,9 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-900">
-      <div className="w-80 p-6 bg-gray-800 border border-gray-300 rounded shadow-sm">
-        <h2 className="text-center mb-6 text-gray-100 text-xl font-medium">
+    <div className="flex justify-center items-center min-h-screen">
+      <div className="w-80 p-6border border-gray-300 rounded shadow-sm">
+        <h2 className="text-center mb-6 text-xl font-medium">
           Registrasi
         </h2>
         <form onSubmit={handleSubmit}>
@@ -42,7 +42,7 @@ export default function RegisterPage() {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
-              className="w-full px-3 py-2 rounded border border-gray-600 bg-gray-700 text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full px-3 py-2 rounded border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
           </div>
           <div className="mb-4">
@@ -52,7 +52,7 @@ export default function RegisterPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full px-3 py-2 rounded border border-gray-600 bg-gray-700 text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full px-3 py-2 rounded border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
           </div>
           <div className="mb-4">
@@ -61,7 +61,7 @@ export default function RegisterPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full px-3 py-2 rounded border border-gray-600 bg-gray-700 text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full px-3 py-2 rounded border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
           </div>
           <div className="mb-4">
@@ -70,12 +70,12 @@ export default function RegisterPage() {
               value={password2}
               onChange={(e) => setPassword2(e.target.value)}
               required
-              className="w-full px-3 py-2 rounded border border-gray-600 bg-gray-700 text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full px-3 py-2 rounded border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
           </div>
           <button
             type="submit"
-            className="w-full py-2 bg-blue-600 text-gray-200 rounded hover:bg-blue-700 transition-colors mb-2"
+            className="w-full py-2 rounded hover:bg-blue-700 transition-colors mb-2"
           >
             Registrasi
           </button>

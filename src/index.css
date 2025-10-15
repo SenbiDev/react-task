@@ -2,43 +2,43 @@
 
 :root {
   --transition-speed: 0.3s;
+  --font-main: 'inter', system-ui, Avenir, Helvetica, Arial, sans-serif,
 }
 
 [data-theme="light"] {
-  --bg-color: #ffffff;
-  --text-color: #1f1f1f;
-  --card-bg: #f9f9f9;
+  --bg-color: #f9fafb;
+  --text-color: #1a1a1a;
+  --card-bg: #ffffff;
   --border-color: #e5e7eb;
   --primary-color: #1677ff;
-  --hover-bg: #f0f0f0;
+  --hover-bg: #f3f4f6;
   --input-bg: #ffffff;
-  --input-text: #1f1f1f;
-  --placeholder-color: #888888;
-  --label-color: #1f1f1f;
+  --input-text: #1a1a1a;
+  --placeholder-color: #6b7280;
+  --label-color: #111827;
 }
 
 [data-theme="dark"] {
-  --bg-color: #141414;
+  --bg-color: #0f172a;
   --text-color: #f5f5f5;
-  --card-bg: #1f1f1f;
-  --border-color: #3f3f3f;
+  --card-bg: #1e293b;
+  --border-color: #331455;
   --primary-color: #177ddc;
   --hover-bg: #2a2a2a;
-  --input-bg: #1f1f1f;
+  --input-bg: #1e393b;
   --input-text: #f5f5f5;
-  --placeholder-color: #aaaaaa;
-  --label-color: #f5f5f5;
+  --placeholder-color: #9ca3af;
+  --label-color: #e5e7eb;
 }
 
-.label, switch-label, .dropdown-label{
-  color: var(--label-color);
-  transition: color var(--transition-speed);
+[data-theme="dark"] .create-btn {
+  box-shadow: 0 0 10px rgba(64, 150, 255, 0.4);
 }
 
 html, body {
   margin: 0;
   padding: 0;
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: var(--font-main);
   background-color: var(--bg-color);
   color: var(--text-color);
   transition: background-color var(--transition-speed) ease,
@@ -58,9 +58,17 @@ html, body {
   transition: background-color var(--transition-speed), color var(--transition-speed);
 }
 
-.ant-card {
+.ant-card,
+.card,
+.profile-container,
+.article-container,
+.form-container {
   background-color: var(--card-bg) !important;
-  border-color: var(--border-color) !important;
+  color: var(--text-color);
+  border: 1px solid var(--border-color) !important;
+  border-radius: 12px;
+  padding: 1rem;
+  transition: background-color var(--transition-speed), color var(--transition-speed), border-color var(--transition-speed);
 }
 
 .ant-input,
@@ -83,6 +91,41 @@ textarea::placeholder {
   color: var(--placeholder-color) !important;
   opacity: 1;
 }
+.ant-select-selection-palceholder {
+  color: var(--placeholder-color) !important;
+}
+
+.ant-select-selection-item {
+  color:  var(--input-text) !important;
+}
+
+.ant-select-arrow {
+  color: var(--placeholder-color) !important;
+}
+
+.ant-select-dropdown {
+  background-color: var(--card-bg) !important;
+  color: var(--text-color) !important;
+  border: 1px solid var(--border-color);
+}
+
+.ant-select-item-option-content {
+  color: var(--text-color) !important;
+}
+
+.ant-select-item-option-active {
+  background-color: var(--hover-bg) !important;
+}
+
+.ant-select-item-option-selected {
+  background-color: var(--primary-color) !important;
+  color: #fff !important;
+}
+
+h1, h2, h3, h4, h5 {
+  color: var(--text-color);
+  transition: color var(--transition-speed);
+}
 
 a {
   color: var(--primary-color);
@@ -103,26 +146,6 @@ button,
 button:hover,
 .ant-btn:hover {
   background-color: #4096ff;
-}
-
-.card,
-.ant-card,
-.profile-container,
-.article-container,
-.form-container {
-  background-color: var(--card-bg);
-  color: var(--text-color);
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
-  padding: 1rem;
-  transition: background-color var(--transition-speed),
-              color var(--transition-speed),
-              border-color var(--transition-speed);
-}
-
-h1, h2, h3, h4, h5 {
-  color: var(--text-color);
-  transition: color var(--transition-speed);
 }
 
 .auth-btn {
@@ -154,8 +177,191 @@ button.link-button:hover,
   opacity: 0.9;
 }
 
-nav, .container, .menu-item, .dropdown {
+nav,
+.container,
+.menu-item,
+.dropdown {
   color: var(--text-color) !important;
   background-color: var(--bg-color) !important;
   transition: color var(--transition-speed), background-color var(--transition-speed);
+}
+
+.ant-dropdown-menu {
+  background-color: var(--card-bg) !important;
+  border: 1px solid var(--border-color);
+}
+.ant-dropdown-item {
+  color: var(--text-color) !important;
+}
+.ant-dropdown-item:hover {
+  background-color: var(--hover-bg) !important;
+}
+
+.label,
+.switch-label,
+.dropdown-label {
+  color: var(--text-color);
+  transition: color var(--transition-speed);
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-color);
+}
+
+label,
+span,
+p,
+div,
+.text-label,
+.article-label,
+.section-tittle,
+.article-header,
+.article-title {
+  color: var(--text-color) !important;
+  transition: color var(--transition-speed);
+}
+
+h2.article-section,
+.articel-section-h2,
+.articel-section-h3 {
+  color: var(--label-color) !important;
+  font-weight: 600;
+  transition: color var(--transition-speed);
+}
+
+.ant-tag,
+.article-tag,
+.badge {
+  background-color: var(--card-bg) !important;
+  color: var(--text-color) !important;
+  border: 1px solid var(--border-color) !important;
+  transition: background-color var(--transition-speed), color var(--transition-speed);
+}
+
+button.ant-btn-dangerous,
+.ant-btn-dangerous,
+.danger-btn,
+button.delete-btn {
+  background-color: #dc2626 !important;
+  color: #fff;
+  border: none !important;
+  transition: background-color var(--transition-speed), opacity var(--transition-speed);
+}
+
+button.ant-btn-dangerous:hover,
+.ant-btn-dangerous:hover,
+.danger-btn:hover,
+button.delete-btn:hover {
+  background-color: #ef4444 !important;
+  opacity: 0.95;
+}
+
+.create-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  background-color: var(--primary-color) !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: 10px;
+  padding: 0.5rem 1rem;
+  transition: background-color var(--transition-speed), transform var(--transition-speed);
+  box-shadow: 0 2px 8px rgba(22, 119, 255, 0.2);
+}
+
+.create-btn:hover,
+.create-btn.ant-btn:hover {
+  background-color: #4096ff !important;
+  color: #fff !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(22, 119, 255, 0.3);
+  border: none !important;
+}
+
+.create-btn:active,
+.create-btn.ant-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(22, 119, 255, 0.2);
+  background-color: #1e293b !important;
+  color: #fff !important;
+}
+
+.ant-notification-notice,
+.ant-message-notice-content {
+  background-color: var(--card-bg) !important;
+  color: var(--text-color) !important;
+  border: 1px solid var(--border-color) !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+  border-radius: 10px;
+  transition: background-color var(--transition-speed), color var(--transition-speed);
+}
+
+.ant-notification-notice-message,
+.ant-notification-notice-description {
+  color: var(--text-color) !important;
+}
+
+.ant-notification-notice-close {
+  color: var(--placeholder-color) !important;
+  transition: color var(--transition-speed);
+}
+.ant-notification-notice-close:hover {
+  color: var(--primary-color) !important;
+}
+
+.ant-notification-notice-success,
+.ant-message-success {
+  border-left: 4px solid #16a34a !important;
+}
+
+.ant-notification-notice-error,
+.ant-message-error {
+  border-left: 4px solid #dc2626 !important;
+}
+
+.ant-notification-notice-warning,
+.ant-message-warning {
+  border-left: 4px solid #f59e0b !important;
+}
+
+.ant-notification-notice-info,
+.ant-message-info {
+  border-left: 4px solid var(--primary-color) !important;
+}
+
+.anticon {
+  color: var(--primary-color);
+}
+
+[data-theme="dark"] .ant-notification-notice,
+[data-theme="dark"] .ant-message-notice-content {
+  box-shadow: 0 0 10px rgba(23, 125, 220, 0.3);
+}
+
+[data-theme="dark"] .ant-input-search-button,
+[data-theme="dark"] button.search-button {
+  background-color: var(--primary-color) !important;
+  color: #fff !important;
+  border: none !important;
+}
+
+[data-theme="dark"] .ant-input-search-button:hover,
+[data-theme="dark"] button.search-button:hover {
+  background-color: #1e393b !important; 
+  color: #fff !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+[data-theme="dark"] .ant-input-search-button:active,
+[data-theme="dark"] button.search-button:active {
+  background-color: #1e393b !important;
+  color: #fff !important;
 }

@@ -143,25 +143,25 @@ export default function AdminPage() {
   // };
 
   return (
-    <div className="min-h-screen bg-gray-900 p-6 border border-gray-300 rounded shadow-sm">
+    <div className="min-h-screen p-6 border border-gray-300 rounded shadow-sm">
       <div className="flex justify-end">
         <button
           onClick={() => navigate("/artikel")}
-          className="flex items-end mb-4 bg-gray-700 text-white px-4 py-2 rounded hover:bg-gray-900 transition-colors"
+          className="flex items-end mb-4 px-4 py-2 rounded hover:bg-gray-900 transition-colors"
         >
           Kembali
         </button>
       </div>
       <div className="min-h-screen flex justify-around gap-5">
         <div className="w-full">
-          <h3 className="text-xl font-semibold text-gray-100">Kelola Kategori</h3>
+          <h3 className="text-xl font-semibold">Kelola Kategori</h3>
           <div className="mb-4 flex gap-2">
             <input
               type="text"
               value={newKategori}
               onChange={(e) => setNewKategori(e.target.value)}
               placeholder="Nama kategori"
-              className="flex text-gray-100 w-full px-3 py-2 border border-gray-400 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="flex w-full px-3 py-2 border border-gray-400 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
             <button
               onClick={() => {
@@ -169,17 +169,17 @@ export default function AdminPage() {
                 handleAddKategori(newKategori);
                 setNewKategori("");
               }}
-              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
+              className="px-4 py-2 rounded hover:bg-blue-700 transition-colors"
             >
               Tambah
             </button>
           </div>
 
-          <ul className="bg-gray-800">
+          <ul>
             {kategoriList.map((k) => (
               <li
                 key={k.id}
-                className="flex justify-between text-gray-100 items-center p-3 border border-gray-400 rounded"
+                className="flex justify-between items-center p-3 border border-gray-400 rounded"
               >
                 {editKategoriId === k.id ? (
                   <div className="mb-4 flex">
@@ -187,20 +187,20 @@ export default function AdminPage() {
                       type="text"
                       value={editKategoriName}
                       onChange={(e) => setEditKategoriName(e.target.value)}
-                      className="flex text-gray-100 w-full px-3 py-2 border border-gray-400 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      className="flex w-full px-3 py-2 border border-gray-400 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
                     />
                     <button
                       onClick={() => {
                         handleUpdateKategori(k.id, editKategoriName);
                         setEditKategoriId(null);
                       }}
-                      className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors"
+                      className="px-4 py-2 rounded hover:bg-green-700 transition-colors"
                     >
                       Simpan
                     </button>
                     <button
                       onClick={() => setEditKategoriId(null)}
-                      className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors"
+                      className="px-4 py-2 rounded hover:bg-red-700 transition-colors"
                     >
                       Batal
                     </button>
@@ -214,15 +214,15 @@ export default function AdminPage() {
                           setEditKategoriId(k.id);
                           setEditKategoriName(k.nama);
                         }}
-                        className="text-green-600 hover:underline text-sm"
+                        className="hover:underline text-sm"
                       >
-                        <PencilIcon/>
+                        <PencilIcon className="mx-2 my2"/>
                       </button>
                       <button
                         onClick={() => handleDeleteKategori(k.id)}
-                        className="text-red-600 hover:underline text-sm"
+                        className="hover:underline text-sm"
                       >
-                        <Trash2Icon/>
+                        <Trash2Icon className="mx-2 my-2"/>
                       </button>
                     </div>
                   </>
@@ -232,14 +232,14 @@ export default function AdminPage() {
           </ul>
         </div>
         <div className="w-full">
-          <h3 className="text-xl font-semibold text-gray-100">Kelola Tags</h3>
+          <h3 className="text-xl font-semibold">Kelola Tags</h3>
           <div className="mb-4 flex gap-2">
             <input
               type="text"
               value={newTag}
               onChange={(e) => setNewTag(e.target.value)}
               placeholder="Nama tag"
-              className="flex text-gray-100 w-full px-3 py-2 border border-gray-400 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="flex w-full px-3 py-2 border border-gray-400 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
             <button
               onClick={() => {
@@ -247,16 +247,16 @@ export default function AdminPage() {
                 handleAddTag(newTag);
                 setNewTag("");
               }}
-              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
+              className="px-4 py-2 rounded hover:bg-blue-700 transition-colors"
             >
               Tambah
             </button>
           </div>
-          <ul className="bg-gray-800 mt-3">
+          <ul className="mt-3">
             {tagList.map((t) => (
               <li
                 key={t.id}
-                className="flex justify-between text-gray-100 items-center p-3 border border-gray-400 rounded"
+                className="flex justify-between items-center p-3 border border-gray-400 rounded"
               >
                 {editTagId === t.id ? (
                   <div className="mb-4 flex">
@@ -264,20 +264,20 @@ export default function AdminPage() {
                       type="text"
                       value={editTagName}
                       onChange={(e) => setEditTagName(e.target.value)}
-                      className="flex text-gray-100 w-full px-3 py-2 border border-gray-400 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      className="flex w-full px-3 py-2 border border-gray-400 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
                     />
                     <button
                       onClick={() => {
                         handleUpdateTag(t.id, editTagName);
                         setEditTagId(null);
                       }}
-                      className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors"
+                      className="px-4 py-2 rounded hover:bg-green-700 transition-colors"
                     >
                       Simpan
                     </button>
                     <button
                       onClick={() => setEditTagId(null)}
-                      className="text-white hover:underline text-sm"
+                      className="hover:underline text-sm"
                     >
                       Batal
                     </button>
@@ -291,15 +291,15 @@ export default function AdminPage() {
                           setEditTagId(t.id);
                           setEditTagName(t.nama);
                         }}
-                        className="text-green-600 hover:underline text-sm"
+                        className="hover:underline text-sm"
                       >
-                        <PencilIcon/>
+                        <PencilIcon className="mx-2 my-2"/>
                       </button>
                       <button
                         onClick={() => handleDeleteTag(t.id)}
-                        className="text-red-600 hover:underline text-sm"
+                        className="hover:underline text-sm"
                       >
-                        <Trash2Icon/>
+                        <Trash2Icon className="mx-2 my-2"/>
                       </button>
                     </div>
                   </>

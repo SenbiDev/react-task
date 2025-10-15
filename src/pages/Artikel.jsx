@@ -4,7 +4,7 @@ import * as admin from "../hooks/admin";
 import { useAuth } from "../auth/authContext";
 import { useNavigate } from "react-router-dom";
 import { useArtikelStore } from "../store/useArtikelStore";
-import { EyeIcon, FileText, PencilIcon, Trash2Icon, User } from "lucide-react";
+import { EyeIcon, FileText, PencilIcon, Trash2Icon, User, FilePlus2, FilePlus2Icon, FilePlus } from "lucide-react";
 import { message, Button, Popconfirm, Modal, Tabs, Card, Input, Select, Pagination } from "antd";
 
 const {Search} = Input;
@@ -35,7 +35,7 @@ export default function ArtikelPage() {
   const deleteArtikel = artikel.useDeleteArtikel();
 
   const [query, setQuery] = useState("");
-  const [selectedKategori, setSelectedKategori] = useState("");
+  const [selectedKategori, setSelectedKategori] = useState(null);
   const [selectedTags, setSelectedTags] = useState([]);
   const [messageApi, contextHolder] = message.useMessage();
 
@@ -86,7 +86,7 @@ export default function ArtikelPage() {
   };
 
   const artikelSaya = (
-                  <Card className="bg-gray-800 p-6 border border-gray-300 rounded shadow-sm">
+                  <Card className="p-6 border border-gray-300 rounded shadow-sm">
                     <h3 className="mb-4 text-lg font-medium">Artikel Saya</h3>
                     {paginatedSaya.length === 0 ? (
                         <p className="text-gray-500">Belum ada artikel</p>
@@ -143,7 +143,7 @@ export default function ArtikelPage() {
   );
 
   const artikelPublik = (
-                <Card className="bg-gray-800 p-6 border border-gray-300 rounded shadow-sm">
+                <Card className="p-6 border border-gray-300 rounded shadow-sm">
                   <h3 className="mb-4 text-lg text-gray-900 font-medium">Artikel Publik</h3>
                     {paginatedPublik.length === 0 ? (
                       <p className="text-gray-500">Belum ada artikel publik.</p>
@@ -289,37 +289,20 @@ export default function ArtikelPage() {
   return (
       <>
         {contextHolder}
-        <div className="min-h-screen bg-gray-900 font-sans p-8">
+        <div className="min-h-screen font-sans p-8">
           <div className="max-w-3xl mx-auto">
             <div className="flex justify-between items-end mb-8">
               <h1 className="text-xl font-semibold text-white">Selamat datang</h1>
-              <Button className="space-x-2">
-                <span
-                  onClick={() => navigate("/create")}
-                  className="flex gap-2 text-blue-700 font-semibold rounded"
-                >
-                  <FileText/> Create
-                </span>
-              </Button>
             </div>
             <Card className="bg-gray-800 p-6 border border border-gray-300 rounded shadow-sm">
               <div className="flex justify-between">
-                <div className="flex flex-col gap-2">
-                  <Search
-                      placeholder="Cari judul artikel"
-                      onChange={(e) => setQuery(e.target.value)}
-                      allowClear
-                      className="w-full max-w-xl"
-                  />
-
-                </div>
                 <div className="flex flex-col items-end gap-2">
                   <Select
                     placeholder="Filter Kategori"
                     allowClear
                     value={selectedKategori}
                     onChange={(val) => setSelectedKategori(val)}
-                    className="w-50"
+                    className="w-70"
                   >
                     {kategoriList.map((k) => (
                       <Option key={k.id} value={k.id}>
@@ -341,6 +324,25 @@ export default function ArtikelPage() {
                       </Option>
                     ))}
                   </Select>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <div className="flex justify-end w-70">
+                    <Button className="create-btn">
+                      <span
+                        onClick={() => navigate("/create")}
+                        className="flex gap-2 font-semibold rounded"
+                      >
+                        <FilePlus/> Create
+                        
+                      </span>
+                    </Button>
+                  </div>
+                  <Search
+                      placeholder="Cari judul artikel"
+                      onChange={(e) => setQuery(e.target.value)}
+                      allowClear
+                      className="w-70"
+                  />
                 </div>
               </div>
               <Tabs defaultActiveKey="1" items={items}/>

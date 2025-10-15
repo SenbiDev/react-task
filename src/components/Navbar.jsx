@@ -99,14 +99,14 @@ export default function Navbar() {
       <div>
         {user && (
           <Dropdown menu={{items}} placement='bottomRight' trigger={["click"]}>
-            <div className="flex flex-column gap-2">
+            <div className="flex gap-2">
               <Avatar 
                 size={40}
                 src={avatarUrl||null}
                 icon={!avatarUrl&&<UserOutlined/>}
                 style={{ backgroundColor: 'white', color: 'black' }}
               />
-              <p className="flex items-centertext-sm font-medium">{user.username}</p>
+              <p className="flex items-center text-sm font-medium">{user.username}</p>
             </div>
           </Dropdown>
         )}
