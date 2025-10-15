@@ -7,14 +7,18 @@ export const getArtikelList = async (params = {}) => {
     const query = new URLSearchParams()
     query.append("page", page)
 
+    // Kirim filter kategori dan tag ke backend
     if (kategori) query.append("kategori", kategori)
-    if (tag) query.append("tag", tag) // backend hanya kenal 1 tag
+    if (tag) query.append("tag", tag)
+
+    // Kirim search juga ke backend kalau backend sudah support
+    if (search.trim()) query.append("search", search.trim())
 
     const response = await api.get(`artikel/?${query.toString()}`)
     const data = response.data || { count: 0, pages: 1, results: [] }
 
-    // 🔍 filter pencarian hanya di sisi frontend (per halaman)
-    if (search.trim()) {
+    // Fallback: jika backend tidak support search, lakukan filter lokal
+    if (search.trim() && (!data.results?.length || data.results.length === data.count)) {
       const keyword = search.toLowerCase()
       const filtered = data.results.filter(
         (a) =>
@@ -92,17 +96,40 @@ export const deleteArticle = async (id) => {
 // === Ambil artikel publik (tanpa login) ===
 export const getPublicArticles = async (params = {}) => {
   try {
-    const { page = 1, kategori = null, tag = null } = params
+    const { page = 1, kategori = null, tag = null, search = "" } = params
     const query = new URLSearchParams()
     query.append("page", page)
 
+    // Kirim filter ke backend sesuai yang tersedia
     if (kategori) query.append("kategori", kategori)
     if (tag) query.append("tag", tag)
 
+    // Kirim search ke backend (jika di-support)
+    if (search.trim()) query.append("search", search.trim())
+
+    // Endpoint backend publik (pastikan sudah benar)
     const response = await api.get(`public/artikel/?${query.toString()}`)
-    return (
-      response.data || { count: 0, pages: 1, current_page: 1, results: [] }
-    )
+    const data = response.data || { count: 0, pages: 1, current_page: 1, results: [] }
+
+    // Jika backend tidak memfilter search (misal masih kembalikan semua data),
+    // maka gunakan fallback filter lokal untuk memastikan hasilnya benar.
+    if (search.trim() && data.results?.length === data.count) {
+      const keyword = search.toLowerCase()
+      const filtered = data.results.filter(
+        (a) =>
+          a.judul?.toLowerCase().includes(keyword) ||
+          a.konten?.toLowerCase().includes(keyword)
+      )
+      return {
+        ...data,
+        results: filtered,
+        count: filtered.length,
+        pages: 1,
+        current_page: 1,
+      }
+    }
+
+    return data
   } catch (error) {
     console.error("❌ Gagal memuat artikel publik:", error.response?.data || error.message)
     return { count: 0, pages: 1, current_page: 1, results: [] }

@@ -26,13 +26,7 @@ export default function ArtikelApi() {
   const { user } = useAuthStore()
   const role = user?.role || "user"
 
-  const {
-    fetchArtikel,
-    artikel = [],
-    deleteArtikel,
-    pagination,
-  } = useArtikelStore()
-
+  const { fetchArtikel, artikel = [], deleteArtikel, pagination } = useArtikelStore()
   const { fetchKategori, kategori = [], loading: loadingKategori } = useKategoriStore()
   const { fetchTags, tags = [], loading: loadingTag } = useTagStore()
 
@@ -40,20 +34,25 @@ export default function ArtikelApi() {
   const [filterKategori, setFilterKategori] = useState(null)
   const [filterTags, setFilterTags] = useState([])
   const [currentPage, setCurrentPage] = useState(1)
+  const [activeTab, setActiveTab] = useState("my")
 
   const [allMyArtikel, setAllMyArtikel] = useState([])
   const [myPage, setMyPage] = useState(1)
+  const [searchMyQuery, setSearchMyQuery] = useState("")
+  const [filterKategoriMy, setFilterKategoriMy] = useState(null)
+  const [filterTagsMy, setFilterTagsMy] = useState([])
 
   const { token } = theme.useToken()
 
-  // === Fetch kategori & tag hanya sekali ===
+  // === Fetch kategori & tag ===
   useEffect(() => {
     fetchKategori()
     fetchTags()
   }, [fetchKategori, fetchTags])
 
-  // === Fetch artikel publik (filter, search, pagination) ===
+  // === Fetch artikel publik ===
   useEffect(() => {
+    if (activeTab !== "public") return
     const timeout = setTimeout(() => {
       fetchArtikel({
         page: currentPage,
@@ -63,9 +62,9 @@ export default function ArtikelApi() {
       })
     }, 400)
     return () => clearTimeout(timeout)
-  }, [fetchArtikel, currentPage, searchQuery, filterKategori, filterTags])
+  }, [fetchArtikel, currentPage, searchQuery, filterKategori, filterTags, activeTab])
 
-  // === Fetch semua artikel user (pagination manual di frontend) ===
+  // === Fetch semua artikel user (manual) ===
   useEffect(() => {
     const loadUserArticles = async () => {
       const firstPage = await fetchArtikel({ page: 1 })
@@ -78,10 +77,7 @@ export default function ArtikelApi() {
       }
 
       const mine = all.filter(
-        (a) =>
-          a.is_owner ||
-          a.penulis_id === user?.id ||
-          a.penulis?.id === user?.id
+        (a) => a.is_owner || a.penulis_id === user?.id || a.penulis?.id === user?.id
       )
       setAllMyArtikel(mine)
     }
@@ -89,19 +85,78 @@ export default function ArtikelApi() {
     if (user?.id) loadUserArticles()
   }, [user, fetchArtikel])
 
-  // === Pagination manual artikel saya ===
-  const paginatedMyArtikel = useMemo(() => {
-    const start = (myPage - 1) * PAGE_SIZE
-    return allMyArtikel.slice(start, start + PAGE_SIZE)
-  }, [allMyArtikel, myPage])
+  // === Filter lokal Artikel Saya ===
+  const filteredMyArtikel = useMemo(() => {
+    let filtered = [...allMyArtikel]
 
-  // === Artikel publik (published only) ===
+    // 🔹 Filter kategori lokal
+    if (filterKategoriMy) {
+      filtered = filtered.filter((a) => a?.kategori?.id === filterKategoriMy)
+    }
+
+    // 🔹 Filter tag lokal
+    if (filterTagsMy.length > 0) {
+      filtered = filtered.filter(
+        (a) =>
+          Array.isArray(a?.tags) &&
+          a.tags.some((t) => filterTagsMy.includes(t.id))
+      )
+    }
+
+    // 🔹 Filter pencarian teks
+    if (searchMyQuery.trim()) {
+      const q = searchMyQuery.toLowerCase()
+      filtered = filtered.filter(
+        (a) =>
+          a?.judul?.toLowerCase().includes(q) ||
+          a?.konten?.toLowerCase().includes(q) ||
+          a?.kategori?.nama?.toLowerCase().includes(q) ||
+          (Array.isArray(a?.tags) &&
+            a.tags.some((t) => t.nama?.toLowerCase().includes(q)))
+      )
+    }
+
+    return filtered
+  }, [allMyArtikel, searchMyQuery, filterKategoriMy, filterTagsMy])
+
+  // === Artikel publik ===
   const publicArtikel = useMemo(
     () => artikel.filter((a) => a.status === "published"),
     [artikel]
   )
 
-  // === Konfirmasi hapus artikel ===
+  // === Frontend filter publik ===
+  const filteredPublicArtikel = useMemo(() => {
+    let filtered = [...publicArtikel]
+
+    if (filterKategori) {
+      filtered = filtered.filter((a) => a?.kategori?.id === filterKategori)
+    }
+
+    if (filterTags.length > 0) {
+      filtered = filtered.filter(
+        (a) =>
+          Array.isArray(a?.tags) &&
+          a.tags.some((t) => filterTags.includes(t.id))
+      )
+    }
+
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase()
+      filtered = filtered.filter(
+        (a) =>
+          a?.judul?.toLowerCase().includes(q) ||
+          a?.penulis?.username?.toLowerCase().includes(q) ||
+          a?.kategori?.nama?.toLowerCase().includes(q) ||
+          (Array.isArray(a?.tags) &&
+            a.tags.some((t) => t.nama?.toLowerCase().includes(q)))
+      )
+    }
+
+    return filtered
+  }, [publicArtikel, searchQuery, filterKategori, filterTags])
+
+  // === Hapus artikel ===
   const showDeleteConfirm = useCallback(
     (id) => {
       Modal.confirm({
@@ -133,15 +188,63 @@ export default function ArtikelApi() {
       label: "Artikel Saya",
       children: (
         <ArtikelContainer title="Artikel Saya">
+          {/* 🔹 Filter dan Search Lokal */}
+          <Space style={{ marginBottom: 16 }} wrap>
+            <Search
+              placeholder="Cari artikel saya..."
+              allowClear
+              value={searchMyQuery}
+              onChange={(e) => {
+                setMyPage(1)
+                setSearchMyQuery(e.target.value)
+              }}
+              style={{ width: 220 }}
+            />
+            <Select
+              placeholder="Filter Kategori"
+              allowClear
+              loading={loadingKategori}
+              value={filterKategoriMy}
+              onChange={(v) => {
+                setMyPage(1)
+                setFilterKategoriMy(v)
+              }}
+              style={{ width: 180 }}
+              options={kategori.map((k) => ({
+                value: k.id,
+                label: k.nama,
+              }))}
+            />
+            <Select
+              mode="multiple"
+              placeholder="Filter Tags"
+              allowClear
+              loading={loadingTag}
+              value={filterTagsMy}
+              onChange={(v) => {
+                setMyPage(1)
+                setFilterTagsMy(v.slice(0, 1))
+              }}
+              style={{ width: 240 }}
+              options={tags.map((t) => ({
+                value: t.id,
+                label: t.nama,
+              }))}
+            />
+          </Space>
+
           <ArtikelList
-            artikel={paginatedMyArtikel}
+            artikel={filteredMyArtikel.slice(
+              (myPage - 1) * PAGE_SIZE,
+              myPage * PAGE_SIZE
+            )}
             onDelete={showDeleteConfirm}
             isMyList
           />
-          {allMyArtikel.length > PAGE_SIZE && (
+          {filteredMyArtikel.length > PAGE_SIZE && (
             <Pagination
               current={myPage}
-              total={allMyArtikel.length}
+              total={filteredMyArtikel.length}
               pageSize={PAGE_SIZE}
               onChange={setMyPage}
               style={{ marginTop: 16, textAlign: "center" }}
@@ -161,7 +264,7 @@ export default function ArtikelApi() {
       label: "Artikel Publik",
       children: (
         <ArtikelContainer title="Artikel Publik">
-          <ArtikelList artikel={publicArtikel} onDelete={showDeleteConfirm} />
+          <ArtikelList artikel={filteredPublicArtikel} onDelete={showDeleteConfirm} />
           <Pagination
             current={pagination.current_page || currentPage}
             total={pagination.count || 0}
@@ -212,17 +315,18 @@ export default function ArtikelApi() {
           </Link>
         </div>
 
-        {/* Filter */}
+        {/* Filter Publik */}
         <Space style={{ marginBottom: 16 }} wrap>
           <Search
-            placeholder="Cari artikel..."
+            placeholder="Cari artikel publik..."
             allowClear
             value={searchQuery}
             onChange={(e) => {
               setCurrentPage(1)
               setSearchQuery(e.target.value)
             }}
-            style={{ width: 200 }}
+            style={{ width: 220 }}
+            disabled={activeTab !== "public"}
           />
           <Select
             placeholder="Filter Kategori"
@@ -238,6 +342,7 @@ export default function ArtikelApi() {
               value: k.id,
               label: k.nama,
             }))}
+            disabled={activeTab !== "public"}
           />
           <Select
             mode="multiple"
@@ -246,7 +351,6 @@ export default function ArtikelApi() {
             loading={loadingTag}
             value={filterTags}
             onChange={(v) => {
-              // backend hanya menerima satu tag → ambil hanya yang pertama
               setCurrentPage(1)
               setFilterTags(v.slice(0, 1))
             }}
@@ -255,12 +359,15 @@ export default function ArtikelApi() {
               value: t.id,
               label: t.nama,
             }))}
+            disabled={activeTab !== "public"}
           />
         </Space>
 
         {/* Tabs */}
         <Tabs
           defaultActiveKey="my"
+          activeKey={activeTab}
+          onChange={setActiveTab}
           items={role === "admin" ? adminTabs : userTabs}
         />
       </div>

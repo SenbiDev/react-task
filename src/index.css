@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* =========================
+   Root Variables & Theme
+   ========================= */
 :root {
   --transition-speed: 0.3s;
 }
@@ -28,19 +31,29 @@
   --input-text: #f5f5f5;
 }
 
-/* Base Layout */
+/* =========================
+   Base Layout
+   ========================= */
 html, body {
   margin: 0;
   padding: 0;
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   background-color: var(--bg-color);
   color: var(--text-color);
+  min-height: 100vh;
   transition: background-color var(--transition-speed) ease,
               color var(--transition-speed) ease;
-  min-height: 100vh;
 }
 
-/* Ant Design integration */
+:root,
+[data-theme="light"],
+[data-theme="dark"] {
+  color-scheme: light dark;
+}
+
+/* =========================
+   Ant Design Integration
+   ========================= */
 .ant-layout,
 .ant-layout-content,
 .ant-layout-header,
@@ -53,24 +66,23 @@ html, body {
   transition: background-color var(--transition-speed), color var(--transition-speed);
 }
 
-.ant-card {
+/* Cards */
+.ant-card,
+.card {
   background-color: var(--card-bg) !important;
-  border-color: var(--border-color) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 12px;
+  padding: 1rem;
+  transition: background-color var(--transition-speed),
+              border-color var(--transition-speed);
 }
 
-.ant-input,
-.ant-select-selector,
-.ant-input-affix-wrapper,
-.ant-textarea {
-  background-color: var(--input-bg) !important;
-  color: var(--input-text) !important;
-  border-color: var(--border-color) !important;
-  transition: background-color var(--transition-speed), color var(--transition-speed);
-}
-
-.ant-input::placeholder,
-.ant-textarea::placeholder {
-  color: #888 !important;
+/* =========================
+   Text & Headings
+   ========================= */
+h1, h2, h3, h4, h5 {
+  color: var(--text-color);
+  transition: color var(--transition-speed);
 }
 
 /* Links */
@@ -82,92 +94,23 @@ a:hover {
   color: #4096ff;
 }
 
-/* Buttons */
+/* =========================
+   Buttons
+   ========================= */
 button,
 .ant-btn {
   background-color: var(--primary-color);
   color: #fff !important;
   border: none !important;
   border-radius: 8px;
-  transition: background-color var(--transition-speed);
+  transition: background-color var(--transition-speed), color var(--transition-speed);
 }
 button:hover,
 .ant-btn:hover {
   background-color: #4096ff;
 }
 
-/* Cards and Containers */
-.card,
-.ant-card {
-  background-color: var(--card-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
-  padding: 1rem;
-  transition: background-color var(--transition-speed),
-              border-color var(--transition-speed);
-}
-
-/* Headings */
-h1, h2, h3, h4, h5 {
-  color: var(--text-color);
-  transition: color var(--transition-speed);
-}
-
-/* Form Inputs */
-
-input, textarea, select {
-  background-color: var(--input-bg);
-  color: var(--input-text);
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  transition: background-color var(--transition-speed), color var(--transition-speed);
-}
-
-/* Khusus Ant Design input wrapper, jangan kasih padding ganda */
-.ant-input-affix-wrapper input {
-  padding: 0.4em 0.8em !important;
-}
-
-/* Untuk icon affix biar tidak terlalu rapat */
-.ant-input-prefix, .ant-input-suffix {
-  margin: 0 0.4em;
-  color: #888;
-}
-
-/* Placeholder lebih halus dan tidak ketimpa */
-.ant-input::placeholder {
-  color: #9ca3af !important;
-  opacity: 1;
-}
-
-input::placeholder {
-  color: #999;
-}
-
-/* Profile / Container elements */
-.profile-container,
-.article-container,
-.form-container {
-  background-color: var(--card-bg);
-  color: var(--text-color);
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
-  padding: 1.5rem;
-  transition: background-color var(--transition-speed),
-              color var(--transition-speed);
-}
-
-:root,
-[data-theme="light"],
-[data-theme="dark"] {
-  color-scheme: light dark;
-}
-
-/* -----------------------
-   Auth Form overrides
-   ----------------------- */
-
-/* Tombol utama (Sign In / Sign Up) tetap gradien biru-ungu */
+/* Auth Gradient Buttons */
 .auth-btn {
   background: linear-gradient(to right, var(--primary-color), #9254de) !important;
   color: #fff !important;
@@ -179,25 +122,8 @@ input::placeholder {
   opacity: 0.95;
 }
 
-/* Tombol link kecil ("Register sekarang" / "Login di sini") */
-.link-button {
-  background: transparent !important;
-  color: var(--primary-color) !important;
-  border: none !important;
-  padding: 0 !important;
-  display: inline !important;
-  line-height: inherit;
-  font-weight: 600;
-  cursor: pointer;
-  text-decoration: none;
-  box-shadow: none !important;
-}
-.link-button:hover {
-  text-decoration: underline;
-  opacity: 0.9;
-}
-
-/* Pastikan tombol kecil tidak kena style global dari button, ant-btn, dsb */
+/* Small Link Buttons (e.g., “Login di sini”) */
+.link-button,
 button.link-button,
 .ant-btn.link-button {
   all: unset;
@@ -205,11 +131,113 @@ button.link-button,
   color: var(--primary-color) !important;
   font-weight: 600;
   display: inline;
-  padding: 0 !important;
   text-decoration: none;
+  transition: opacity var(--transition-speed);
 }
+.link-button:hover,
 button.link-button:hover,
 .ant-btn.link-button:hover {
   text-decoration: underline;
   opacity: 0.9;
+}
+
+/* =========================
+   Form Inputs
+   ========================= */
+.ant-input,
+.ant-select-selector,
+.ant-input-affix-wrapper,
+.ant-textarea,
+input, textarea, select {
+  background-color: var(--input-bg) !important;
+  color: var(--input-text) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 6px;
+  transition: background-color var(--transition-speed),
+              color var(--transition-speed),
+              border-color var(--transition-speed);
+}
+
+/* Placeholder & Prefix/Suffix */
+.ant-input-prefix,
+.ant-input-suffix {
+  margin: 0 0.4em;
+  color: #888;
+}
+
+.ant-input::placeholder,
+.ant-textarea::placeholder,
+input::placeholder {
+  color: #9ca3af !important;
+  opacity: 1;
+}
+
+/* Input inside affix wrapper */
+.ant-input-affix-wrapper input {
+  padding: 0.4em 0.8em !important;
+}
+
+/* =========================
+   Containers (Profile, Article, etc.)
+   ========================= */
+.profile-container,
+.article-container,
+.form-container {
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: background-color var(--transition-speed),
+              color var(--transition-speed),
+              border-color var(--transition-speed);
+}
+
+/* =========================
+   Icons & Pagination
+   ========================= */
+/* Semua ikon mengikuti warna teks tema */
+.anticon,
+.anticon svg {
+  color: var(--text-color) !important;
+  fill: var(--text-color) !important;
+  transition: color var(--transition-speed), fill var(--transition-speed);
+}
+
+/* Pagination */
+.ant-pagination-item a,
+.ant-pagination-prev .anticon,
+.ant-pagination-next .anticon {
+  color: var(--text-color) !important;
+  transition: color var(--transition-speed);
+}
+
+.ant-pagination-item-active {
+  border-color: var(--primary-color) !important;
+}
+.ant-pagination-item-active a {
+  color: var(--primary-color) !important;
+}
+
+/* Tombol aksi seperti delete/edit */
+.ant-btn-dangerous,
+.ant-btn-dangerous .anticon {
+  color: var(--text-color) !important;
+  background: transparent !important;
+  border: none !important;
+  transition: color var(--transition-speed);
+}
+.ant-btn-dangerous:hover,
+.ant-btn-dangerous:hover .anticon {
+  color: var(--primary-color) !important;
+}
+
+/* Avatar action icons */
+.avatar-action-btn,
+.avatar-action-btn .anticon {
+  color: var(--text-color) !important;
+  transition: color var(--transition-speed);
+}
+.avatar-action-btn:hover .anticon {
+  color: var(--primary-color) !important;
 }

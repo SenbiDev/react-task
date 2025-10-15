@@ -3,15 +3,17 @@ import * as artikelApi from "../axiosApi/artikel"
 import { useArtikelStore } from "../store/useArtikelStore"
 
 const QUERY_KEYS = {
-  PUBLIC: ["publicArticles"],
-  MY: ["myArticles"],
+  PUBLIC: "publicArticles",
+  MY: "myArticles",
 }
 
-export const usePublicArticles = () => {
+export const usePublicArticles = (filters = {}) => {
   const setState = useArtikelStore((state) => state.setState)
+  const { search = "", kategori = "", tag = "" } = filters
+
   return useQuery({
-    queryKey: QUERY_KEYS.PUBLIC,
-    queryFn: artikelApi.getPublicArticles,
+    queryKey: [QUERY_KEYS.PUBLIC, { search, kategori, tag }],
+    queryFn: () => artikelApi.getPublicArticles({ search, kategori, tag }),
     onSuccess: (data) => setState({ artikel: data }),
   })
 }
@@ -19,7 +21,7 @@ export const usePublicArticles = () => {
 export const useMyArticles = () => {
   const setState = useArtikelStore((state) => state.setState)
   return useQuery({
-    queryKey: QUERY_KEYS.MY,
+    queryKey: [QUERY_KEYS.MY],
     queryFn: artikelApi.getMyArticles,
     onSuccess: (data) => setState({ artikel: data }),
   })
@@ -31,8 +33,8 @@ export const useCreateArticle = () => {
     mutationFn: artikelApi.createArticle,
     onSuccess: () => {
       Promise.all([
-        qc.invalidateQueries(QUERY_KEYS.PUBLIC),
-        qc.invalidateQueries(QUERY_KEYS.MY),
+        qc.invalidateQueries([QUERY_KEYS.PUBLIC]),
+        qc.invalidateQueries([QUERY_KEYS.MY]),
       ])
     },
     onError: (err) => console.error("Gagal membuat artikel:", err),
@@ -45,8 +47,8 @@ export const useUpdateArticle = () => {
     mutationFn: ({ id, data }) => artikelApi.updateArticle(id, data),
     onSuccess: () => {
       Promise.all([
-        qc.invalidateQueries(QUERY_KEYS.PUBLIC),
-        qc.invalidateQueries(QUERY_KEYS.MY),
+        qc.invalidateQueries([QUERY_KEYS.PUBLIC]),
+        qc.invalidateQueries([QUERY_KEYS.MY]),
       ])
     },
     onError: (err) => console.error("Gagal memperbarui artikel:", err),
@@ -59,8 +61,8 @@ export const useDeleteArticle = () => {
     mutationFn: artikelApi.deleteArticle,
     onSuccess: () => {
       Promise.all([
-        qc.invalidateQueries(QUERY_KEYS.PUBLIC),
-        qc.invalidateQueries(QUERY_KEYS.MY),
+        qc.invalidateQueries([QUERY_KEYS.PUBLIC]),
+        qc.invalidateQueries([QUERY_KEYS.MY]),
       ])
     },
     onError: (err) => console.error("Gagal menghapus artikel:", err),
