@@ -1,6 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { useLogin, useRegister, useLogout, } from "../hooks/useAuthQuery";
+import { useLogin, useRegister, useLogout } from "../hooks/useAuthQuery";
 
 const AuthContext = createContext();
 
@@ -60,10 +60,20 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     logoutMutation.mutate();
     setUser(null);
+    localStorage.removeItem("user");
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, isLoading }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        setUser, 
+        login,
+        register,
+        logout,
+        isLoading,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

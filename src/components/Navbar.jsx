@@ -15,28 +15,17 @@ import {
   EditOutlined,
   BuildOutlined,
 } from "@ant-design/icons";
-import { useEffect, useState } from "react";
 import { useTheme } from "../context/ThemeContext";
 
 export default function Navbar() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const { isDarkMode, setDarkMode } = useTheme();
+  const { isDarkMode, toggleTheme } = useTheme();
 
   const handleLogout = () => {
     logout();
     navigate("/signin");
   };
-
-  useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add("dark");
-      localStorage.setItem("theme", "dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-      localStorage.setItem("theme", "light");
-    }
-  }, [isDarkMode]);
 
   const items = [
     {
@@ -98,6 +87,7 @@ export default function Navbar() {
           isDarkMode ? "bg-gray-900" : "bg-gray-800"
         }`}
       >
+        {/* ======== Navigasi kiri ======== */}
         <div className="container mx-auto flex space-x-4">
           <Link
             to="/"
@@ -119,17 +109,20 @@ export default function Navbar() {
           </Link>
         </div>
 
+        {/* ======== Navigasi kanan ======== */}
         <div className="flex items-center gap-4">
+          {/* Tombol ganti tema */}
           <div className="flex items-center">
             <BuildOutlined className="mr-2 text-yellow-400" />
             <Switch
               checked={isDarkMode}
-              onChange={setDarkMode}
+              onChange={toggleTheme}
               checkedChildren="🌙"
               unCheckedChildren="🌞"
             />
           </div>
 
+          {/* Dropdown user */}
           {user && (
             <Dropdown
               menu={{ items }}
@@ -139,9 +132,9 @@ export default function Navbar() {
             >
               <div className="flex items-center gap-2 cursor-pointer">
                 <Avatar
-                  src={user?.avatar}
+                  src={user?.avatar || ""}
                   icon={!user?.avatar && <UserOutlined />}
-                  style={{ backgroundColor: "#f0f0f0", color: "white" }}
+                  style={{ backgroundColor: "#f0f0f0" }}
                 />
                 <span className="text-white text-sm font-medium truncate max-w-[100px]">
                   {user.username}

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import ReactDOM from "react-dom/client";
 import {
   createBrowserRouter,
@@ -70,23 +70,20 @@ unstableSetRender((node, container) => {
   };
 });
 
-/* eslint-disable react-refresh/only-export-components */
-
 function RootWrapper() {
   const { isDarkMode } = useTheme();
 
   return (
     <ConfigProvider
-    theme={{
-      algorithm: isDarkMode
-      ? antdTheme.darkAlgorithm
-      :
-      antdTheme.defaultAlgorithm,
-    }}
+      theme={{
+        algorithm: isDarkMode
+          ? antdTheme.darkAlgorithm
+          : antdTheme.defaultAlgorithm,
+      }}
     >
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <RouterProvider router={router}/>
+          <RouterProvider router={router} />
         </AuthProvider>
       </QueryClientProvider>
     </ConfigProvider>
@@ -96,11 +93,10 @@ function RootWrapper() {
 function Root() {
   return (
     <ThemeProvider>
-      <Root/>
+      <RootWrapper />
     </ThemeProvider>
-  )
+  );
 }
-  
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>

@@ -20,7 +20,15 @@ import { useArtikelStore } from "../store/ArtikelStore";
 const { Search } = Input;
 
 export default function ArtikelPage() {
-  const { artikels, kategoriList, tagList, deleteArtikel, fetchArtikel } = useArtikelStore();
+  const {
+    artikels,
+    kategoriList,
+    tagList,
+    deleteArtikel,
+    fetchArtikel,
+    fetchKategori,
+    fetchTag,
+  } = useArtikelStore();
 
   const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
   const role = currentUser?.role || "user";
@@ -38,12 +46,12 @@ export default function ArtikelPage() {
   const canManage = (artikel) =>
     role === "admin" || artikel.penulis?.id === currentUser?.id;
 
+  // 🔹 Fetch data artikel, kategori, dan tag
   useEffect(() => {
-    if (Array.isArray(artikels) && artikels.length === 0 && page > 1) {
-      setPage(page - 1);
-    }
     fetchArtikel(page, pageSize);
-  }, [fetchArtikel, page, pageSize]);
+    fetchKategori();
+    fetchTag();
+  }, [fetchArtikel, fetchKategori, fetchTag, page, pageSize]);
 
   const handleDelete = (id) => {
     modal.confirm({
@@ -66,10 +74,7 @@ export default function ArtikelPage() {
   };
 
   const filteredData = useMemo(() => {
-    const list = Array.isArray(artikels)
-      ? artikels
-      : artikels?.results || [];
-
+    const list = Array.isArray(artikels) ? artikels : artikels?.results || [];
     const s = (searchText || "").toLowerCase();
 
     return list.filter((a) => {
@@ -115,11 +120,7 @@ export default function ArtikelPage() {
       width: "30%",
       render: (a) => (
         <Space>
-          <Button
-            type="primary"
-            size="small"
-            onClick={() => handleView(a)}
-          >
+          <Button type="primary" size="small" onClick={() => handleView(a)}>
             View
           </Button>
           {canManage(a) && (
@@ -259,7 +260,13 @@ export default function ArtikelPage() {
         }}
       >
         {selectedArtikel && (
-          <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "12px",
+            }}
+          >
             <div>
               <strong>Judul:</strong>
               <div>{selectedArtikel.judul}</div>
@@ -271,8 +278,14 @@ export default function ArtikelPage() {
                   whiteSpace: "pre-line",
                   maxHeight: 250,
                   overflowY: "auto",
-                  background: localStorage.getItem("theme") === "dark" ? "#1f1f1f" : "ffffff",
-                  color : localStorage.getItem("theme") === "dark" ? "#ffffff" : "#000000",
+                  background:
+                    localStorage.getItem("theme") === "dark"
+                      ? "#1f1f1f"
+                      : "#ffffff",
+                  color:
+                    localStorage.getItem("theme") === "dark"
+                      ? "#ffffff"
+                      : "#000000",
                   padding: "8px",
                   borderRadius: "6px",
                 }}

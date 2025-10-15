@@ -1,10 +1,13 @@
-// src/store/artikelStore.js
+// src/store/ArtikelStore.js
 import { create } from "zustand";
 import axios from "axios";
 import { API_BASE, getAuthHeader } from "../axiosApi/apiConfig";
 
 export const useArtikelStore = create((set, get) => ({
   artikels: [],
+  kategoriList: [],
+  tagList: [], 
+
   form: {
     judul: "",
     konten: "",
@@ -16,20 +19,17 @@ export const useArtikelStore = create((set, get) => ({
   loading: false,
   error: null,
 
-  fetchArtikel: async (page= 1, pageSize = 10, search="") => {
+  // 🔹 Fetch semua artikel
+  fetchArtikel: async (page = 1, pageSize = 10, search = "") => {
     set({ loading: true });
     try {
-      const res = await axios.get(`${API_BASE}/artikel/?page=${page}&page_size=${pageSize}`, {
+      const res = await axios.get(`${API_BASE}/artikel/`, {
         headers: getAuthHeader(),
-        params: {
-          page,
-          page_size: pageSize,
-          search, 
-        }
+        params: { page, page_size: pageSize, search },
       });
-      const data = Array.isArray(res.data) ? res.data : res.data.results || [];
+
       set({
-        artikels: res.data,
+        artikels: res.data.results || res.data || [],
         loading: false,
         error: null,
       });
@@ -39,6 +39,31 @@ export const useArtikelStore = create((set, get) => ({
     }
   },
 
+  // 🔹 Fetch kategori (dipakai di filter)
+  fetchKategori: async () => {
+    try {
+      const res = await axios.get(`${API_BASE}/kategori/`, {
+        headers: getAuthHeader(),
+      });
+      set({ kategoriList: res.data });
+    } catch (err) {
+      console.error("Gagal fetch kategori:", err);
+    }
+  },
+
+  // 🔹 Fetch tag (dipakai di filter)
+  fetchTag: async () => {
+    try {
+      const res = await axios.get(`${API_BASE}/tags/`, {
+        headers: getAuthHeader(),
+      });
+      set({ tagList: res.data });
+    } catch (err) {
+      console.error("Gagal fetch tag:", err);
+    }
+  },
+
+  // 🔹 CRUD artikel
   createArtikel: async (data) => {
     try {
       const res = await axios.post(`${API_BASE}/artikel/`, data, {
