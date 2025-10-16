@@ -29,7 +29,10 @@ export const useArtikelStore = create((set, get) => ({
       });
 
       set({
-        artikels: res.data.results || res.data || [],
+        artikels: {
+          results: res.data.results || [],
+          count: res.data.count || (res.data.results?.length ?? 0),
+        },
         loading: false,
         error: null,
       });

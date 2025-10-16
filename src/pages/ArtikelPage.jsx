@@ -74,27 +74,26 @@ export default function ArtikelPage() {
   };
 
   const filteredData = useMemo(() => {
-    const list = Array.isArray(artikels) ? artikels : artikels?.results || [];
+    const list = Array.isArray(artikels)
+    ? artikels
+    : artikels?.results || [];
+
     const s = (searchText || "").toLowerCase();
 
     return list.filter((a) => {
       const judul = a.judul?.toLowerCase() || "";
       const kategoriNama = a.kategori?.nama || "";
       const tagNamaList = Array.isArray(a.tags)
-        ? a.tags.map((t) => t.nama)
-        : [];
+      ? a.tags.map((t) => t.nama)
+      : [];
 
       const matchesSearch = s === "" || judul.includes(s);
-      const matchesKategori =
-        selectedKategori.length === 0 ||
-        selectedKategori.includes(kategoriNama);
-      const matchesTags =
-        selectedTag.length === 0 ||
-        tagNamaList.some((t) => selectedTag.includes(t));
+      const matchesKategori = selectedKategori.length === 0 || selectedKategori.includes(kategoriNama);
+      const matchesTags = selectedTag.length === 0 || tagNamaList.some((t) => selectedTag.includes(t));
 
       return matchesSearch && matchesKategori && matchesTags;
     });
-  }, [artikels, searchText, selectedKategori, selectedTag]);
+  }, [artikels?.results, searchText, selectedKategori, selectedTag]);
 
   const myArtikel = (filteredData ?? []).filter(
     (a) => a.penulis?.id === currentUser?.id
